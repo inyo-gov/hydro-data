@@ -1,0 +1,599 @@
+---
+title: "Flow Data"
+description: "LADWP water-year monthly volumetric flow data transfer. Code automates extracting volumetric flow data from ZRXP ASCII data exchange format, transforming and merging updates with the active database, and exporting a csv file formatted for the OVGA data management system for groundwater production and surface water gage totals."
+format: 
+  html: 
+    toc: true
+    toc-depth: 3
+    anchor-sections: true
+    smooth-scroll: true
+    code-fold: true
+    code-summary: "code"
+    code-line-numbers: true
+    code-overflow: wrap
+    code-link: true
+    html-math-method: katex
+tbl-cap-location: top   
+number-sections: true    
+author: "Zach Nelson"
+affiliation: "Inyo County Water Department"
+affiliation-title: "Senior Scientist"
+date: "2023-01-30"
+date-modified: "2023-01-30"
+draft: false
+image: "dataimage.png"
+citation:
+  type: report
+  container-title: "Data Report"
+  publisher: "Inyo County Water Department"
+  issued: "2023-01-30"
+  url: https://inyo-gov.github.io/hydro-data/
+google-scholar: true
+categories: [totals and means, LADWP data, OVGA, time series]
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(here)
+library(janitor)
+library(DT)
+library(dygraphs)
+library(zoo)
+# library(readxl)
+
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE,cache=TRUE)
+
+```
+
+```{r source-functions}
+
+source(here('code','R','functions.R'))
+
+```
+
+
+# Data
+
+```{r}
+#| code-fold: true
+#| code-summary: "read data"
+
+file_path_flow <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','VolumeMonthAF_2022-23.dat')
+
+# annual update
+sum_stations <- read_csv(here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','summary_stations22-23.csv'))
+
+# attribute data from wells database  
+staidlist <- read_csv(here('data','hydro','staid_current.csv'))
+
+# meta data on production wells
+production.meta <- read_csv(here('data','hydro','Production.csv')) %>% 
+  select(mon_pt_name, method) %>% unique()
+  
+#historical data
+monthlies <- read_csv(here('data','hydro','totals_means_thru_sep_2022.csv'))# 
+
+# meta on flow pts
+flow.meta <- read_csv(here('data','hydro','Flows.csv')) %>%  select(mon_pt_name, LADWP_ID) %>% unique() %>% mutate(staid = as.character(LADWP_ID)) %>% select(-LADWP_ID)
+
+
+```
+
+```{r parse}
+#| code-fold: true
+#| code-summary: "parse .dat ascii"
+
+dat_content <- readLines(file_path_flow)
+
+# Initialize variables to store data
+data_list <- list()
+
+# Function to check if a line contains timestamp and value
+is_data_line <- function(line) {
+  grepl("\\d+ \\d+\\.\\d+", line)
+}
+
+# Loop through each line in the file
+for (line in dat_content) {
+  # Check if the line starts with '#TSPATH'
+  if (startsWith(line, "#TSPATH")) {
+    # Extract 'staid' from the '#TSPATH' line
+    staid <- sub('.*/([^/]+)/VOLUME/.*', '\\1', line)
+  }
+  
+  # Check if the line does not start with '#' and contains timestamp and value
+  if (!startsWith(line, "#") && is_data_line(line) && !is.na(staid)) {
+    # If the line does not start with '#' and contains timestamp and value,
+    # add data to the list directly
+    data_list <- c(data_list, list(data.frame(staid, dateread = line)))
+  }
+}
+
+# Combine the data frames in the list into a single data frame
+ann.update <- dplyr::bind_rows(data_list)
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "separate date read column"
+
+#separate the data column and assign numeric class to value
+ann.update2 <- ann.update %>% separate(dateread, c("date", "read"),sep = " ") 
+ann.update2$read <- as.numeric(ann.update2$read)
+
+```
+
+```{r data-columns}
+#| code-fold: true
+#| code-summary: "date columns"
+
+ann.update2$datetime <- ymd_hms(ann.update2$date)
+
+
+ann.update3<-ann.update2 %>% mutate(year = year(datetime),
+                            month = month(datetime),
+                            month_abbr = month(datetime, label = TRUE, abbr = TRUE),
+                            day = mday(datetime),
+                            date.y.m.d = make_date(year, month,day))
+
+# select, rename, ljoin, select columns
+ann.update4<-ann.update3 %>% select(-date)%>% rename(date = date.y.m.d)%>% left_join(staidlist, by = 'staid') %>% select(staid,description,read,date,year,month,month_abbr) 
+
+# mutate case when year breaks/types
+ann.update5 <- ann.update4 %>% mutate(wy = case_when(month >= 10 ~ year + 1,
+                                          month <= 9 ~ year),
+                           roy = case_when(month <= 3 ~ year - 1,
+                                           month >= 4 ~ year),
+                           irrag = case_when(month %in% c(4,5,6,7,8,9) ~ year))
+
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "summary stations"
+
+# wide to long format using gather()
+sstations <- sum_stations %>% 
+  gather(staid,read,-date) %>% 
+  left_join(staidlist, by = 'staid') %>% select(-desc_id)%>% 
+  mutate(month = month(date),
+         year = year(date),
+         month_abbr = month(date, label = TRUE, abbr = TRUE)
+         )
+
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "split into ovga and ic updates"
+
+# append rows of summary stations to the annual update
+update.merged.ic <- bind_rows(sstations,ann.update4)
+# without - don't append b/c ovga doesn't have that
+update.merged <- ann.update4# for ovga, don't need summaries
+
+```
+
+# ICWD Flow export
+
+```{r}
+#| code-fold: true
+#| code-summary: "IC date columns"
+
+
+# for ic master db
+update.merged.ic <- update.merged.ic %>% mutate(wy = case_when(month >= 10 ~ year + 1,
+                                          month <= 9 ~ year),
+                           roy = case_when(month <= 3 ~ year - 1,
+                                           month >= 4 ~ year),
+                           irrag = case_when(month %in% c(4,5,6,7,8,9) ~ year))
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "update IC DB"
+
+totals_means <- bind_rows(update.merged.ic, monthlies)
+# tm_all_merged
+
+# update.merged3 %>% get_dupes()
+# 0
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "write updated IC DB"
+#| eval: false
+# totals_means %>% write_csv('totals_means_thru_sep_2021.csv')
+totals_means %>% write_csv(here('data','hydro','totals_means_thru_sep_2023.csv'))
+totals_means %>% write_csv(here('output','totals_means_thru_sep_2023.csv'))
+```
+
+# OVGA Flow export
+
+```{r}
+#| code-fold: true
+#| code-summary: "filter no value -777"
+tm <- ann.update5 %>% filter(read != -777)
+# tm
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "split flow vs production"
+
+# 6758+2244
+
+# flow
+flowdf <- tm %>% filter(!str_detect(staid, "[[:alpha:]]"))%>%
+  mutate(staid = ifelse(str_detect(staid, "^0"), str_replace(staid, "^0+", ""), staid))
+
+flow_ovga <- flowdf %>% left_join(flow.meta, by = 'staid') 
+# %>% filter(!is.na(mon_pt_name))
+
+# use below
+#production
+proddf <- tm %>% filter(str_detect(staid, "[[:alpha:]]"))
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "ovga flow columns"
+
+sw.flow <- flow_ovga  %>% 
+  mutate(WellName = mon_pt_name,
+         FlowDate = date,
+         FlowRateAcFtPM = read,
+         FlowRateCFS = "",
+         FlowRateGPM = "") %>% 
+  select(WellName,FlowDate,FlowRateAcFtPM, FlowRateCFS, FlowRateGPM)
+  # filter(FlowRateAcFtPM < 600000) %>%
+
+# columns up to date 1/30/24 zn
+sw.flow %>% datatable()
+  
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "find/remove duplicates"
+
+dupes <- sw.flow %>% get_dupes() 
+
+swflow2 <- sw.flow %>% anti_join(dupes)
+```
+
+
+```{r}
+#| code-fold: true
+#| code-summary: "write ovga flow"
+#| eval: false
+
+swflow2 %>% write_csv(here("output","ovga_swflow_import_wy23.csv"))
+
+```
+
+![](/images/flow-records-23.png){fig-align="center" width="80%"}
+
+# OVGA Production export
+
+```{r}
+#| code-fold: true
+#| code-summary: "ovga production columns"
+
+prod_ovga <- proddf %>% left_join(production.meta, by = c('staid' = 'mon_pt_name'))  
+
+tm.well.flow <- prod_ovga %>% 
+  mutate(WellName = staid,
+         StartDate = date,
+         EndDate = ceiling_date(date,'month'),
+         AgUsageAF = '',
+         MIUsageAF = read,
+         TotalUsageAF = read,
+         Method = method,
+         Notes = '') %>% 
+  select(WellName,StartDate,EndDate, AgUsageAF, MIUsageAF, TotalUsageAF, Method, Notes)
+
+#up to date 1-30-24
+
+```
+
+```{r}
+tm.well.flow%>% datatable()
+
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "find/replace duplicates"
+dupeswell <- tm.well.flow %>% get_dupes() 
+# 0
+# tmwellflow <- tm.well.flow %>% anti_join(dupeswell)
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "write ovga production"
+#| label: ovga-production-export
+#| eval: false
+tm.well.flow %>% write_csv(here("output","ovga_production_import_wy22-23.csv"))
+
+
+
+```
+
+![](/images/gui-import-production.png){fig-align="center" width="80%"}
+
+![](/images/gui-select-production-data.png){fig-align="center"}
+
+![](/images/click-import.png){fig-align="center" width="80%"}
+
+![](/images/production-import-fail-rowid.png){fig-align="center" width="80%"}
+
+removed the following staids after some iteration as they are not on the basin list: F103 V082 F380 F381 F382 F104 W426 F022 F391
+
+![](/images/production-import-succesful.png){fig-align="center"}
+
+![](/images/production-records-report.png){fig-align="center" width="80%"}
+
+# QAQC Check updates on plots
+## Totals and Means - summary stations requested
+
+### OVR Owens Valley Runoff
+
+```{r OVR, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Owens Valley Runoff", warning=FALSE}
+
+tm2 <- totals_means
+monthly_uses_syncplot(staid_p = "OVR" ,data = tm2, group_name = 'ov')
+```
+
+### OVPW Owens Valley Pumped Water
+
+```{r OVPW, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Owens Valley Pumped Water", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "OVPW" ,data = tm2, group_name = 'ov')
+```
+
+### FTC L.A.A. Total Flow to the City
+
+```{r FTC, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "LAA Total Flow to the City", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "FTC" ,data = tm2, group_name = 'ov')
+
+```
+
+### LOLU Lower Owens River Project -- Lakes and Ponds Use
+
+```{r LOLU, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Lower Owens River Project – Lakes and Ponds Use", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "LOLU" ,data = tm2, group_name = 'ov')
+```
+
+### LOOU Lower Owens River Project -- Operations
+
+```{r LOOU, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Lower Owens River Project – Operations", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "LOOU" ,data = tm2, group_name = 'ov')
+```
+
+### LORPDU Lower Owens River -- Delta Uses
+
+```{r LORPDU, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Lower Owens River – Delta Uses", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "LORPDU" ,data = tm2, group_name = 'ov')
+```
+
+### LORPRU Lower Owens River -- River Uses
+
+```{r LORPRU, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Lower Owens River – River Uses", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "LORPRU" ,data = tm2, group_name = 'ov')
+```
+
+### LORPTU Lower Owens River Project Total Uses
+
+```{r LORPTU, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Lower Owens River Project Total Uses", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "LORPTU" ,data = tm2, group_name = 'ov')
+```
+
+### LOWU Lower Owens River Project -- Waterfowl Uses
+
+```{r LOWU, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Lower Owens River Project – Waterfowl Uses", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "LOWU" ,data = tm2, group_name = 'ov')
+```
+
+### MBR Mono Basin Runoff
+
+```{r MBR, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Mono Basin Runoff", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "MBR" ,data = tm2, group_name = 'ov')
+```
+
+### MTWP Mono Tunnel at West Portal
+
+```{r MTWP, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Mono Tunnel at West Portal", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "MTWP" ,data = tm2, group_name = 'ov')
+```
+
+## OLTU Owens Lake Total Uses
+
+```{r OLTU, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Owens Lake Total Uses", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "OLTU" ,data = tm2, group_name = 'ov')
+```
+
+### OVFG Owens Valley Flowing Groundwater
+
+```{r OVFG, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Owens Valley Flowing Groundwater", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "OVFG" ,data = tm2, group_name = 'ov')
+```
+
+### OVGR Owens Valley Groundwater Recharge
+
+```{r OVGR, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Owens Valley Groundwater Recharge", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "OVGR" ,data = tm2, group_name = 'ov')
+```
+
+### OVIR Owens Valley Irrigation
+
+```{r OVIR, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Owens Valley Irrigation", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "OVIR" ,data = tm2, group_name = 'ov')
+```
+
+### SHTO South Haiwee Total Outflow (1+2+3+BP)
+
+```{r SHTO, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "South Haiwee Total Outflow (1+2+3+BP)", warning=FALSE}
+
+monthly_uses_syncplot(staid_p = "SHTO" ,data = tm2, group_name = 'ov')
+```
+
+## Stream Flow
+
+### Little Pine Creek
+```{r littlepine-crk, fig.width = 10, fig.height = 2, fig.fullwidth = TRUE, fig.cap = "Little Pine Creek @ McMurry Rd 2051", warning=FALSE}
+
+monthly_flow_syncplot_staid(staid_p = '2051' ,data = totals_means,group_name = 'a')
+
+
+```
+
+## Pumping
+runoff year pumping totals
+```{r}
+tozoo <- function(x) zoo(x$total_pumping, x$roy2)
+dyMultiColumn <- function(dygraph) {
+  dyPlotter(dygraph = dygraph,
+            name = "MultiColumn",
+            path = system.file("plotters/multicolumn.js",
+                               package = "dygraphs"))
+}
+```
+
+### BP1
+
+```{r, fig.height= 3}
+#| label: bp1
+#| fig-cap: "BP1 linked wells"
+
+linked_wells <- c("W210","W378","W379","W389")
+
+DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read < 0 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))
+
+DF[is.na(DF)] <- 0
+
+# %>% replace(is.na(.), 0)
+
+Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
+
+Data %>% dygraph(group = 'a') %>% 
+  dyStackedBarGroup(c("W210","W378","W379","W389"))%>%
+  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 8000))
+
+```
+
+
+### BP2
+```{r , fig.height= 3}
+#| label: bp2
+#| fig-cap: "BP2 linked wells"
+
+linked_wells <- c("W220","W229","W374","W375")
+
+DF <- totals_means %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1)) %>% replace(is.na(.), 0)
+
+Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
+
+Data %>% dygraph(group = 'a') %>% 
+  dyStackedBarGroup(c("W220","W229","W374","W375"))%>%
+  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 6000))
+
+```
+
+### BP3
+
+
+```{r , fig.height= 3}
+#| label: BP3 linked wells
+#| fig-cap: "BP3 linked wells"
+
+linked_wells <- c("W222","W223","W231","W232")
+DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))%>% replace(is.na(.), 0)
+
+Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
+
+Data %>% dygraph(group = 'a') %>% 
+  dyStackedBarGroup(c("W222","W223","W231","W232"))%>%
+  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 12000))
+
+```
+
+### BP4
+```{r , fig.height= 3}
+#| label: fig-w331-bp4
+#| fig-cap: BP4 linked to well W331
+
+linked_wells <- c("W331")
+
+
+DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))%>% replace(is.na(.), 0)
+
+Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
+# Data <- tozoo(DF)
+# Data
+Data %>% dygraph(group = 'a') %>% 
+  dyBarChart()%>%
+  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 6000))
+
+```
+
+### Exempt Wells - Fish Hatchery and 218, 219
+```{r , fig.height= 3}
+#| label: fig-hatchery-exempt
+#| fig-cap: "hatchery wells 330/332 and exempt wells 218/219"
+
+linked_wells <- c("W218","W219","W330","W332")
+
+DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))%>% replace(is.na(.), 0)
+
+Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
+# Data <- tozoo(DF)
+# Data
+Data %>% dygraph(group = 'a')%>% 
+  dyStackedBarGroup(c("W218","W219","W330","W332"))%>%
+  dyBarChart()%>%
+  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 32000))
+
+```
+
+### Big Pine Pumping Totals
+```{r}
+#| label: bppumping
+#| fig-cap: "Big Pine Wellfield Pumping"
+
+linked_wells <- c("W210","W378","W379","W389","W220","W229","W374","W375","W222","W223","W231","W232","W331","W218","W219","W330","W332")
+
+DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))%>% replace(is.na(.), 0)
+
+Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
+# Data <- tozoo(DF)
+# Data
+Data %>% dygraph(group = 'a')%>% 
+  dyStackedBarGroup(c("W210","W378","W379","W389","W220","W229","W374","W375","W222","W223","W231","W232","W331","W218","W219","W330","W332"))%>%
+  dyBarChart()%>%
+  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 32000))
+
+
+
+```
+

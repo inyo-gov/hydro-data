@@ -33,7 +33,7 @@ This code automates processing the annual hydro data transfer from LADWP - extra
 2.  **Open the Project in RStudio:**
 
     -   Navigate to the directory where you cloned the repository.
-    -   Double-click on the `pumping-management.Rproj` file to open the project in RStudio.
+    -   Double-click on the `hydro-data.Rproj` file to open the project in RStudio.
 
 3.  **Install Git LFS and Pull Large Files:**
 

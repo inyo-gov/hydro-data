@@ -14,7 +14,7 @@ format:
     code-link: true
     html-math-method: katex
 tbl-cap-location: top   
-number-sections: true    
+# number-sections: true    
 author: "Zach Nelson"
 affiliation: "Inyo County Water Department"
 affiliation-title: "Senior Scientist"

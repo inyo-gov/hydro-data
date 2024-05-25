@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Hydro Data"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Monitoring Well Data
+      - flow.qmd
+      - about.qmd
+      - icon: github
+        href: https://github.com/inyo-gov/hydro-data
+
+format:
+  html:
+    theme: sandstone
+    css: styles.css
+    toc: true
+
+editor: visual
+

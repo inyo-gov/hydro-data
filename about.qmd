@@ -1,0 +1,5 @@
+---
+title: "About"
+---
+
+This record of data processing is useful internally to speed up these annual tasks. For the most part, the core of the processing has been automated here.

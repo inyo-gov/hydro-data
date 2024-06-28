@@ -4,7 +4,7 @@ Welcome to the hydro data processing repository.
 
 ## Website
 
-For more information and to view the website, please visit: [Hydro Data Processing Website](https://inyo-gov.github.io/hydro-data/)
+For more information, please visit: [Hydro Data Processing Website](https://inyo-gov.github.io/hydro-data/)
 
 ## Introduction
 

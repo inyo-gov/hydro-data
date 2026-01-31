@@ -18,6 +18,13 @@ remotes::install_github("inyo-gov/hydro-data", subdir = "package")
 
 See `package/README.md` for package usage examples.
 
+## Data provenance
+
+Annual data releases are published as GitHub Releases with a minimal data
+capsule (raw inputs, master snapshot, and outputs). The package manifest
+points to those release assets so updates are reproducible without storing
+large inputs directly in the repo.
+
 ## Introduction
 
 This code automates processing the annual hydro data transfer from LADWP - extracting water levels, surface water monthly flow volumes, and groundwater pumping volumes and from ZRXP ASCII data exchange format, transforming and merging updates with the County database, and exporting a csv file formatted for the [Owens Valley Groundwater Authority](https://owens.gladata.com/) data management system.

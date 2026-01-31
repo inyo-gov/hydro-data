@@ -70,156 +70,107 @@
     "text": "Rebuild the website locally\nsystem(\"quarto render index.qmd\")\nsystem(\"quarto render flow.qmd\")\nIf you want the full site build:\nsystem(\"quarto render\")"
   },
   {
-    "objectID": "analysis.html",
-    "href": "analysis.html",
-    "title": "Exploratory analyses",
-    "section": "",
-    "text": "This page is a staging area for small, publish-ready analyses built from the hydro datasets in this repository. Each analysis should be reproducible, scoped to a clear question, and described in plain language."
-  },
-  {
-    "objectID": "analysis.html#main-pastas-classes-and-methods",
-    "href": "analysis.html#main-pastas-classes-and-methods",
-    "title": "Exploratory analyses",
-    "section": "Main Pastas classes and methods",
-    "text": "Main Pastas classes and methods\nCore building blocks typically used in Pastas workflows:\n\nps.Model — container for the head series and fitted model.\nps.StressModel — links a stress series (e.g., pumping) to head response.\nps.RechargeModel — convenience stress model for precipitation/evaporation-derived recharge.\nResponse functions: ps.Gamma, ps.Exponential (shape the lagged response).\nSolvers: ps.LeastSquares (default solver used by ml.solve()).\nCommon model methods: ml.add_stressmodel(), ml.solve(), ml.plot(), ml.plots.results()."
-  },
-  {
-    "objectID": "analysis.html#data-preparation-r",
-    "href": "analysis.html#data-preparation-r",
-    "title": "Exploratory analyses",
-    "section": "Data preparation (R)",
-    "text": "Data preparation (R)\n\n\nprepare time series for Pastas\n# Example: export one monitoring well time series for Pastas\n# Adjust staid and file path as needed.\n\nlibrary(tidyverse)\nlibrary(here)\nlibrary(lubridate)\n\nstaid_target &lt;- \"T107\"\nsource_path &lt;- here(\"output\", \"Monitoring_Wells_Master_2025.csv\")\n\nif (file.exists(source_path)) {\n  well_series &lt;- read_csv(source_path, show_col_types = FALSE) %&gt;%\n    mutate(date = as.Date(date)) %&gt;%\n    filter(staid == staid_target, !is.na(dtw.bgs)) %&gt;%\n    arrange(date) %&gt;%\n    select(date, dtw.bgs)\n\n  write_csv(well_series, here(\"output\", \"pastas_head_T107.csv\"))\n}"
-  },
-  {
-    "objectID": "analysis.html#candidate-time-series-for-demo",
-    "href": "analysis.html#candidate-time-series-for-demo",
-    "title": "Exploratory analyses",
-    "section": "Candidate time series for demo",
-    "text": "Candidate time series for demo\n\n\ndemo time series\nwell_series_candidates &lt;- c(\"T107\", \"T425\", \"T398\")\nmaster_path &lt;- here(\"output\", \"Monitoring_Wells_Master_2025.csv\")\n\nif (file.exists(master_path)) {\n  master &lt;- read_csv(master_path, show_col_types = FALSE) %&gt;%\n    mutate(date = as.Date(date))\n\n  demo_heads &lt;- master %&gt;%\n    filter(staid %in% well_series_candidates, !is.na(dtw.bgs)) %&gt;%\n    group_by(staid) %&gt;%\n    summarise(\n      Records = n(),\n      Date_start = min(date, na.rm = TRUE),\n      Date_end = max(date, na.rm = TRUE),\n      .groups = \"drop\"\n    )\n\n  knitr::kable(demo_heads)\n\n  # Export one head series for Pastas\n  master %&gt;%\n    filter(staid == \"T107\", !is.na(dtw.bgs)) %&gt;%\n    arrange(date) %&gt;%\n    select(date, dtw.bgs) %&gt;%\n    write_csv(here(\"output\", \"pastas_head_T107.csv\"))\n}\n\ntotals_path &lt;- here(\"output\", \"totals_means_thru_sep_2025.csv\")\nif (file.exists(totals_path)) {\n  totals &lt;- read_csv(totals_path, show_col_types = FALSE) %&gt;%\n    mutate(date = as.Date(date))\n\n  laws_wells &lt;- c(\"W247\",\"W248\",\"W249\",\"W398\",\"W236\",\"W239\",\"W243\",\"W244\",\"W240\",\"W241\",\"W399\",\"W376\",\"W377\")\n\n  laws_pumping &lt;- totals %&gt;%\n    filter(staid %in% laws_wells) %&gt;%\n    group_by(date) %&gt;%\n    summarise(pumping_af = sum(read, na.rm = TRUE), .groups = \"drop\") %&gt;%\n    arrange(date)\n\n  write_csv(laws_pumping, here(\"output\", \"pastas_stress_laws.csv\"))\n}"
-  },
-  {
-    "objectID": "analysis.html#pastas-model-skeleton-python",
-    "href": "analysis.html#pastas-model-skeleton-python",
-    "title": "Exploratory analyses",
-    "section": "Pastas model skeleton (Python)",
-    "text": "Pastas model skeleton (Python)\n\n\nPastas model skeleton\nimport pandas as pd\nimport pastas as ps\n\n# Observed heads (output from R prep)\nho = (\n    pd.read_csv(\"output/pastas_head_T107.csv\", parse_dates=[\"date\"], index_col=\"date\")\n    .squeeze()\n)\n\n# Example stress series (placeholder)\n# Replace with precipitation/pumping series aligned to the same date range.\n# recharge = pd.read_csv(\"output/recharge.csv\", parse_dates=[\"date\"], index_col=\"date\").squeeze()\n\nml = ps.Model(ho, name=\"T107_pastas\")\n\n# Example stress model (placeholder)\n# sm = ps.StressModel(recharge, ps.Gamma(), name=\"recharge\", settings=\"prec\")\n# ml.add_stressmodel(sm)\n\nml.solve()\nml.plot()"
-  },
-  {
-    "objectID": "analysis.html#demo-interpretation-fit-metrics",
-    "href": "analysis.html#demo-interpretation-fit-metrics",
-    "title": "Exploratory analyses",
-    "section": "Demo interpretation (fit metrics)",
-    "text": "Demo interpretation (fit metrics)\nOnce the model is solved, Pastas reports a fit summary with metrics such as:\n\nR2: higher values indicate the model explains more variance in head observations.\nRMSE: lower values indicate smaller average errors (same units as head data).\nAICc/BIC: lower values indicate a better balance of fit and complexity; use for model comparison.\nnobs: number of head observations used in the calibration period.\nnfev: number of solver evaluations (useful for troubleshooting convergence).\n\nFor the demo series (T107 + Laws pumping stress), interpret results as:\n\nIf R2 is low (&lt;0.3), the stress model likely misses dominant drivers (e.g., recharge).\nIf RMSE is large relative to seasonal head amplitude, the stress model is under-specified.\nUse AICc/BIC to compare alternate stress configurations (pumping-only vs pumping+recharge)."
-  },
-  {
-    "objectID": "analysis.html#notes-for-integrating-pastas",
-    "href": "analysis.html#notes-for-integrating-pastas",
-    "title": "Exploratory analyses",
-    "section": "Notes for integrating Pastas",
-    "text": "Notes for integrating Pastas\n\nPastas requires Python and pastas installed in the Quarto environment.\nStress inputs should be daily or monthly time series aligned to the observation timeline.\nFor pumping impacts, monthly totals from totals_means_thru_sep_2025.csv can be converted to a stress series per wellfield or site."
-  },
-  {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "",
     "text": "Depth-to-water observations from LADWP monitoring wells are delivered after each water year. Data are exported from WISKI (water information system by Kisters) in ZRXP format, parsed programmatically, integrated with the active internal database, and exported in OVGA upload format.\nThe report summarizes QA/QC checks (record counts, filtered records) and indicator‑well hydrographs, and includes OVGA import procedures in the appendix. For annual updates, adjust the year values for 1) input file paths and the master database, 2) the master output file, and 3) the OVGA upload file. The index.qmd in this repository contains the full processing code and report text."
   },
   {
     "objectID": "index.html#raw-input-coverage",
     "href": "index.html#raw-input-coverage",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Raw input coverage",
     "text": "Raw input coverage\n\n\n\n\n\n\n\n\n\n\n\nFile\nRecords\nUnique_staids\nDate_start\nDate_end\n\n\n\nDepthRP_2024-25.dat\n82831\n743\n2024-10-01\n2025-09-30\n\n\nDepthGE_2024-25.dat\n74670\n655\n2024-10-01\n2025-09-30\n\n\nOwensValley_DepthWSE_2024-25.dat\n86968\n383\n2024-10-01\n2025-09-30\n\n\n\n\n\n\n\n\n\nEach file repeats headers for each monitoring well. Extract the well ID from #TSPATH and join to observation rows (lines that do not start with #)."
   },
   {
     "objectID": "index.html#monitoring-points-map-static",
     "href": "index.html#monitoring-points-map-static",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Monitoring points map (static)",
     "text": "Monitoring points map (static)\n\n\n\n\nOwens Valley monitoring points (north to south).\n\n\n\n\nparse depthGE.datdat_content &lt;- readLines(file_pathGE)\n\n# Initialize variables to store data\ndata_list &lt;- list()\n\n# Function to check if a line contains timestamp and value\nis_data_line &lt;- function(line) {\n  grepl(\"\\\\d+ \\\\d+\\\\.\\\\d+\", line)\n}\n\n# Loop through each line in the file\nfor (line in dat_content) {\n  # Check if the line starts with '#TSPATH'\n  if (startsWith(line, \"#TSPATH\")) {\n    # Extract 'staid' from the '#TSPATH' line\n    staid &lt;- sub('.*/([TVFRSW]\\\\w+).*', '\\\\1', line)\n  }\n  \n  # Check if the line does not start with '#' and contains timestamp and value\n  if (!startsWith(line, \"#\") && is_data_line(line) && !is.na(staid)) {\n    # If the line does not start with '#' and contains timestamp and value,\n    # add data to the list directly\n    data_list &lt;- c(data_list, list(data.frame(staid, dateread = line)))\n  }\n}\n\n# Combine the data frames in the list into a single data frame\ndata_df &lt;- bind_rows(data_list)\n\n# Remove rows with NA values, Remove 'row' and 'value' columns\ndepthGE &lt;- na.omit(data_df) %&gt;% select(staid, dateread)\n\n#separate the data column and assign numeric class to dtw\ndepthGE &lt;- depthGE %&gt;% separate(dateread, c(\"date\", \"dtw.bgs\"),sep = \" \") \ndepthGE$dtw.bgs &lt;- as.numeric(depthGE$dtw.bgs)\n# head(depthGE)\n\nsaveRDS(depthGE, file = here('data','hydro','2025','depthGE.RDS'))\n\n# notes: sub('.*/([TVFRSW]\\\\w+).*', '\\\\1', line) extracts the staid from the #TSPATH line.\n\n\n\n\n[1] 74670\n\n\n\n\n[1] 86968"
   },
   {
     "objectID": "index.html#raw-input-coverage-1",
     "href": "index.html#raw-input-coverage-1",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Raw input coverage",
     "text": "Raw input coverage\n\n\n\n\n\n\n\n\n\n\n\n\nDataset\nFile\nExists\nRecords\nUnique staids\nDate range\n\n\n\nDepthRP\nDepthRP_2024-25.dat\nTRUE\n82831\n743\n2024-10-01 to 2025-09-30\n\n\nDepthGE\nDepthGE_2024-25.dat\nTRUE\n74670\n655\n2024-10-01 to 2025-09-30\n\n\nDepthWSE\nOwensValley_DepthWSE_2024-25.dat\nTRUE\n86968\n383\n2024-10-01 to 2025-09-30\n\n\n\n\n\n\ntestwellupdate# rename the columns\n# clean up the date with formal date specification\ntestwell.up &lt;- try %&gt;% select(-date, -datetime) %&gt;% rename(date = date.y.m.d) %&gt;% mutate(source = \"DWP\")  \n# head(testwell.up)\n\n\n\nappend updates to master database## Append updates to master\ntestwells.combined &lt;- bind_rows(hist, testwell.up) \n\n# head(testwells.combined)\n# 1,145,360 records going back to 1971\n\n# testwells.combined %&gt;% n_distinct(staid)\n# testwells.combined %&gt;% distinct(staid) %&gt;% nrow()\n\n\n\n\n\n\nMetric\nValue\n\n\n\nAnnual update rows\n89,289\n\n\nAnnual update staids\n750\n\n\nActive database rows\n1,324,540\n\n\nActive database staids\n1,381"
   },
   {
     "objectID": "index.html#masterdb",
     "href": "index.html#masterdb",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Database exports",
     "text": "Database exports\n2023 water year\n\nCompleted 1-24-24 annual update\nCompleted 1-24-24 full database\n2024 water year\n\nCompleted 12-10-24 annual update\nCompleted 12-10-24 full database\n2025 water year\n\nCompleted 1-26-26 annual update\nCompleted 1-26-26 full database\n\n\nsave master database updatesout_icwd &lt;- here(\"output\", \"2025wy\", \"ICWD\")\ndir.create(out_icwd, recursive = TRUE, showWarnings = FALSE)\n\n# single year\ntestwell.up %&gt;% write_csv(file.path(out_icwd, \"testwellwy2025.csv\"))\n\n# whole dataset\ntestwells.combined %&gt;% write_csv(file.path(out_icwd, \"Monitoring_Wells_Master_2025.csv\"))\n\n#"
   },
   {
     "objectID": "index.html#ovgasave",
     "href": "index.html#ovgasave",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "OVGA template and export",
     "text": "OVGA template and export\n\ncreate ovga template# methodinfer %&gt;% distinct()\nmethodinfer &lt;- record.number %&gt;% select(-count.with.rpe)\n# %&gt;% distinct(staid)\n\nupload &lt;- rpselect2 %&gt;% \n  left_join(methodinfer, by = \"staid\") %&gt;% \n  # select(-latest_rp_date) %&gt;% \n  select(WellName = staid, \n         DateMeasured = date, \n         DepthToWater = dtw.rp, \n         ReferencePointElevation = rp_elev\n         ,\n         MMethod\n         ) %&gt;% \n  mutate(ReportingDate = \"\",\n         # ExclusionCondition = \"\" ,\n         QAQCLevel = \"High\",\n         MeasMethod = MMethod,#\"ES\",# from join above\n         NoMeasFlag = \"\",\n         QuestMeasFlag = \"\",\n         DataSource = \"LADWP\",\n         CollectedBy = \"LADWP\",\n         UseInReporting = \"yes\",\n         Notes = \"\") %&gt;% \n  select(-MMethod)%&gt;%\n  filter(DepthToWater &lt; 500 & !is.na(DepthToWater) & DepthToWater != 'NA' & DepthToWater != -777 & ReferencePointElevation !=0) %&gt;% relocate(ReportingDate, .after = DateMeasured)\n\nupload \n\n# A tibble: 5,515 × 13\n# Groups:   WellName, DateMeasured [5,515]\n   WellName DateMeasured ReportingDate DepthToWater ReferencePointElevation\n   &lt;chr&gt;    &lt;date&gt;       &lt;chr&gt;                &lt;dbl&gt;                   &lt;dbl&gt;\n 1 F033     2024-10-10   \"\"                    4.56                   3834.\n 2 F033     2024-11-07   \"\"                    4.56                   3834.\n 3 F033     2024-12-05   \"\"                    4.56                   3834.\n 4 F033     2025-01-08   \"\"                    4.56                   3834.\n 5 F033     2025-03-10   \"\"                    4.56                   3834.\n 6 F033     2025-04-14   \"\"                    4.56                   3834.\n 7 F033     2025-06-09   \"\"                    4.56                   3834.\n 8 F033     2025-07-11   \"\"                    4.56                   3834.\n 9 F033     2025-08-06   \"\"                    4.56                   3834.\n10 F033     2025-09-04   \"\"                    4.56                   3834.\n# ℹ 5,505 more rows\n# ℹ 8 more variables: QAQCLevel &lt;chr&gt;, MeasMethod &lt;chr&gt;, NoMeasFlag &lt;chr&gt;,\n#   QuestMeasFlag &lt;chr&gt;, DataSource &lt;chr&gt;, CollectedBy &lt;chr&gt;,\n#   UseInReporting &lt;chr&gt;, Notes &lt;chr&gt;"
   },
   {
     "objectID": "index.html#ovgaupdate",
     "href": "index.html#ovgaupdate",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "OVGA export and comparison",
     "text": "OVGA export and comparison\n\n\n\n\n\n\nReview this comparison after WY2025 processing to confirm which staids are missing and whether WSE-derived RP calculations are needed.\n\n\nRows: 12\nColumns: 11\n$ staid   &lt;chr&gt; \"T755\", \"T755\", \"T755\", \"T755\", \"T755\", \"T755\", \"T755\", \"T755\"…\n$ dtw.rp  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA\n$ wse     &lt;dbl&gt; 4208.76, 4208.51, 4208.51, 4208.28, 4208.51, 4208.51, 4208.28,…\n$ dtw.bgs &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA\n$ year    &lt;dbl&gt; 2024, 2024, 2024, 2025, 2025, 2025, 2025, 2025, 2025, 2025, 20…\n$ month   &lt;dbl&gt; 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9\n$ day     &lt;int&gt; 22, 19, 9, 22, 12, 12, 16, 15, 16, 14, 18, 23\n$ hour    &lt;int&gt; 14, 13, 10, 10, 9, 9, 9, 14, 9, 10, 15, 13\n$ minute  &lt;int&gt; 2, 39, 40, 27, 27, 37, 46, 19, 51, 15, 17, 12\n$ date    &lt;date&gt; 2024-10-22, 2024-11-19, 2024-12-09, 2025-01-22, 2025-02-12, 20…\n$ source  &lt;chr&gt; \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\",…\n\n\n\nsave OVGA importout_ovga &lt;- here(\"output\", \"2025wy\", \"OVGA\")\ndir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)\nupload %&gt;% write_csv(file.path(out_ovga, \"ovga_uploads_mw_with_rpe_102024_092025_zn.csv\"))\n\n\n\n\ndatatabledatatable(\n  upload,\n  caption = \"2024-2025 water year upload formatted for OVGA data management system.\",\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),\n  class = \"compact stripe\"\n)\n\n\n\n\n\n\n\n\n\n\nMetric\nValue\n\n\n\nRows in OVGA upload\n5515\n\n\nUnique monitoring points\n590\n\n\nDate range\n2024-10-01 to 2025-09-30"
   },
   {
     "objectID": "index.html#laws",
     "href": "index.html#laws",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Laws",
     "text": "Laws\n\n\n\n\nHydrographs of indicator wells in the Laws wellfield."
   },
   {
     "objectID": "index.html#bishop",
     "href": "index.html#bishop",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Bishop",
     "text": "Bishop\n\n\n\n\nHydrographs of indicator wells in the Bishop wellfield."
   },
   {
     "objectID": "index.html#big-pine",
     "href": "index.html#big-pine",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Big Pine",
     "text": "Big Pine\n\n\n\n\nHydrographs of indicator wells in the Big Pine wellfield. T565, and V017GC are in south Big Pine near W218/219."
   },
   {
     "objectID": "index.html#taboose-aberdeen",
     "href": "index.html#taboose-aberdeen",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Taboose Aberdeen",
     "text": "Taboose Aberdeen\n\n\n\n\nHydrographs of indicator wells in the Taboose-Aberdeen wellfield."
   },
   {
     "objectID": "index.html#thibaut-sawmill",
     "href": "index.html#thibaut-sawmill",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Thibaut Sawmill",
     "text": "Thibaut Sawmill\n\n\n\n\nHydrographs of indicator wells in Thibaut-Sawmill wellfield."
   },
   {
     "objectID": "index.html#independence-oak",
     "href": "index.html#independence-oak",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Independence Oak",
     "text": "Independence Oak\n\n\n\n\nHydrographs of indicator wells in Independence-Oak wellfield."
   },
   {
     "objectID": "index.html#symmes-shepherd",
     "href": "index.html#symmes-shepherd",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Symmes Shepherd",
     "text": "Symmes Shepherd\n\n\n\n\nHydrographs of indicator wells in Symmes-Shepherd wellfield."
   },
   {
     "objectID": "index.html#bairs-george",
     "href": "index.html#bairs-george",
-    "title": "Depth to water annual water-year data migration",
+    "title": "Depth to water - annual water year updates",
     "section": "Bairs George",
     "text": "Bairs George\n\n\n\n\nHydrographs of indicator wells in Bairs George wellfield.\n\n\n\nThe tables below summarize follow-up QA/QC checks after the hydrograph review.\nMonitoring points present in the update but not on the OVGA list\n\n\n# A tibble: 6 × 2\n  staid records\n  &lt;chr&gt;   &lt;int&gt;\n1 FS3D       12\n2 FS3S       12\n3 S004        1\n4 S005        1\n5 S006        1\n6 S007        1\n\n\nPoints missing RP elevations where GSE is missing\n\n\n# A tibble: 6 × 2\n  staid count.na\n  &lt;chr&gt;    &lt;int&gt;\n1 T916        12\n2 T917        12\n3 T920         4\n4 T921         4\n5 T924         4\n6 T926         4\n\n\nPoints missing RP elevations where GSE exists\n\n\n# A tibble: 6 × 2\n  staid count.na\n  &lt;chr&gt;    &lt;int&gt;\n1 F082         5\n2 F122         1\n3 T013U       10\n4 W059        12\n5 W060        12\n6 W063        12\n\n\nMissing-RP points that are not on the OVGA list\n\n\n# A tibble: 0 × 2\n# ℹ 2 variables: staid &lt;chr&gt;, count.na &lt;int&gt;\n\n\nMissing-RP points that are on the OVGA list\n\n\n# A tibble: 6 × 2\n  staid count.na\n  &lt;chr&gt;    &lt;int&gt;\n1 T916        12\n2 T917        12\n3 T920         4\n4 T921         4\n5 T924         4\n6 T926         4\n\n\n# A tibble: 14 × 2\n   staid count.na\n   &lt;chr&gt;    &lt;int&gt;\n 1 T916        12\n 2 T917        12\n 3 T920         4\n 4 T921         4\n 5 T924         4\n 6 T926         4\n 7 T930         4\n 8 W355         7\n 9 W410        12\n10 W411        12\n11 W412        12\n12 W413        11\n13 W423        12\n14 W425        13\n\n\nTotal record count missing RP elevations\n\n\n# A tibble: 1 × 1\n  count.na\n     &lt;int&gt;\n1      750\n\n\nSample records from points missing RP elevations\n\n\n# A tibble: 6 × 4\n# Groups:   staid, date [6]\n  staid date       rp_elev dtw.rp\n  &lt;chr&gt; &lt;date&gt;       &lt;dbl&gt;  &lt;dbl&gt;\n1 F082  2025-05-15      NA   1.85\n2 F082  2025-06-11      NA   1.85\n3 F082  2025-07-14      NA   1.76\n4 F082  2025-08-11      NA   1.81\n5 F082  2025-09-08      NA   1.75\n6 F122  2025-04-09      NA   0.37\n\n\n [1] \"F082\"  \"F122\"  \"T013U\" \"T916\"  \"T917\"  \"T920\"  \"T921\"  \"T924\"  \"T926\" \n[10] \"T930\"  \"W059\"  \"W060\"  \"W063\"  \"W065\"  \"W069\"  \"W074\"  \"W092\"  \"W106\" \n[19] \"W109\"  \"W110\"  \"W111\"  \"W114\"  \"W118\"  \"W140\"  \"W155\"  \"W218\"  \"W219\" \n[28] \"W222\"  \"W223\"  \"W232\"  \"W236\"  \"W239\"  \"W244\"  \"W245\"  \"W247\"  \"W248\" \n[37] \"W330\"  \"W332\"  \"W342\"  \"W343\"  \"W344\"  \"W345\"  \"W346\"  \"W348\"  \"W349\" \n[46] \"W351\"  \"W354\"  \"W355\"  \"W370\"  \"W371\"  \"W374\"  \"W375\"  \"W377\"  \"W382\" \n[55] \"W383\"  \"W384\"  \"W385\"  \"W387\"  \"W388\"  \"W391\"  \"W392\"  \"W393\"  \"W394\" \n[64] \"W395\"  \"W396\"  \"W398\"  \"W401\"  \"W403\"  \"W406\"  \"W407\"  \"W409\"  \"W410\" \n[73] \"W411\"  \"W412\"  \"W413\"  \"W423\"  \"W425\" \n\n\n\n\n77 monitoring points missing rp elevation and omitted from import"
   },
@@ -431,7 +382,7 @@
     "href": "planning/worklog.html#entries",
     "title": "",
     "section": "Entries",
-    "text": "Entries\nDate: 2026-01-28\nTask: Report metadata and site styling updates\nTags: metadata, styling, quarto\nInputs/Files: index.qmd, _quarto.yml, styles.css, www/inyo_logo.png\nNotes/Decisions: Updated author/date-modified and applied Inyo County branding for consistent GitHub Pages styling.\nOutputs: Rendered pages reflect updated theme/logo styling.\nFollow-ups: None.\nDate: 2026-01-28\nTask: WY2025 cache and parsing safeguards\nTags: cache, parsing, wy25\nInputs/Files: index.qmd, flow.qmd, data/hydro/2024-25 Water Year Transfer Packet for ICWD/*.dat\nNotes/Decisions: Moved to year-based cache paths for WY2025 and added fallback parse logic when WY25 RDS files are missing.\nOutputs: WY2025 RDS files generated when missing; year-scoped cache directories in use.\nFollow-ups: None.\nDate: 2026-01-28\nTask: Import-metrics placeholders in reports\nTags: reporting, ovga, tables\nInputs/Files: index.qmd, flow.qmd\nNotes/Decisions: Replaced static screenshots with compact import-metrics tables to keep QA/QC sections current.\nOutputs: Updated report sections ready for metric values.\nFollow-ups: Populate import-metrics tables after final OVGA imports.\nDate: 2026-01-28\nTask: Peer review and Zenodo templates\nTags: peer-review, zenodo, citation\nInputs/Files: CITATION.cff, zenodo.json, paper/*, planning/*\nNotes/Decisions: Templated citation metadata and manuscript scaffolding for PeerJ/Zenodo workflow.\nOutputs: CITATION.cff, zenodo.json, paper/*, planning/peer_review_pipeline.md\nFollow-ups: Fill in placeholders in CITATION.cff and zenodo.json.\nDate: 2026-01-28\nTask: Flow plots and pumping QA/QC buildout\nTags: plots, dygraphs, qaqc, pumping\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Converted key flow plots to dygraphs, added linked-wells QA/QC plots, and introduced wellfield total pumping plots.\nOutputs: Rendered docs/flow.html with interactive flow and pumping QA/QC plots.\nFollow-ups: None.\nDate: 2026-01-29\nTask: OVGA filename parameters and duplicate checks\nTags: ovga, parameters, qaqc\nInputs/Files: flow.qmd\nNotes/Decisions: Standardized OVGA output filenames via wy_year and added “No duplicates found” messaging for quick QA/QC reads.\nOutputs: Updated OVGA export filenames and duplicate-check callouts in report.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Top-10 stream gages and WY/RY labeling\nTags: plots, wy-ry, dygraphs\nInputs/Files: flow.qmd, data/hydro/staid_current.csv\nNotes/Decisions: Replaced single-stream plot with top-10 WY gages and included gage names; clarified WY (Oct–Sep) vs RY (Apr–Mar) in headings and narrative.\nOutputs: Rendered docs/flow.html with top-10 gage plots and clearer year definitions.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Seasonal pumping totals and percentiles\nTags: analysis, tables, pumping, wy-ry\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Added seasonal totals (Apr–Sep, Oct–Mar, Apr–Mar) by site and wellfield plus WY/RY percentile tables for WY2025.\nOutputs: Rendered seasonal totals and percentile tables in docs/flow.html.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Export diffs and raw-data exclusions\nTags: exports, tables, qaqc\nInputs/Files: flow.qmd, data/hydro/Flows.csv, data/hydro/Production.csv\nNotes/Decisions: Added tables comparing last-year vs current exports and raw-data exclusions for flow and production.\nOutputs: Rendered export-diff and exclusions tables in docs/flow.html.\nFollow-ups: None.\nDate: 2026-01-30\nTask: Plot padding for first/last year visibility\nTags: plots, padding, dygraphs\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Added per-series left/right padding so first and last year bars render fully.\nOutputs: Rendered docs/flow.html with no year-end clipping.\nFollow-ups: None.\nDate: 2026-01-30\nTask: Pumping plot scaling and label cleanup\nTags: plots, scaling, labels\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Set y-axis ranges based on stacked totals for Big Pine and exempt-well plots and labeled dygraph values as AF.\nOutputs: Rendered docs/flow.html with corrected y-axis scaling and labels.\nFollow-ups: None.\nDate: 2026-01-30\nTask: RY2025 completeness note\nTags: reporting, wy-ry\nInputs/Files: flow.qmd\nNotes/Decisions: Noted that RY2025 totals are incomplete without Oct–Mar data.\nOutputs: Report note added to docs/flow.html.\nFollow-ups: Revisit once Oct–Mar 2025–26 data are delivered to complete RY2025."
+    "text": "Entries\nDate: 2026-01-28\nTask: Report metadata and site styling updates\nTags: metadata, styling, quarto\nInputs/Files: index.qmd, _quarto.yml, styles.css, www/inyo_logo.png\nNotes/Decisions: Updated author/date-modified and applied Inyo County branding for consistent GitHub Pages styling.\nOutputs: Rendered pages reflect updated theme/logo styling.\nFollow-ups: None.\nDate: 2026-01-28\nTask: WY2025 cache and parsing safeguards\nTags: cache, parsing, wy25\nInputs/Files: index.qmd, flow.qmd, data/hydro/2024-25 Water Year Transfer Packet for ICWD/*.dat\nNotes/Decisions: Moved to year-based cache paths for WY2025 and added fallback parse logic when WY25 RDS files are missing.\nOutputs: WY2025 RDS files generated when missing; year-scoped cache directories in use.\nFollow-ups: None.\nDate: 2026-01-28\nTask: Import-metrics placeholders in reports\nTags: reporting, ovga, tables\nInputs/Files: index.qmd, flow.qmd\nNotes/Decisions: Replaced static screenshots with compact import-metrics tables to keep QA/QC sections current.\nOutputs: Updated report sections ready for metric values.\nFollow-ups: Populate import-metrics tables after final OVGA imports.\nDate: 2026-01-28\nTask: Peer review and Zenodo templates\nTags: peer-review, zenodo, citation\nInputs/Files: CITATION.cff, zenodo.json, paper/*, planning/*\nNotes/Decisions: Templated citation metadata and manuscript scaffolding for PeerJ/Zenodo workflow.\nOutputs: CITATION.cff, zenodo.json, paper/*, planning/peer_review_pipeline.md\nFollow-ups: Fill in placeholders in CITATION.cff and zenodo.json.\nDate: 2026-01-28\nTask: Flow plots and pumping QA/QC buildout\nTags: plots, dygraphs, qaqc, pumping\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Converted key flow plots to dygraphs, added linked-wells QA/QC plots, and introduced wellfield total pumping plots.\nOutputs: Rendered docs/flow.html with interactive flow and pumping QA/QC plots.\nFollow-ups: None.\nDate: 2026-01-29\nTask: OVGA filename parameters and duplicate checks\nTags: ovga, parameters, qaqc\nInputs/Files: flow.qmd\nNotes/Decisions: Standardized OVGA output filenames via wy_year and added “No duplicates found” messaging for quick QA/QC reads.\nOutputs: Updated OVGA export filenames and duplicate-check callouts in report.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Top-10 stream gages and WY/RY labeling\nTags: plots, wy-ry, dygraphs\nInputs/Files: flow.qmd, data/hydro/staid_current.csv\nNotes/Decisions: Replaced single-stream plot with top-10 WY gages and included gage names; clarified WY (Oct–Sep) vs RY (Apr–Mar) in headings and narrative.\nOutputs: Rendered docs/flow.html with top-10 gage plots and clearer year definitions.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Seasonal pumping totals and percentiles\nTags: analysis, tables, pumping, wy-ry\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Added seasonal totals (Apr–Sep, Oct–Mar, Apr–Mar) by site and wellfield plus WY/RY percentile tables for WY2025.\nOutputs: Rendered seasonal totals and percentile tables in docs/flow.html.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Export diffs and raw-data exclusions\nTags: exports, tables, qaqc\nInputs/Files: flow.qmd, data/hydro/Flows.csv, data/hydro/Production.csv\nNotes/Decisions: Added tables comparing last-year vs current exports and raw-data exclusions for flow and production.\nOutputs: Rendered export-diff and exclusions tables in docs/flow.html.\nFollow-ups: None.\nDate: 2026-01-30\nTask: Plot padding for first/last year visibility\nTags: plots, padding, dygraphs\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Added per-series left/right padding so first and last year bars render fully.\nOutputs: Rendered docs/flow.html with no year-end clipping.\nFollow-ups: None.\nDate: 2026-01-30\nTask: Pumping plot scaling and label cleanup\nTags: plots, scaling, labels\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Set y-axis ranges based on stacked totals for Big Pine and exempt-well plots and labeled dygraph values as AF.\nOutputs: Rendered docs/flow.html with corrected y-axis scaling and labels.\nFollow-ups: None.\nDate: 2026-01-30\nTask: RY2025 completeness note\nTags: reporting, wy-ry\nInputs/Files: flow.qmd\nNotes/Decisions: Noted that RY2025 totals are incomplete without Oct–Mar data.\nOutputs: Report note added to docs/flow.html.\nFollow-ups: Revisit once Oct–Mar 2025–26 data are delivered to complete RY2025.\nDate: 2026-01-31\nTask: Package documentation, tests, and checksum validation\nTags: package, tests, checksums, docs\nInputs/Files: package/R/*, package/inst/extdata/manifest.csv, package/tests/*, package/man/*\nNotes/Decisions: Added SHA-256 checksum fields to the manifest and enforced checksum validation in hydrodata_fetch(). Added testthat coverage for manifest fields and checksum format; regenerated .Rd docs.\nOutputs: Package docs and tests updated; manifest now includes checksums.\nFollow-ups: Consider adding checksum verification to the package README examples.\nDate: 2026-01-31\nTask: Vignette expansion and package README note\nTags: package, vignette, examples, documentation\nInputs/Files: package/vignettes/hydro-data-website.Rmd, README.md\nNotes/Decisions: Expanded vignette with example data access for each dataset type and added root README instructions for package install from GitHub.\nOutputs: Vignette now demonstrates DTW, totals, flow, and production access; root README mentions package.\nFollow-ups: None.\nDate: 2026-01-31\nTask: Website build and publication prep\nTags: quarto, website, docs, render\nInputs/Files: index.qmd, flow.qmd, analysis.qmd, docs/\nNotes/Decisions: Ran quarto render to refresh GitHub Pages output. Marked analysis.qmd as draft and removed it from the navbar until ready.\nOutputs: Updated docs/ site build; analysis page excluded.\nFollow-ups: Re-render after title/citation updates to publish the new report title.\nDate: 2026-01-31\nTask: Report title and citation alignment\nTags: metadata, citation, reporting\nInputs/Files: index.qmd, CITATION.cff\nNotes/Decisions: Updated report title to “Depth to water - annual water year updates” for consistency across report and citation.\nOutputs: Title and citation metadata updated in source files.\nFollow-ups: Ensure site build reflects the updated title."
   },
   {
     "objectID": "about.html",

@@ -15,18 +15,18 @@ format:
     html-math-method: katex
 tbl-cap-location: top   
 # number-sections: true    
-author: "Zach Nelson"
+author: "Inyo County Water Department"
 affiliation: "Inyo County Water Department"
 affiliation-title: "Senior Scientist"
-date: "2023-01-30"
-date-modified: "2023-01-30"
+date: "2026-01-31"
+date-modified: "2026-01-31"
 draft: false
 image: "dataimage.png"
 citation:
   type: report
   container-title: "Data Report"
   publisher: "Inyo County Water Department"
-  issued: "2023-01-30"
+  issued: "2026-01-31"
   url: https://inyo-gov.github.io/hydro-data/
 google-scholar: true
 categories: [totals and means, LADWP data, OVGA, time series]
@@ -42,38 +42,56 @@ library(dygraphs)
 library(zoo)
 # library(readxl)
 
-knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE,cache=TRUE)
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE,cache=FALSE)
+
+wy_year <- 2025
+wy_short <- sprintf("%02d", wy_year %% 100)
+wy_range <- sprintf("%02d-%02d", (wy_year - 1) %% 100, wy_year %% 100)
 
 ```
 
-```{r source-functions}
+```{r source-functions, cache=FALSE}
 
 source(here('code','R','functions.R'))
 
 ```
 
+# Abstract
 
-# Data
+This report documents water-year processing of LADWP monthly flow and production data, including data ingestion from ZRXP files, QA/QC checks, integration with historical totals, and preparation of OVGA-formatted deliverables.
+
+# Data sources and preprocessing
 
 ```{r}
 #| code-fold: true
 #| code-summary: "read data"
 
-file_path_flow <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','VolumeMonthAF_2022-23.dat')
+# file_path_flow <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','VolumeMonthAF_2022-23.dat')
 
-# annual update
-sum_stations <- read_csv(here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','summary_stations22-23.csv'))
+file_path_flow <-here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','VolumeMonthAF_2024-25.dat')
 
-# attribute data from wells database  
-staidlist <- read_csv(here('data','hydro','staid_current.csv'))
+# annual update *
+sum_stations_path <- here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','summary_stations24-25.csv')
+sum_stations <- if (file.exists(sum_stations_path)) {
+  read_csv(sum_stations_path)
+} else {
+  tibble(date = as.Date(character()))
+}
+
+# attribute data from wells database
+staidlist <- read_csv(here('data','hydro','staid_current.csv')) %>%
+  mutate(staid = as.character(staid))
+
+# staids in ovga database list
+ovga_points <- read_csv(here("data","hydro","Owens_Monitoring_Points.csv"))
 
 # meta data on production wells
 production.meta <- read_csv(here('data','hydro','Production.csv')) %>% 
   select(mon_pt_name, method) %>% unique()
   
 #historical data
-monthlies <- read_csv(here('data','hydro','totals_means_thru_sep_2022.csv'))# 
-
+# monthlies <- read_csv(here('data','hydro','totals_means_thru_sep_2022.csv'))# 
+monthlies <- read_csv(here('data','hydro','totals_means_thru_sep_2024.csv'))# 
 # meta on flow pts
 flow.meta <- read_csv(here('data','hydro','Flows.csv')) %>%  select(mon_pt_name, LADWP_ID) %>% unique() %>% mutate(staid = as.character(LADWP_ID)) %>% select(-LADWP_ID)
 
@@ -84,34 +102,28 @@ flow.meta <- read_csv(here('data','hydro','Flows.csv')) %>%  select(mon_pt_name,
 #| code-fold: true
 #| code-summary: "parse .dat ascii"
 
-dat_content <- readLines(file_path_flow)
+parse_volume_dat <- function(file_path) {
+  dat_content <- readLines(file_path)
 
-# Initialize variables to store data
-data_list <- list()
+  data_list <- list()
+  is_data_line <- function(line) {
+    grepl("\\d+ \\d+\\.\\d+", line)
+  }
 
-# Function to check if a line contains timestamp and value
-is_data_line <- function(line) {
-  grepl("\\d+ \\d+\\.\\d+", line)
+  staid <- NA_character_
+  for (line in dat_content) {
+    if (startsWith(line, "#TSPATH")) {
+      staid <- sub(".*/([^/]+)/VOLUME/.*", "\\1", line)
+    }
+    if (!startsWith(line, "#") && is_data_line(line) && !is.na(staid)) {
+      data_list <- c(data_list, list(data.frame(staid, dateread = line)))
+    }
+  }
+
+  dplyr::bind_rows(data_list)
 }
 
-# Loop through each line in the file
-for (line in dat_content) {
-  # Check if the line starts with '#TSPATH'
-  if (startsWith(line, "#TSPATH")) {
-    # Extract 'staid' from the '#TSPATH' line
-    staid <- sub('.*/([^/]+)/VOLUME/.*', '\\1', line)
-  }
-  
-  # Check if the line does not start with '#' and contains timestamp and value
-  if (!startsWith(line, "#") && is_data_line(line) && !is.na(staid)) {
-    # If the line does not start with '#' and contains timestamp and value,
-    # add data to the list directly
-    data_list <- c(data_list, list(data.frame(staid, dateread = line)))
-  }
-}
-
-# Combine the data frames in the list into a single data frame
-ann.update <- dplyr::bind_rows(data_list)
+ann.update <- parse_volume_dat(file_path_flow)
 
 ```
 
@@ -123,6 +135,52 @@ ann.update <- dplyr::bind_rows(data_list)
 ann.update2 <- ann.update %>% separate(dateread, c("date", "read"),sep = " ") 
 ann.update2$read <- as.numeric(ann.update2$read)
 
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "last year raw flow"
+
+file_path_flow_prev <- here("data", "hydro", "2023-24 Water Year Transfer Packet for ICWD", "VolumeMonthAF_2023-24.dat")
+ann.update_prev <- if (file.exists(file_path_flow_prev)) {
+  parse_volume_dat(file_path_flow_prev)
+} else {
+  tibble(staid = character(), dateread = character())
+}
+
+ann.update_prev2 <- if (nrow(ann.update_prev) > 0) {
+  prev2 <- ann.update_prev %>% separate(dateread, c("date", "read"), sep = " ")
+  prev2$read <- as.numeric(prev2$read)
+  prev2
+} else {
+  tibble(staid = character(), date = character(), read = numeric())
+}
+```
+
+## Raw input coverage
+
+```{r raw-input-coverage}
+#| code-fold: true
+#| code-summary: "raw input coverage"
+
+raw_flow_coverage <- tibble(
+  File = c(basename(file_path_flow), basename(file_path_flow_prev)),
+  Records = c(nrow(ann.update2), nrow(ann.update_prev2)),
+  Unique_staids = c(
+    dplyr::n_distinct(ann.update2$staid),
+    dplyr::n_distinct(ann.update_prev2$staid)
+  ),
+  Date_start = c(
+    min(ymd_hms(ann.update2$date), na.rm = TRUE),
+    if (nrow(ann.update_prev2) > 0) min(ymd_hms(ann.update_prev2$date), na.rm = TRUE) else as.POSIXct(NA)
+  ),
+  Date_end = c(
+    max(ymd_hms(ann.update2$date), na.rm = TRUE),
+    if (nrow(ann.update_prev2) > 0) max(ymd_hms(ann.update_prev2$date), na.rm = TRUE) else as.POSIXct(NA)
+  )
+)
+
+knitr::kable(raw_flow_coverage)
 ```
 
 ```{r data-columns}
@@ -156,13 +214,19 @@ ann.update5 <- ann.update4 %>% mutate(wy = case_when(month >= 10 ~ year + 1,
 #| code-summary: "summary stations"
 
 # wide to long format using gather()
-sstations <- sum_stations %>% 
-  gather(staid,read,-date) %>% 
-  left_join(staidlist, by = 'staid') %>% select(-desc_id)%>% 
-  mutate(month = month(date),
-         year = year(date),
-         month_abbr = month(date, label = TRUE, abbr = TRUE)
-         )
+if (nrow(sum_stations) > 0) {
+  sstations <- sum_stations %>% 
+    gather(staid,read,-date) %>% 
+    left_join(staidlist, by = 'staid') %>% select(-desc_id)%>% 
+    mutate(date = as.Date(date),
+           datetime = as.Date(date),
+           month = month(datetime),
+           year = year(datetime),
+           month_abbr = month(datetime, label = TRUE, abbr = TRUE)
+           )
+} else {
+  sstations <- ann.update4 %>% slice(0)
+}
 
 
 ```
@@ -178,7 +242,9 @@ update.merged <- ann.update4# for ovga, don't need summaries
 
 ```
 
-# ICWD Flow export
+# Data integration and outputs
+
+## ICWD flow export
 
 ```{r}
 #| code-fold: true
@@ -198,7 +264,8 @@ update.merged.ic <- update.merged.ic %>% mutate(wy = case_when(month >= 10 ~ yea
 #| code-fold: true
 #| code-summary: "update IC DB"
 
-totals_means <- bind_rows(update.merged.ic, monthlies)
+totals_means <- bind_rows(update.merged.ic, monthlies) %>%
+  mutate(date = as.Date(date))
 # tm_all_merged
 
 # update.merged3 %>% get_dupes()
@@ -208,13 +275,19 @@ totals_means <- bind_rows(update.merged.ic, monthlies)
 ```{r}
 #| code-fold: true
 #| code-summary: "write updated IC DB"
-#| eval: false
 # totals_means %>% write_csv('totals_means_thru_sep_2021.csv')
-totals_means %>% write_csv(here('data','hydro','totals_means_thru_sep_2023.csv'))
-totals_means %>% write_csv(here('output','totals_means_thru_sep_2023.csv'))
+# totals_means %>% write_csv(here('data','hydro','totals_means_thru_sep_2024.csv'))
+# totals_means %>% write_csv(here('output','totals_means_thru_sep_2024.csv'))
+
+totals_means %>% write_csv(here('data','hydro','totals_means_thru_sep_2025.csv'))
+out_icwd <- here("output", "2025wy", "ICWD")
+dir.create(out_icwd, recursive = TRUE, showWarnings = FALSE)
+totals_means %>% write_csv(file.path(out_icwd, "totals_means_thru_sep_2025.csv"))
 ```
 
-# OVGA Flow export
+# OVGA exports and QA/QC
+
+## OVGA flow export
 
 ```{r}
 #| code-fold: true
@@ -229,11 +302,17 @@ tm <- ann.update5 %>% filter(read != -777)
 
 # 6758+2244
 
-# flow
-flowdf <- tm %>% filter(!str_detect(staid, "[[:alpha:]]"))%>%
-  mutate(staid = ifelse(str_detect(staid, "^0"), str_replace(staid, "^0+", ""), staid))
+normalize_flow_staid <- function(x) {
+  ifelse(str_detect(x, "^0"), str_replace(x, "^0+", ""), x)
+}
 
-flow_ovga <- flowdf %>% left_join(flow.meta, by = 'staid') 
+# flow
+flowdf <- tm %>% filter(!str_detect(staid, "[[:alpha:]]")) %>%
+  mutate(staid = normalize_flow_staid(staid))
+
+flow_ovga <- flowdf %>%
+  left_join(flow.meta, by = 'staid') %>%
+  filter(!is.na(mon_pt_name), mon_pt_name != "")
 # %>% filter(!is.na(mon_pt_name))
 
 # use below
@@ -255,7 +334,11 @@ sw.flow <- flow_ovga  %>%
   # filter(FlowRateAcFtPM < 600000) %>%
 
 # columns up to date 1/30/24 zn
-sw.flow %>% datatable()
+sw.flow %>%
+  datatable(
+    options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+    class = "compact stripe"
+  )
   
 ```
 
@@ -268,25 +351,74 @@ dupes <- sw.flow %>% get_dupes()
 swflow2 <- sw.flow %>% anti_join(dupes)
 ```
 
-
 ```{r}
 #| code-fold: true
 #| code-summary: "write ovga flow"
 #| eval: false
 
-swflow2 %>% write_csv(here("output","ovga_swflow_import_wy23.csv"))
-
+# swflow2 %>% write_csv(here("output","ovga_swflow_import_wy23.csv"))
+out_ovga <- here("output", "2025wy", "OVGA")
+dir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)
+swflow2 %>% write_csv(file.path(out_ovga, paste0("ovga_swflow_import_wy", wy_short, ".csv")))
 ```
 
-![](/images/flow-records-23.png){fig-align="center" width="80%"}
+```{r flow-import-metrics}
+#| code-fold: true
+#| code-summary: "OVGA flow import metrics"
 
-# OVGA Production export
+flow_import_metrics <- tibble(
+  Metric = c(
+    "Flow records in upload",
+    "Unique monitoring points",
+    "Date range"
+  ),
+  Value = c(
+    nrow(swflow2),
+    dplyr::n_distinct(swflow2$WellName),
+    paste0(min(swflow2$FlowDate, na.rm = TRUE), " to ", max(swflow2$FlowDate, na.rm = TRUE))
+  )
+) %>% mutate(Value = format(Value, big.mark = ","))
+
+knitr::kable(flow_import_metrics)
+```
+
+### Flow export comparison (last year vs current)
+
+```{r flow-export-diff}
+flow_export_last_path <- here("output", "ovga_swflow_import_wy24.csv")
+flow_export_last <- if (file.exists(flow_export_last_path)) {
+  read_csv(flow_export_last_path, show_col_types = FALSE) %>% distinct(WellName)
+} else {
+  tibble(WellName = character())
+}
+
+flow_export_current <- swflow2 %>% distinct(WellName)
+
+flow_export_missing <- flow_export_last %>% anti_join(flow_export_current, by = "WellName")
+flow_export_new <- flow_export_current %>% anti_join(flow_export_last, by = "WellName")
+
+DT::datatable(
+  flow_export_missing,
+  options = list(pageLength = 10, lengthChange = TRUE),
+  caption = "Flow gages in WY2024 export but missing in WY2025 export"
+)
+
+DT::datatable(
+  flow_export_new,
+  options = list(pageLength = 10, lengthChange = TRUE),
+  caption = "Flow gages in WY2025 export but not in WY2024 export"
+)
+```
+
+## OVGA production export
 
 ```{r}
 #| code-fold: true
 #| code-summary: "ovga production columns"
 
-prod_ovga <- proddf %>% left_join(production.meta, by = c('staid' = 'mon_pt_name'))  
+prod_ovga <- proddf %>%
+  left_join(production.meta, by = c('staid' = 'mon_pt_name')) %>%
+  semi_join(ovga_points, by = c("staid" = "mon_pt_name"))
 
 tm.well.flow <- prod_ovga %>% 
   mutate(WellName = staid,
@@ -295,24 +427,31 @@ tm.well.flow <- prod_ovga %>%
          AgUsageAF = '',
          MIUsageAF = read,
          TotalUsageAF = read,
-         Method = method,
+         Method = if_else(is.na(method) | method == "", "Unknown", method),
          Notes = '') %>% 
   select(WellName,StartDate,EndDate, AgUsageAF, MIUsageAF, TotalUsageAF, Method, Notes)
-
-#up to date 1-30-24
 
 ```
 
 ```{r}
-tm.well.flow%>% datatable()
+tm.well.flow %>%
+  datatable(
+    options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+    class = "compact stripe"
+  )
 
 ```
 
 ```{r}
 #| code-fold: true
 #| code-summary: "find/replace duplicates"
-dupeswell <- tm.well.flow %>% get_dupes() 
-# 0
+dupeswell <- tm.well.flow %>% get_dupes()
+if (nrow(dupeswell) == 0) {
+  cat("No duplicates found.\n")
+} else {
+  cat("Duplicate rows found: ", nrow(dupeswell), "\n")
+  dupeswell
+}
 # tmwellflow <- tm.well.flow %>% anti_join(dupeswell)
 ```
 
@@ -321,28 +460,137 @@ dupeswell <- tm.well.flow %>% get_dupes()
 #| code-summary: "write ovga production"
 #| label: ovga-production-export
 #| eval: false
-tm.well.flow %>% write_csv(here("output","ovga_production_import_wy22-23.csv"))
-
+# tm.well.flow %>% write_csv(here("output","ovga_production_import_wy22-23.csv"))
+out_ovga <- here("output", "2025wy", "OVGA")
+dir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)
+tm.well.flow %>% write_csv(file.path(out_ovga, paste0("ovga_production_import_wy", wy_range, ".csv")))
 
 
 ```
 
-![](/images/gui-import-production.png){fig-align="center" width="80%"}
+```{r production-import-metrics}
+#| code-fold: true
+#| code-summary: "OVGA production import metrics"
 
-![](/images/gui-select-production-data.png){fig-align="center"}
+production_import_metrics <- tibble(
+  Metric = c(
+    "Production records in upload",
+    "Unique production wells",
+    "Date range"
+  ),
+  Value = c(
+    nrow(tm.well.flow),
+    dplyr::n_distinct(tm.well.flow$WellName),
+    paste0(min(tm.well.flow$StartDate, na.rm = TRUE), " to ", max(tm.well.flow$EndDate, na.rm = TRUE))
+  )
+) %>% mutate(Value = format(Value, big.mark = ","))
 
-![](/images/click-import.png){fig-align="center" width="80%"}
+knitr::kable(production_import_metrics)
+```
 
-![](/images/production-import-fail-rowid.png){fig-align="center" width="80%"}
+### Production export comparison (last year vs current)
 
-removed the following staids after some iteration as they are not on the basin list: F103 V082 F380 F381 F382 F104 W426 F022 F391
+```{r production-export-diff}
+production_export_last_path <- here("output", "ovga_production_import_wy23-24.csv")
+production_export_last <- if (file.exists(production_export_last_path)) {
+  read_csv(production_export_last_path, show_col_types = FALSE) %>% distinct(WellName)
+} else {
+  tibble(WellName = character())
+}
 
-![](/images/production-import-succesful.png){fig-align="center"}
+production_export_current <- tm.well.flow %>% distinct(WellName)
 
-![](/images/production-records-report.png){fig-align="center" width="80%"}
+production_export_missing <- production_export_last %>% anti_join(production_export_current, by = "WellName")
+production_export_new <- production_export_current %>% anti_join(production_export_last, by = "WellName")
 
-# QAQC Check updates on plots
+DT::datatable(
+  production_export_missing,
+  options = list(pageLength = 10, lengthChange = TRUE),
+  caption = "Production wells in WY2024 export but missing in WY2025 export"
+)
+
+DT::datatable(
+  production_export_new,
+  options = list(pageLength = 10, lengthChange = TRUE),
+  caption = "Production wells in WY2025 export but not in WY2024 export"
+)
+```
+
+### Raw data exclusions (last year vs current)
+
+```{r raw-exclusions}
+raw_flow_current <- ann.update2 %>%
+  filter(!str_detect(staid, "[[:alpha:]]")) %>%
+  mutate(staid = normalize_flow_staid(staid))
+
+raw_flow_prev <- ann.update_prev2 %>%
+  filter(!str_detect(staid, "[[:alpha:]]")) %>%
+  mutate(staid = normalize_flow_staid(staid))
+
+raw_prod_current <- ann.update2 %>%
+  filter(str_detect(staid, "[[:alpha:]]"))
+
+raw_prod_prev <- ann.update_prev2 %>%
+  filter(str_detect(staid, "[[:alpha:]]"))
+
+raw_flow_current_joined <- raw_flow_current %>%
+  left_join(flow.meta, by = "staid")
+
+raw_flow_prev_joined <- raw_flow_prev %>%
+  left_join(flow.meta, by = "staid")
+
+raw_flow_excluded_current <- raw_flow_current_joined %>%
+  filter(is.na(mon_pt_name) | !(mon_pt_name %in% flow_export_current$WellName)) %>%
+  distinct(staid, mon_pt_name) %>%
+  arrange(staid)
+
+raw_flow_excluded_prev <- raw_flow_prev_joined %>%
+  filter(is.na(mon_pt_name) | !(mon_pt_name %in% flow_export_last$WellName)) %>%
+  distinct(staid, mon_pt_name) %>%
+  arrange(staid)
+
+raw_prod_excluded_current <- raw_prod_current %>%
+  distinct(staid) %>%
+  filter(!staid %in% production_export_current$WellName) %>%
+  arrange(staid)
+
+raw_prod_excluded_prev <- raw_prod_prev %>%
+  distinct(staid) %>%
+  filter(!staid %in% production_export_last$WellName) %>%
+  arrange(staid)
+
+DT::datatable(
+  raw_flow_excluded_prev,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  caption = "Flow staids in WY2024 raw data excluded from WY2024 export"
+)
+
+DT::datatable(
+  raw_flow_excluded_current,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  caption = "Flow staids in WY2025 raw data excluded from WY2025 export"
+)
+
+DT::datatable(
+  raw_prod_excluded_prev,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  caption = "Production staids in WY2024 raw data excluded from WY2024 export"
+)
+
+DT::datatable(
+  raw_prod_excluded_current,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  caption = "Production staids in WY2025 raw data excluded from WY2025 export"
+)
+```
+
+Removed staids not on the basin list are excluded from OVGA exports and reflected in the raw‑data exclusion tables above.
+
+# Results: QA/QC and plots
+
 ## Totals and Means - summary stations requested
+
+Summary-station series (OVR, OVPW, etc.) are populated from the summary stations file. Until `summary_stations24-25.csv` is delivered, these plots will extend through WY2024.
 
 ### OVR Owens Valley Runoff
 
@@ -423,7 +671,7 @@ monthly_uses_syncplot(staid_p = "MBR" ,data = tm2, group_name = 'ov')
 monthly_uses_syncplot(staid_p = "MTWP" ,data = tm2, group_name = 'ov')
 ```
 
-## OLTU Owens Lake Total Uses
+### OLTU Owens Lake Total Uses
 
 ```{r OLTU, fig.width = 10, fig.height = 3, fig.fullwidth = TRUE, fig.cap = "Owens Lake Total Uses", warning=FALSE}
 
@@ -458,18 +706,40 @@ monthly_uses_syncplot(staid_p = "OVIR" ,data = tm2, group_name = 'ov')
 monthly_uses_syncplot(staid_p = "SHTO" ,data = tm2, group_name = 'ov')
 ```
 
-## Stream Flow
+## Stream flow
 
-### Little Pine Creek
-```{r littlepine-crk, fig.width = 10, fig.height = 2, fig.fullwidth = TRUE, fig.cap = "Little Pine Creek @ McMurry Rd 2051", warning=FALSE}
+### Top 10 stream gages by WY2025 volume (water year Oct-Sep)
 
-monthly_flow_syncplot_staid(staid_p = '2051' ,data = totals_means,group_name = 'a')
+```{r top-streams, fig.width = 7, fig.height = 4.5, fig.fullwidth = TRUE, warning=FALSE}
+flow_wy <- flowdf %>%
+  mutate(wy = if_else(month >= 10, year + 1, year))
 
+top_streams <- flow_wy %>%
+  filter(wy == wy_year) %>%
+  group_by(staid) %>%
+  summarise(total_af = sum(read, na.rm = TRUE), .groups = "drop") %>%
+  arrange(desc(total_af)) %>%
+  slice_head(n = 10) %>%
+  left_join(flow.meta, by = "staid")
 
+top_streams <- top_streams %>%
+  mutate(display_name = if_else(is.na(mon_pt_name) | mon_pt_name == "", staid, mon_pt_name))
+
+plots <- purrr::map2(top_streams$staid, top_streams$display_name, ~{
+  plot_title <- paste0(.y, " (", .x, ")")
+  htmltools::tagList(
+    htmltools::tags$h4(plot_title),
+    monthly_flow_syncplot_staid(staid_p = .x, data = totals_means, group_name = "a", title = plot_title)
+  )
+})
+
+htmltools::tagList(plots)
 ```
 
 ## Pumping
-runoff year pumping totals
+
+Runoff year (Apr-Mar) pumping totals are reported below. Water year (Oct-Sep) is used for the flow series above. RY2025 totals are partial because Oct–Mar 2025–26 data have not yet been delivered.
+
 ```{r}
 tozoo <- function(x) zoo(x$total_pumping, x$roy2)
 dyMultiColumn <- function(dygraph) {
@@ -478,122 +748,542 @@ dyMultiColumn <- function(dygraph) {
             path = system.file("plotters/multicolumn.js",
                                package = "dygraphs"))
 }
+
+plot_wellfield_total <- function(data, field_sites, linked_wells_sites, title, value_range = NULL) {
+  linked_wells <- linked_wells_sites %>%
+    filter(Site %in% field_sites) %>%
+    pull(Linked_Well) %>%
+    unique()
+
+  if (length(linked_wells) == 0) {
+    return(NULL)
+  }
+
+  df <- data %>%
+    filter(staid %in% linked_wells) %>%
+    mutate(read = if_else(read == -777, 0, read)) %>%
+    group_by(roy, staid) %>%
+    summarise(total_pumping = sum(read, na.rm = TRUE), .groups = "drop") %>%
+    mutate(roy2 = make_date(roy, 4, 1))
+
+  df <- pad_series_bounds(df, "roy2", "staid", months_start = 6, months_end = 18)
+
+  year_totals <- df %>%
+    group_by(roy2) %>%
+    summarise(total_pumping = sum(total_pumping, na.rm = TRUE), .groups = "drop")
+  y_max <- max(year_totals$total_pumping, na.rm = TRUE)
+
+  plot_data <- do.call(merge, lapply(split(df, df$staid), tozoo))
+  plot <- plot_data %>%
+    dygraph(main = title, group = "a") %>%
+    dyStackedBarGroup(linked_wells) %>%
+    dyBarChart() %>%
+    dyAxis("y", label = "Total Annual Pumping (AF)", axisLabelWidth = 70)
+
+  if (is.finite(y_max)) {
+    plot <- plot %>% dyAxis("y", valueRange = c(0, y_max * 1.05))
+  }
+
+  if (!is.null(value_range)) {
+    plot <- plot %>% dyAxis("y", valueRange = value_range)
+  }
+
+  plot
+}
+
+compute_linked_seasonal <- function(data, linked_wells_sites, group_map, group_col, target_year = 2025) {
+  base <- data %>%
+    filter(staid %in% linked_wells_sites$Linked_Well) %>%
+    mutate(
+      read = if_else(read < 0, 0, read),
+      date = as.Date(date),
+      year = year(date),
+      month = month(date),
+      wy = if_else(month >= 10, year + 1, year),
+      runoff_year = if_else(month >= 4, year, year - 1),
+      season = case_when(
+        month %in% 4:9 ~ "Apr-Sep",
+        month %in% c(10, 11, 12, 1, 2, 3) ~ "Oct-Mar",
+        TRUE ~ NA_character_
+      )
+    ) %>%
+    left_join(group_map, by = c("staid" = "Linked_Well")) %>%
+    filter(!is.na(.data[[group_col]]))
+
+  seasonal_wy <- base %>%
+    group_by(.data[[group_col]], wy, season) %>%
+    summarise(total_pumping = sum(read, na.rm = TRUE), .groups = "drop") %>%
+    pivot_wider(names_from = season, values_from = total_pumping) %>%
+    rename(Group = !!sym(group_col), WY = wy) %>%
+    arrange(Group, WY)
+
+  runoff_ry <- base %>%
+    group_by(.data[[group_col]], runoff_year) %>%
+    summarise(`Apr-Mar` = sum(read, na.rm = TRUE), .groups = "drop") %>%
+    rename(Group = !!sym(group_col), RY = runoff_year) %>%
+    arrange(Group, RY)
+
+  percentiles_wy <- seasonal_wy %>%
+    group_by(Group) %>%
+    mutate(
+      `Apr-Sep pct` = if_else(
+        is.na(`Apr-Sep`),
+        NA_real_,
+        round(dplyr::percent_rank(`Apr-Sep`) * 100, 1)
+      ),
+      `Oct-Mar pct` = if_else(
+        is.na(`Oct-Mar`),
+        NA_real_,
+        round(dplyr::percent_rank(`Oct-Mar`) * 100, 1)
+      )
+    ) %>%
+    ungroup() %>%
+    filter(WY == target_year) %>%
+    select(Group, WY, `Apr-Sep`, `Apr-Sep pct`, `Oct-Mar`, `Oct-Mar pct`)
+
+  percentiles_ry <- runoff_ry %>%
+    group_by(Group) %>%
+    mutate(
+      `Apr-Mar pct` = if_else(
+        is.na(`Apr-Mar`),
+        NA_real_,
+        round(dplyr::percent_rank(`Apr-Mar`) * 100, 1)
+      )
+    ) %>%
+    ungroup() %>%
+    filter(RY == target_year) %>%
+    select(Group, RY, `Apr-Mar`, `Apr-Mar pct`)
+
+  list(
+    seasonal_wy = seasonal_wy,
+    runoff_ry = runoff_ry,
+    percentiles_wy = percentiles_wy,
+    percentiles_ry = percentiles_ry
+  )
+}
 ```
 
-### BP1
+## Linked Wells QA/QC
 
-```{r, fig.height= 3}
-#| label: bp1
-#| fig-cap: "BP1 linked wells"
+Linked-well pumping plots from the on/off management program support visual QA/QC of annual totals.
 
-linked_wells <- c("W210","W378","W379","W389")
+```{r}
+tm2 <- totals_means
 
-DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read < 0 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))
+linked_wells_sites <- data.frame(
+  Site = rep(
+    c(
+      "BP1", "BP2", "BP3", "BP4",
+      "LW1", "LW2", "LW3",
+      "TA3", "TA4", "TA5", "TA6",
+      "TS1", "TS2", "TS3", "TS4",
+      "IO1", "IO2",
+      "SS1", "SS2", "SS3", "SS4",
+      "BG2"
+    ),
+    times = c(4, 4, 4, 1, 4, 4, 5, 4, 2, 1, 2, 1, 1, 3, 2, 3, 1, 3, 3, 2, 2, 4)
+  ),
+  Linked_Well = c(
+    "W210", "W378", "W379", "W389",   # BP1
+    "W220", "W229", "W374", "W375",   # BP2
+    "W222", "W223", "W231", "W232",   # BP3
+    "W331",                            # BP4
+    "W247", "W248", "W249", "W398",   # LW1
+    "W236", "W239", "W243", "W244",   # LW2
+    "W240", "W241", "W399", "W376", "W377", # LW3
+    "W106", "W110", "W111", "W114",   # TA3
+    "W342", "W347",                   # TA4
+    "W349",                           # TA5
+    "W109", "W370",                   # TA6
+    "W159",                           # TS1
+    "W155",                           # TS2
+    "W103", "W104", "W382",           # TS3
+    "W380", "W381",                   # TS4
+    "W061", "W391", "W400",           # IO1
+    "W063",                           # IO2
+    "W069", "W392", "W393",           # SS1
+    "W074", "W394", "W395",           # SS2
+    "W092", "W396",                   # SS3
+    "W075", "W345",                   # SS4
+    "W076", "W403", "W343", "W348"    # BG2
+  )
+)
 
-DF[is.na(DF)] <- 0
+wellfield_sites <- tibble(
+  Wellfield = c(
+    "Laws",
+    "Big Pine",
+    "Taboose/Aberdeen",
+    "Thibaut/Sawmill",
+    "Independence/Oak",
+    "Symmes/Shepherd",
+    "Bairs/Georges"
+  ),
+  Site = I(list(
+    c("LW1", "LW2", "LW3"),
+    c("BP1", "BP2", "BP3", "BP4"),
+    c("TA3", "TA4", "TA5", "TA6"),
+    c("TS1", "TS2", "TS3", "TS4"),
+    c("IO1", "IO2"),
+    c("SS1", "SS2", "SS3", "SS4"),
+    c("BG2")
+  ))
+) %>%
+  unnest(Site)
 
-# %>% replace(is.na(.), 0)
+site_map <- linked_wells_sites %>% select(Linked_Well, Site)
+wellfield_map <- linked_wells_sites %>%
+  left_join(wellfield_sites, by = "Site") %>%
+  select(Linked_Well, Wellfield)
 
-Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
-
-Data %>% dygraph(group = 'a') %>% 
-  dyStackedBarGroup(c("W210","W378","W379","W389"))%>%
-  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 8000))
-
+seasonal_by_site <- compute_linked_seasonal(tm2, linked_wells_sites, site_map, "Site", target_year = wy_year)
+seasonal_by_wellfield <- compute_linked_seasonal(tm2, linked_wells_sites, wellfield_map, "Wellfield", target_year = wy_year)
 ```
 
+Seasonal totals use **water year (WY, Oct–Sep end year)** for Apr–Sep and Oct–Mar. Runoff totals use **runoff year (RY, Apr–Mar start year)**. Example: RY2025 = Apr 2025–Mar 2026.
 
-### BP2
-```{r , fig.height= 3}
-#| label: bp2
-#| fig-cap: "BP2 linked wells"
+### Seasonal pumping totals by site (water year Oct-Sep)
 
-linked_wells <- c("W220","W229","W374","W375")
-
-DF <- totals_means %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1)) %>% replace(is.na(.), 0)
-
-Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
-
-Data %>% dygraph(group = 'a') %>% 
-  dyStackedBarGroup(c("W220","W229","W374","W375"))%>%
-  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 6000))
-
+```{r}
+DT::datatable(
+  seasonal_by_site$seasonal_wy,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)
+)
 ```
 
-### BP3
+### Runoff year totals by site (Apr-Mar)
 
-
-```{r , fig.height= 3}
-#| label: BP3 linked wells
-#| fig-cap: "BP3 linked wells"
-
-linked_wells <- c("W222","W223","W231","W232")
-DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))%>% replace(is.na(.), 0)
-
-Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
-
-Data %>% dygraph(group = 'a') %>% 
-  dyStackedBarGroup(c("W222","W223","W231","W232"))%>%
-  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 12000))
-
+```{r}
+DT::datatable(
+  seasonal_by_site$runoff_ry,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)
+)
 ```
 
-### BP4
-```{r , fig.height= 3}
-#| label: fig-w331-bp4
-#| fig-cap: BP4 linked to well W331
+### WY2025 percentiles by site (water year Oct-Sep)
 
-linked_wells <- c("W331")
+Percentiles are calculated within each site using the historical distribution of Apr–Sep totals (and separately Oct–Mar totals). WY2025 percentiles therefore rank the 2025 six‑month total against all prior years for that site.
 
+```{r}
+DT::datatable(
+  seasonal_by_site$percentiles_wy,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)
+)
+```
 
-DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))%>% replace(is.na(.), 0)
+### RY2025 percentiles by site (runoff year Apr-Mar)
 
-Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
-# Data <- tozoo(DF)
-# Data
-Data %>% dygraph(group = 'a') %>% 
-  dyBarChart()%>%
-  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 6000))
+```{r}
+DT::datatable(
+  seasonal_by_site$percentiles_ry,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)
+)
+```
 
+### Seasonal pumping totals by wellfield (water year Oct-Sep)
+
+```{r}
+DT::datatable(
+  seasonal_by_wellfield$seasonal_wy,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)
+)
+```
+
+### Runoff year totals by wellfield (Apr-Mar)
+
+```{r}
+DT::datatable(
+  seasonal_by_wellfield$runoff_ry,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)
+)
+```
+
+### WY2025 percentiles by wellfield (water year Oct-Sep)
+
+Percentiles are calculated within each wellfield using the historical distribution of Apr–Sep totals (and separately Oct–Mar totals). WY2025 percentiles therefore rank the 2025 six‑month total against all prior years for that wellfield.
+
+```{r}
+DT::datatable(
+  seasonal_by_wellfield$percentiles_wy,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)
+)
+```
+
+### RY2025 percentiles by wellfield (runoff year Apr-Mar)
+
+```{r}
+DT::datatable(
+  seasonal_by_wellfield$percentiles_ry,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)
+)
+```
+
+### Laws Monitoring Site #1 (LW1)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "LW1", linked_wells_sites)
+```
+
+### Laws Monitoring Site #2 (LW2)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "LW2", linked_wells_sites)
+```
+
+### Laws Monitoring Site #3 (LW3)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "LW3", linked_wells_sites)
+```
+
+### Laws Wellfield Total Pumping
+
+```{r, fig.height=3}
+plot_wellfield_total(
+  tm2,
+  field_sites = c("LW1", "LW2", "LW3"),
+  linked_wells_sites = linked_wells_sites,
+  title = "Laws Wellfield Total Pumping"
+)
+```
+
+### Big Pine Monitoring Site #1 (BP1)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "BP1", linked_wells_sites)
+```
+
+### Big Pine Monitoring Site #2 (BP2)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "BP2", linked_wells_sites)
+```
+
+### Big Pine Monitoring Site #3 (BP3)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "BP3", linked_wells_sites)
+```
+
+### Big Pine Monitoring Site #4 (BP4)
+
+```{r, fig.height=3}
+plot_linked_wells_single(tm2, "BP4", linked_wells_sites)
 ```
 
 ### Exempt Wells - Fish Hatchery and 218, 219
+
 ```{r , fig.height= 3}
 #| label: fig-hatchery-exempt
 #| fig-cap: "hatchery wells 330/332 and exempt wells 218/219"
 
 linked_wells <- c("W218","W219","W330","W332")
 
-DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))%>% replace(is.na(.), 0)
+DF <- tm2 %>%
+  filter(staid %in% linked_wells) %>%
+  mutate(read = if_else(read == -777, 0, read)) %>%
+  group_by(roy, staid) %>%
+  summarise(total_pumping = sum(read, na.rm = TRUE), .groups = "drop") %>%
+  mutate(roy2 = make_date(roy, 4, 1))
+
+DF <- pad_series_bounds(DF, "roy2", "staid", months_start = 6, months_end = 18)
 
 Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
-# Data <- tozoo(DF)
-# Data
-Data %>% dygraph(group = 'a')%>% 
-  dyStackedBarGroup(c("W218","W219","W330","W332"))%>%
-  dyBarChart()%>%
-  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 32000))
+year_totals_exempt <- DF %>%
+  group_by(roy2) %>%
+  summarise(total_pumping = sum(total_pumping, na.rm = TRUE), .groups = "drop")
+y_max_exempt <- max(year_totals_exempt$total_pumping, na.rm = TRUE)
+
+plot_exempt <- Data %>% dygraph(group = "a") %>%
+  dyStackedBarGroup(c("W218","W219","W330","W332")) %>%
+  dyBarChart() %>%
+  dyAxis("y", label = "Total Annual Pumping (AF)", axisLabelWidth = 70)
+
+if (is.finite(y_max_exempt)) {
+  plot_exempt <- plot_exempt %>% dyAxis("y", valueRange = c(0, y_max_exempt * 1.05))
+}
+
+plot_exempt
 
 ```
 
 ### Big Pine Pumping Totals
+
 ```{r}
 #| label: bppumping
 #| fig-cap: "Big Pine Wellfield Pumping"
 
 linked_wells <- c("W210","W378","W379","W389","W220","W229","W374","W375","W222","W223","W231","W232","W331","W218","W219","W330","W332")
 
-DF <- tm2 %>% filter(staid %in% linked_wells) %>% mutate(case_when(read == -777 ~ 0)) %>% group_by(roy,staid)%>% summarise(total_pumping = sum(read)) %>% select(roy,staid,total_pumping) %>% mutate(roy2 = make_date(roy,4,1))%>% replace(is.na(.), 0)
+DF <- tm2 %>%
+  filter(staid %in% linked_wells) %>%
+  mutate(read = if_else(read == -777, 0, read)) %>%
+  group_by(roy, staid) %>%
+  summarise(total_pumping = sum(read, na.rm = TRUE), .groups = "drop") %>%
+  mutate(roy2 = make_date(roy, 4, 1))
+
+DF <- pad_series_bounds(DF, "roy2", "staid", months_start = 6, months_end = 18)
 
 Data <- do.call(merge, lapply(split(DF, DF$staid), tozoo))
-# Data <- tozoo(DF)
-# Data
-Data %>% dygraph(group = 'a')%>% 
-  dyStackedBarGroup(c("W210","W378","W379","W389","W220","W229","W374","W375","W222","W223","W231","W232","W331","W218","W219","W330","W332"))%>%
-  dyBarChart()%>%
-  dyAxis("y", label = "Total Annual Pumping (AF)", valueRange = c(0, 32000))
+year_totals_bp <- DF %>%
+  group_by(roy2) %>%
+  summarise(total_pumping = sum(total_pumping, na.rm = TRUE), .groups = "drop")
+y_max_bp <- max(year_totals_bp$total_pumping, na.rm = TRUE)
 
+plot_bp <- Data %>% dygraph(group = "a") %>%
+  dyStackedBarGroup(c("W210","W378","W379","W389","W220","W229","W374","W375","W222","W223","W231","W232","W331","W218","W219","W330","W332")) %>%
+  dyBarChart() %>%
+  dyAxis("y", label = "Total Annual Pumping (AF)", axisLabelWidth = 70)
 
+if (is.finite(y_max_bp)) {
+  plot_bp <- plot_bp %>% dyAxis("y", valueRange = c(0, y_max_bp * 1.05))
+}
+
+plot_bp
 
 ```
 
+### Taboose/Aberdeen Monitoring Site #3 (TA3)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TA3", linked_wells_sites)
+```
+
+### Taboose/Aberdeen Monitoring Site #4 (TA4)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TA4", linked_wells_sites)
+```
+
+### Taboose/Aberdeen Monitoring Site #5 (TA5)
+
+```{r, fig.height=3}
+plot_linked_wells_single(tm2, "TA5", linked_wells_sites)
+```
+
+### Taboose/Aberdeen Monitoring Site #6 (TA6)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TA6", linked_wells_sites)
+```
+
+### Taboose/Aberdeen Wellfield Total Pumping
+
+```{r, fig.height=3}
+plot_wellfield_total(
+  tm2,
+  field_sites = c("TA3", "TA4", "TA5", "TA6"),
+  linked_wells_sites = linked_wells_sites,
+  title = "Taboose/Aberdeen Wellfield Total Pumping"
+)
+```
+
+### Thibaut/Sawmill Monitoring Site #1 (TS1)
+
+```{r, fig.height=3}
+plot_linked_wells_single(tm2, "TS1", linked_wells_sites)
+```
+
+### Thibaut/Sawmill Monitoring Site #2 (TS2)
+
+```{r, fig.height=3}
+plot_linked_wells_single(tm2, "TS2", linked_wells_sites)
+```
+
+### Thibaut/Sawmill Monitoring Site #3 (TS3)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TS3", linked_wells_sites)
+```
+
+### Thibaut/Sawmill Monitoring Site #4 (TS4)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "TS4", linked_wells_sites)
+```
+
+### Thibaut/Sawmill Wellfield Total Pumping
+
+```{r, fig.height=3}
+plot_wellfield_total(
+  tm2,
+  field_sites = c("TS1", "TS2", "TS3", "TS4"),
+  linked_wells_sites = linked_wells_sites,
+  title = "Thibaut/Sawmill Wellfield Total Pumping"
+)
+```
+
+### Independence/Oak Monitoring Site #1 (IO1)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "IO1", linked_wells_sites)
+```
+
+### Independence/Oak Monitoring Site #2 (IO2)
+
+```{r, fig.height=3}
+plot_linked_wells_single(tm2, "IO2", linked_wells_sites)
+```
+
+### Independence/Oak Wellfield Total Pumping
+
+```{r, fig.height=3}
+plot_wellfield_total(
+  tm2,
+  field_sites = c("IO1", "IO2"),
+  linked_wells_sites = linked_wells_sites,
+  title = "Independence/Oak Wellfield Total Pumping"
+)
+```
+
+### Symmes/Shepherd Monitoring Site #1 (SS1)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "SS1", linked_wells_sites)
+```
+
+### Symmes/Shepherd Monitoring Site #2 (SS2)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "SS2", linked_wells_sites)
+```
+
+### Symmes/Shepherd Monitoring Site #3 (SS3)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "SS3", linked_wells_sites)
+```
+
+### Symmes/Shepherd Monitoring Site #4 (SS4)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "SS4", linked_wells_sites)
+```
+
+### Symmes/Shepherd Wellfield Total Pumping
+
+```{r, fig.height=3}
+plot_wellfield_total(
+  tm2,
+  field_sites = c("SS1", "SS2", "SS3", "SS4"),
+  linked_wells_sites = linked_wells_sites,
+  title = "Symmes/Shepherd Wellfield Total Pumping"
+)
+```
+
+### Bairs/Georges Monitoring Site #2 (BG2)
+
+```{r, fig.height=3}
+plot_linked_wells(tm2, "BG2", linked_wells_sites)
+```
+
+### Bairs/Georges Wellfield Total Pumping
+
+```{r, fig.height=3}
+plot_wellfield_total(
+  tm2,
+  field_sites = c("BG2"),
+  linked_wells_sites = linked_wells_sites,
+  title = "Bairs/Georges Wellfield Total Pumping"
+)
+```

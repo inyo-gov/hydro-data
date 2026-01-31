@@ -1,6 +1,6 @@
 ---
-title: "Groundwater data processing"
-description: "Code automates extracting water level time series data from ZRXP ASCII data exchange format, transforming and merging updates with the active database, and exporting a csv file formatted for the OVGA data management system."
+title: "Depth to water - annual water year updates"
+description: "This report documents the annual water-year migration of depth-to-water observations, including ingestion of ZRXP data, QA/QC screening, integration with the active database, and preparation of OVGA-formatted deliverables."
 format: 
   html: 
     toc: true
@@ -15,28 +15,28 @@ format:
     html-math-method: katex
 tbl-cap-location: top   
 # number-sections: true    
-author: "Zach Nelson"
+author: "Inyo County Water Department"
 affiliation: "Inyo County Water Department"
 affiliation-title: "Senior Scientist"
-date: "2024-01-26"
-date-modified: "2024-01-26"
+date: "2025-10-01"
+date-modified: "2026-01-26"
 draft: false
 image: "lw-i85-fac-1.png"
 citation:
   type: report
   container-title: "Data Report"
   publisher: "Inyo County Water Department"
-  issued: "2024-01-26"
+  issued: "2024-12-10"
   url: https://inyo-gov.github.io/hydro-data/
 google-scholar: true
 categories: [R, hydrology, monitoring wells, surface water flow, pumping volumes, LADWP data, OVGA, time series]
 ---
 
-# Overview
+# Abstract
 
-Depth to water measurements from LADWP monitoring wells are provided to ICWD after the end of each water year. Data is exported from WISKI (water information system by [Kisters](https://www.kisters.net/wiski/)) in ZRXP format, an ASCII data exchange file format with a repeating header-data structure. These .DAT text files can be opened in a text editor or excel for processing, but here they are programmatically parsed, processed, [appended to the active internal database](#mastersave) and [formatted and exported for the annual OVGA data management system updates](#ovgasave).
+Depth-to-water observations from LADWP monitoring wells are delivered after each water year. Data are exported from WISKI (water information system by [Kisters](https://www.kisters.net/wiski/)) in ZRXP format, parsed programmatically, [integrated with the active internal database](#mastersave), and [exported in OVGA upload format](#ovgasave).
 
-Summary information about the processing, number of records dropped etc, and indicator well hydrographs for visual QA/QC are provided. The most recent OVGA depth to water import template instructions are included as an appendix. Before running the same code for the next year, update `year` in the file names for 1) [the water year on the input files and master database](#updatewy), 2) [output file name for the master database](#masterdb) and the 3) [ovga update file](#ovgaupdate). The [index.qmd](https://github.com/inyo-gov/hydro-data/blob/main/index.qmd) of this repository contains the full code to process the data and produce this document.
+The report summarizes QA/QC checks (record counts, filtered records) and indicator‑well hydrographs, and includes OVGA import procedures in the appendix. For annual updates, adjust the `year` values for 1) [input file paths and the master database](#updatewy), 2) [the master output file](#masterdb), and 3) [the OVGA upload file](#ovgaupdate). The [index.qmd](https://github.com/inyo-gov/hydro-data/blob/main/index.qmd) in this repository contains the full processing code and report text.
 
 ```{r packages-setup, warning = FALSE,message = FALSE,include=FALSE}
 #| code-fold: true
@@ -49,18 +49,18 @@ library(knitr)
 library(here)
 library(DT)
 
-knitr::opts_chunk$set(echo = FALSE,warning = FALSE,message = FALSE,cache=TRUE)
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE,message = FALSE,cache=FALSE)
 ```
 
-# Data {#updatewy}
+# Data sources and preprocessing {#updatewy}
 
-Processed here:
+Input files (WY2025):
 
--   `DepthRP_2022-23.dat` - Depth to water reads measured from the reference point (RP) elevation;
+-   `DepthRP_2024-25.dat` — depth to water from reference point (RP) elevation
 
--   `DepthGE_2022-23.dat` - Depth to water below ground elevation;
+-   `DepthGE_2024-25.dat` — depth to water below ground elevation
 
--   `OwensValley_DepthWSE.dat` - Water surface elevation.
+-   `OwensValley_DepthWSE_2024-25.dat` — water surface elevation
 
 ![ZRXP format .DAT files](/data/hydro/files_fromLA.png){fig-align="center" width="80%"}
 
@@ -70,38 +70,158 @@ Processed here:
 
 # new data updates -------
 #.dat ascii files
-file_pathWSE <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','OwensValley_DepthWSE_2022-23.dat')
-file_pathRP <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','DepthRP_2022-23.dat')
-file_pathGE <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','DepthGE_2022-23.dat')
+# file_pathWSE <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','OwensValley_DepthWSE_2022-23.dat')
+# file_pathRP <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','DepthRP_2022-23.dat')
+# file_pathGE <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','DepthGE_2022-23.dat')
 
 
-# parsed on 1-23-24 so they can be read in from the RDS file
-depthRP <- readRDS(file = here('data','hydro','depthRP.RDS'))
-depthGE <- readRDS(file = here('data','hydro','depthGE.RDS'))
-depthWSE <- readRDS(file = here('data','hydro','depthWSE.RDS'))
+file_pathWSE <-here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','OwensValley_DepthWSE_2024-25.dat')
+file_pathRP <-here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','DepthRP_2024-25.dat')
+file_pathGE <-here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','DepthGE_2024-25.dat')
 
-# ground surface elevation
-gse_staids <- read_csv(here('data','hydro','gse_staids.csv'))
 
-# staids in ovga database - used to cross reference what will be accepted into an import
+wYear <- '2025'
+
+parse_depth_file <- function(file_path, value_name) {
+  dat_content <- readLines(file_path)
+  data_list <- list()
+
+  is_data_line <- function(line) {
+    grepl("\\d+ \\d+\\.\\d+", line)
+  }
+
+  for (line in dat_content) {
+    if (startsWith(line, "#TSPATH")) {
+      staid <- sub('.*/([TVFRSW]\\w+).*', '\\1', line)
+    }
+
+    if (!startsWith(line, "#") && is_data_line(line) && !is.na(staid)) {
+      data_list <- c(data_list, list(data.frame(staid, dateread = line)))
+    }
+  }
+
+  data_df <- bind_rows(data_list) %>% select(staid, dateread) %>% na.omit()
+  data_df <- data_df %>% separate(dateread, c("date", value_name), sep = " ")
+  data_df[[value_name]] <- as.numeric(data_df[[value_name]])
+  data_df
+}
+
+depthRP_path <- here('data','hydro','2025','depthRP.RDS')
+depthGE_path <- here('data','hydro','2025','depthGE.RDS')
+depthWSE_path <- here('data','hydro','2025','depthWSE.RDS')
+
+depthRP <- if (file.exists(depthRP_path)) {
+  readRDS(depthRP_path)
+} else {
+  depthRP <- parse_depth_file(file_pathRP, "dtw.rp")
+  saveRDS(depthRP, file = depthRP_path)
+  depthRP
+}
+
+depthGE <- if (file.exists(depthGE_path)) {
+  readRDS(depthGE_path)
+} else {
+  depthGE <- parse_depth_file(file_pathGE, "dtw.bgs")
+  saveRDS(depthGE, file = depthGE_path)
+  depthGE
+}
+
+depthWSE <- if (file.exists(depthWSE_path)) {
+  readRDS(depthWSE_path)
+} else {
+  depthWSE <- parse_depth_file(file_pathWSE, "wse")
+  saveRDS(depthWSE, file = depthWSE_path)
+  depthWSE
+}
+
+# ground surface elevation at staids
+gse_staids <- read_csv(here('data','hydro', 'gse_staids.csv'))
+
+# staids in ovga database------
+# used to cross reference what will be accepted into an import
 # need to filter out staids that aren't in the ovga list, otherwise import will fail
 ovga_points <- read_csv(here("data","hydro","Owens_Monitoring_Points.csv"))
 
 # reference point elevation - some staids don't have RP elevations. Identify these here for the current water year transfer
 rpelev <- read_csv(here('data','hydro','rp_elev.csv'))
+last_ovga_mw <- read_csv(here('output','ovga_uploads_mw_with_rpe_102023_092024_zn.csv'))
 
-# ovga_uploads_mw_with_rpe_102021_092022_zn
-# ovga_uploads_mw_with_rpe_102021_092022_zn
-last_ovga_mw <- read_csv(here('output','ovga_uploads_mw_with_rpe_102021_092022_zn.csv'))
 # historical water levels------
-hist <- read_csv(here('data','hydro','Monitoring_Wells_Master_2022.csv'))
+hist <- read_csv(here('output','Monitoring_Wells_Master_2024.csv'))
 hist$date <- ymd(hist$date)
 
 ```
 
-![](/data/hydro/ascii-ex.png){fig-align="center" width="80%"}
+## Raw input coverage
 
-The file repeats header information and data rows for each monitoring well, so we extract the well id from the `#TSPATH` line using matching, and join it to the observations (lines that don't start with `#`).
+```{r raw-input-coverage-files}
+#| code-fold: true
+#| code-summary: "raw input coverage"
+
+raw_input_coverage <- tibble(
+  File = c(
+    basename(file_pathRP),
+    basename(file_pathGE),
+    basename(file_pathWSE)
+  ),
+  Records = c(
+    nrow(depthRP),
+    nrow(depthGE),
+    nrow(depthWSE)
+  ),
+  Unique_staids = c(
+    dplyr::n_distinct(depthRP$staid),
+    dplyr::n_distinct(depthGE$staid),
+    dplyr::n_distinct(depthWSE$staid)
+  ),
+  Date_start = c(
+    min(ymd_hms(depthRP$date), na.rm = TRUE),
+    min(ymd_hms(depthGE$date), na.rm = TRUE),
+    min(ymd_hms(depthWSE$date), na.rm = TRUE)
+  ),
+  Date_end = c(
+    max(ymd_hms(depthRP$date), na.rm = TRUE),
+    max(ymd_hms(depthGE$date), na.rm = TRUE),
+    max(ymd_hms(depthWSE$date), na.rm = TRUE)
+  )
+)
+
+knitr::kable(raw_input_coverage)
+```
+
+![](/data/hydro/ascii-ex.png){fig-align="center" width="80%" fig-cap="ZRXP .DAT example format from WY2022-23 (illustrative)."}
+
+Each file repeats headers for each monitoring well. Extract the well ID from `#TSPATH` and join to observation rows (lines that do not start with `#`).
+
+## Monitoring points map (static)
+
+```{r monitoring-points-map, fig.width = 6.5, fig.height = 9, fig.cap = "Owens Valley monitoring points (north to south)."}
+#| code-fold: true
+#| code-summary: "monitoring points map"
+
+ovga_points_map <- ovga_points %>%
+  mutate(
+    mon_pt_lat = as.numeric(mon_pt_lat),
+    mon_pt_long = as.numeric(mon_pt_long),
+    mon_pt_lat = if_else(mon_pt_lat < 0, NA_real_, mon_pt_lat),
+    mon_pt_long = if_else(mon_pt_long > 0, NA_real_, mon_pt_long)
+  ) %>%
+  filter(
+    !is.na(mon_pt_lat),
+    !is.na(mon_pt_long),
+    hide_from_public == 0,
+    between(mon_pt_lat, 35, 39.5),
+    between(mon_pt_long, -120.5, -116.5)
+  ) %>%
+  arrange(desc(mon_pt_lat))
+
+ggplot(ovga_points_map, aes(x = mon_pt_long, y = mon_pt_lat, color = mon_pt_lat)) +
+  geom_point(alpha = 0.7, size = 0.7) +
+  scale_color_viridis_c(option = "C", guide = "none") +
+  coord_fixed() +
+  labs(x = "Longitude", y = "Latitude") +
+  theme_minimal()
+```
 
 ```{r rpdtw, eval=FALSE}
 #| code-fold: true
@@ -142,17 +262,21 @@ depthRP <- na.omit(data_df) %>% select(staid, dateread)
 
 depthRP <- depthRP %>% separate(dateread, c("date", "dtw.rp"),sep = " ") 
 depthRP$dtw.rp<- as.numeric(depthRP$dtw.rp)
-# head(depthRP)
 
-saveRDS(depthRP, file = here('data','hydro','depthRP.RDS'))
+head(depthRP)
+
+saveRDS(depthRP, file = here('data','hydro','2025','depthRP.RDS'))
 
 
-# is read_rds() 
+#count records 2022-23
+# 96,537 records
 
-# Print the tidy data frame
-# head(depthRP)
-# 96,537 records \# Parse WSE - rp elev - rp dtw = wse
+#count records 2023-24
+#count records
+nrow(depthRP)
 ```
+
+
 
 ```{r gedtw_ex, echo = TRUE, eval=FALSE}
 #| code-fold: true
@@ -190,31 +314,20 @@ data_df <- bind_rows(data_list)
 # Remove rows with NA values, Remove 'row' and 'value' columns
 depthGE <- na.omit(data_df) %>% select(staid, dateread)
 
-# Print the tidy data frame
-# head(depthGE)
-# 68,180 records
-
-
-# separate data column 'dateread' into date and dtw read for depthGE, depthRP, depthWSE separate datasets
-
 #separate the data column and assign numeric class to dtw
 depthGE <- depthGE %>% separate(dateread, c("date", "dtw.bgs"),sep = " ") 
 depthGE$dtw.bgs <- as.numeric(depthGE$dtw.bgs)
 # head(depthGE)
-saveRDS(depthGE, file = here('data','hydro','depthGE.RDS'))
 
-# notes: The sub function is used to perform a substitution or replacement in a string. Let me break down the pattern used in sub('.*/([TVFRSW]\\w+).*', '\\1', line):
-# 
-# .*: This matches any characters (except for a newline) zero or more times.
-# /: This matches the literal character '/'.
-# ([TVFRSW]\\w+): This is a capturing group that matches a letter 'T', 'V', 'F', 'R', 'S', or 'W' followed by one or more word characters (letters, digits, or underscores). The parentheses create a group that can be referred to later.
-# .*: Similar to the first one, this matches any characters (except for a newline) zero or more times.
-# The replacement part '\\1' refers to the content captured by the first capturing group, which is the part inside the parentheses. In this case, it's the letter followed by one or more word characters. So, it effectively extracts that part from the original string.
-# 
-# For example, if line is "#TSPATH/0b/T361/GW/GW.DepthGE||CUNITft||RINVAL-777||SNAMET.H. 361||SANRT361|*|", the sub function will replace it with "T361" because that's what is captured by the pattern within the parentheses.
-# 
-# The goal here is to extract the 'staid' value from the '#TSPATH' line. The sub function is a way to match and replace parts of a string based on a specified pattern.
+saveRDS(depthGE, file = here('data','hydro','2025','depthGE.RDS'))
+
+# notes: sub('.*/([TVFRSW]\\w+).*', '\\1', line) extracts the staid from the #TSPATH line.
 ```
+
+```{r}
+nrow(depthGE)
+```
+
 
 ```{r wse, eval=FALSE}
 #| code-fold: true
@@ -256,12 +369,56 @@ depthWSE <- na.omit(data_df) %>% select(staid, dateread)
 depthWSE <- depthWSE %>% separate(dateread, c("date", "wse"),sep = " ") 
 depthWSE$wse <- as.numeric(depthWSE$wse)
 # head(depthWSE)
-saveRDS(depthWSE, file = here('data','hydro','depthWSE.RDS'))
+saveRDS(depthWSE, file = here('data','hydro','2025','depthWSE.RDS'))
+```
 
+```{r rp}
 # Print the tidy data frame
 # head(depthWSE)
 # 68559 records
 ```
+
+```{r}
+nrow(depthWSE)
+```
+
+## Raw input coverage
+
+```{r raw-input-coverage}
+get_date_range <- function(df, col) {
+  if (is.null(df) || nrow(df) == 0 || !(col %in% names(df))) {
+    return("NA")
+  }
+  parsed <- suppressWarnings(ymd_hms(df[[col]], quiet = TRUE))
+  if (all(is.na(parsed))) {
+    parsed <- suppressWarnings(ymd(df[[col]], quiet = TRUE))
+  }
+  if (all(is.na(parsed))) {
+    return("NA")
+  }
+  paste0(min(as.Date(parsed), na.rm = TRUE), " to ", max(as.Date(parsed), na.rm = TRUE))
+}
+
+raw_input_coverage <- tibble(
+  Dataset = c("DepthRP", "DepthGE", "DepthWSE"),
+  File = c(basename(file_pathRP), basename(file_pathGE), basename(file_pathWSE)),
+  Exists = c(file.exists(file_pathRP), file.exists(file_pathGE), file.exists(file_pathWSE)),
+  Records = c(nrow(depthRP), nrow(depthGE), nrow(depthWSE)),
+  `Unique staids` = c(
+    dplyr::n_distinct(depthRP$staid),
+    dplyr::n_distinct(depthGE$staid),
+    dplyr::n_distinct(depthWSE$staid)
+  ),
+  `Date range` = c(
+    get_date_range(depthRP, "date"),
+    get_date_range(depthGE, "date"),
+    get_date_range(depthWSE, "date")
+  )
+)
+
+knitr::kable(raw_input_coverage)
+```
+
 
 ```{r jointypes}
 #| code-fold: true
@@ -303,8 +460,7 @@ testwell.up <- try %>% select(-date, -datetime) %>% rename(date = date.y.m.d) %>
 
 ```
 
--   `r testwell.up %>% nrow()` rows in the annual update
--   `r testwell.up %>% distinct(staid) %>% nrow()` staids in annual update
+
 
 ```{r appendupdates, echo = TRUE}
 #| code-fold: true
@@ -320,38 +476,74 @@ testwells.combined <- bind_rows(hist, testwell.up)
 # testwells.combined %>% distinct(staid) %>% nrow()
 ```
 
--   `r testwells.combined %>% nrow()` rows in the active database
--   `r testwells.combined %>% distinct(staid) %>% nrow()` staids in the active database
+```{r testwell-summary}
+#| code-fold: true
+#| code-summary: "annual update summary"
 
-# DB update {#mastersave}
+testwell_summary <- tibble(
+  Metric = c(
+    "Annual update rows",
+    "Annual update staids",
+    "Active database rows",
+    "Active database staids"
+  ),
+  Value = c(
+    nrow(testwell.up),
+    dplyr::n_distinct(testwell.up$staid),
+    nrow(testwells.combined),
+    dplyr::n_distinct(testwells.combined$staid)
+  )
+) %>% mutate(Value = format(Value, big.mark = ","))
 
-## export db file {#masterdb}
+knitr::kable(testwell_summary)
+```
 
+
+
+# Data integration and outputs {#mastersave}
+
+## Database exports {#masterdb}
+
+### 2023 water year
 -   [Completed 1-24-24 annual update](https://github.com/inyo-gov/hydro-data/blob/main/output/testwellwy2023.csv)
-
 -   [Completed 1-24-24 full database](https://github.com/inyo-gov/hydro-data/blob/main/output/Monitoring_Wells_Master_2023.csv)
 
-```{r dbupdatesavecsv, eval = FALSE, echo=TRUE}
+### 2024 water year
+-   [Completed 12-10-24 annual update](https://github.com/inyo-gov/hydro-data/blob/main/output/testwellwy2024.csv)
+-   [Completed 12-10-24 full database](https://github.com/inyo-gov/hydro-data/blob/main/output/Monitoring_Wells_Master_2024.csv)
+
+### 2025 water year
+-   [Completed 1-26-26 annual update](https://github.com/inyo-gov/hydro-data/blob/main/output/2025wy/ICWD/testwellwy2025.csv)
+-   [Completed 1-26-26 full database](https://github.com/inyo-gov/hydro-data/blob/main/output/2025wy/ICWD/Monitoring_Wells_Master_2025.csv)
+
+```{r dbupdatesavecsv, echo=TRUE}
 #| code-fold: true
 #| code-summary: "save master database updates"
 
+out_icwd <- here("output", "2025wy", "ICWD")
+dir.create(out_icwd, recursive = TRUE, showWarnings = FALSE)
+
 # single year
-testwell.up %>% write_csv(here('output','testwellwy2023.csv'))
+testwell.up %>% write_csv(file.path(out_icwd, "testwellwy2025.csv"))
 
 # whole dataset
-testwells.combined %>% write_csv(here('output','Monitoring_Wells_Master_2023.csv'))
+testwells.combined %>% write_csv(file.path(out_icwd, "Monitoring_Wells_Master_2025.csv"))
 
 # 
 ```
 
 ::: column-page
 ```{r updatetable}
-datatable(testwell.up,
-  caption = 'updates to the active database.')
+datatable(
+  testwell.up,
+  caption = "updates to the active database.",
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  class = "compact stripe"
+)
 ```
 :::
 
-# Reference point elevation data
+# Reference point elevation integration
 
 ```{r make-rpdate, echo = TRUE}
 #| code-fold: true
@@ -363,7 +555,8 @@ datatable(testwell.up,
 rpelev_date <- rpelev %>% 
   mutate(date = lubridate::mdy(date_c))
 
-head(rpelev_date) %>% datatable()
+head(rpelev_date) %>%
+  datatable(options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE))
 ```
 
 ```{r most-recent-rp}
@@ -375,7 +568,8 @@ most_recent_rp <- rpelev_date %>%
   group_by(staid) %>%
   summarise(date = max(date))
 
-head(most_recent_rp) %>% datatable()
+head(most_recent_rp) %>%
+  datatable(options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE))
 
 ```
 
@@ -386,7 +580,8 @@ rpelev_4 <- most_recent_rp %>%
   mutate(latest_rp_date = date) %>% 
   select(-date,-date_c)
 
-rpelev_4 %>% arrange(staid) %>% datatable()
+rpelev_4 %>% arrange(staid) %>%
+  datatable(options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE))
 
 # head(rpelev_4)
 # 1178 rp elevations 1363 unique staids
@@ -412,16 +607,17 @@ dtwrp.rpelev%>%
 #| code-fold: true
 #| code-summary: "staid daily count"
 
-# top staids? 
+# top staids by daily count
 dailycount <- dtwrp.rpelev %>% group_by(staid,date) %>% summarise(daily_count = n()) %>% arrange(-daily_count)
-dailycount %>% datatable()
+dailycount %>%
+  datatable(options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE))
 ```
 
 ```{r dailyhist}
 #| code-fold: true
 #| code-summary: "daily count histogram"
 
-
+# histogram of daily counts
 dailycount %>% ggplot(aes(x = daily_count))+
   geom_histogram()
 ```
@@ -430,11 +626,11 @@ dailycount %>% ggplot(aes(x = daily_count))+
 #| code-fold: true
 #| code-summary: "join rp to annual update"
 
-# dailycount %>% group_by(daily_count) %>% summarise(count_unique_staids = n(unique(staid)))
+# bin staids by daily count
 dc <- dailycount%>%
   mutate(daily_count_category = cut(daily_count, breaks = c(0,1,2,3,4, 5, 10, 15, 20,50,100), include.lowest = TRUE)) 
 
-dc 
+dc
 # %>% n_distinct(staid)
 ```
 
@@ -448,6 +644,8 @@ bincount
 
 ```{r }
 # from staids that have multirecord days, how many also have singleton record days?
+
+
 single <- bincount$daily_count_category[1]%>% as.data.frame()
 single[1]
 # bincount %>% 
@@ -456,19 +654,65 @@ single[1]
 
 ```
 
-115 out of 785 staids have multiple measurements per day, some hourly and few up to 15min intervals.
+```{r daily-summary-text, echo=FALSE, results="asis"}
+# Summarize multiple-measurement wells for text output
+staids_total <- dailycount %>% distinct(staid) %>% nrow()
+staids_multi <- dailycount %>% filter(daily_count > 1) %>% distinct(staid) %>% nrow()
+staids_multi_with_single <- dailycount %>%
+  group_by(staid) %>%
+  summarise(has_multi = any(daily_count > 1), has_single = any(daily_count == 1), .groups = "drop") %>%
+  filter(has_multi, has_single) %>%
+  nrow()
 
-100 staids out of the 115 that have multiple measurements per day, also have single measurements per day.
+cat(
+  paste0(
+    staids_multi, " out of ", staids_total,
+    " staids have multiple measurements per day (some hourly and a few up to 15‑minute intervals). "
+  )
+)
+cat(
+  paste0(
+    staids_multi_with_single, " of those ",
+    staids_multi, " staids also have single‑measurement days."
+  )
+)
+```
+
+We harmonize these to daily values to reduce data size and make the annual update consistent across measurement frequencies. The next steps below show how we aggregate to daily means and then summarize by water year for export.
 
 ```{r}
+
+
+
 wyfreq <- dc %>% group_by(staid, daily_count_category) %>% summarise(wy_totcount = sum(daily_count)) %>% arrange(-wy_totcount) %>% mutate(wy_count_category = cut(wy_totcount, breaks = c(0, 5, 10, 15, 20,50,1000,5000,10000), include.lowest = TRUE))
-wyfreq %>% datatable()
+wyfreq %>%
+  datatable(options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE))
    
 ```
 
 43 out of 785 staids have more than 1k records, 9 over 5k each. The rest of the staids have less than 32 measures a year.
 
+2025 water year summary: updated with WY2025 outputs.
 ```{r}
+
+# x = as.factor(staid),
+wyfreq %>% ggplot(aes( x = wy_totcount, fill = wy_count_category))+
+  geom_histogram()+
+  # +color = "white", fill = "lightblue", alpha = 0.7
+  # geom_histogram(breaks = c(0,1,2,3,4, 5,6,7,8,9, 10,11,12, 15, 20,50,1000,5000,10000)) +
+  xlim(40,6000)+
+  ylim(0, 5)+
+  theme_linedraw()+
+  ylab("Number of wells")+
+  xlab("Number of records in water year (wells with more than 40 records")
+# breaks = c(0,1,2,3,4, 5, 10, 15, 20,50,100)
+
+  # scale_x_continuous(breaks = seq(0, 35, by = 1))
+
+```
+
+```{r}
+
 # x = as.factor(staid),
 wyfreq %>% ggplot(aes( x = wy_totcount, fill = wy_count_category))+
   geom_histogram()+
@@ -593,7 +837,7 @@ rpselect <- dtwrpavg.rpelev %>% anti_join(na.rp.elev, by = "staid")
 
 ```
 
-keep those with rp elev and that are on the ovga list
+Filter to records with RP elevation and valid OVGA monitoring points.
 
 ```{r withrpovgalist, echo = TRUE}
 #| code-fold: true
@@ -603,21 +847,13 @@ keep those with rp elev and that are on the ovga list
 # semi_join returns records in x with a match in y
 rpselect2 <- rpselect %>% semi_join(ovga_points, by = c("staid"="mon_pt_name"))
 # head(rpselect2)
-rpselect2
+rpselect2 %>% arrange(staid,desc(date))
 # datatable(rpselect2)
 
-# -   `r record.number %>% nrow()` number of staids with rp elevations
-# 
-# -   `r LA.staids %>% nrow()` staids with rp elevation in data
-# 
-# -   `r LA.staids.in.ovga %>% nrow()` staids in data also in the OVGA database
-# 
-# -   `r LA.staids %>% nrow()-LA.staids.in.ovga %>% nrow()` omitted from import
-# 
-# -   `r na.rp.elev %>% nrow()` staids missing rp elevations after join
+
 ```
 
-## OVGA template {#ovgasave}
+## OVGA template and export {#ovgasave}
 
 ```{r ovgacolumns, echo = TRUE}
 #| code-fold: true
@@ -658,10 +894,22 @@ upload
 df <- upload %>% 
   filter(ReferencePointElevation == "")
 ```
+# 2023 water year
 
 [Completed 1-24-24](https://github.com/inyo-gov/hydro-data/blob/main/output/ovga_uploads_mw_with_rpe_102022_092023_zn.csv)
 
 [csv](https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/ovga_uploads_mw_with_rpe_102022_092023_zn.csv)
+
+# 2024 water year
+[Completed 12-10-24](https://github.com/inyo-gov/hydro-data/blob/main/output/ovga_uploads_mw_with_rpe_102023_092024_zn.csv)
+
+[csv](https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/ovga_uploads_mw_with_rpe_102023_092024_zn.csv)
+
+# 2025 water year
+[Completed 1-26-26](https://github.com/inyo-gov/hydro-data/blob/main/output/2025wy/OVGA/ovga_uploads_mw_with_rpe_102024_092025_zn.csv)
+
+[csv](https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/2025wy/OVGA/ovga_uploads_mw_with_rpe_102024_092025_zn.csv)
+
 
 -   `r rpselect %>% nrow()` well-days in update with rp elevations
 
@@ -675,7 +923,7 @@ df <- upload %>%
 
 -   `r upload %>% group_by(WellName) %>% summarise(records = n()) %>% nrow()` staids in the ovga upload
 
-## export ovga import file {#ovgaupdate}
+## OVGA export and comparison {#ovgaupdate}
 
 ```{r}
 #| code-fold: true
@@ -693,7 +941,11 @@ current <- upload %>% group_by(WellName) %>%
 
 compare <- last %>% full_join(current, by = "WellName") %>% filter(is.na(current.staid))
 
-datatable(compare)
+datatable(
+  compare,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  class = "compact stripe"
+)
 ```
 
 ```{r, eval = FALSE}
@@ -703,7 +955,7 @@ datatable(compare)
 compare %>% write_csv(here("output","staidsMissingDepthGEandRP.csv"))
 ```
 
-35 staids included last year in 2022 wy, and not this year 2023 wy. These staids do have water surface elevation but not depth to water from reference point required by ovga. I can calculate the depthRP from rp elevation - wse on next iteration. 17k records so pressure transducer data
+Review this comparison after WY2025 processing to confirm which staids are missing and whether WSE-derived RP calculations are needed.
 
 ```{r}
 #| code-fold: true
@@ -714,6 +966,7 @@ yoymisscheck <- testwell.up %>% filter(staid %in% compare$WellName)
 # 17479 records in these 35 staids
 # these have depthWSE but not depthGE
 yoymisscheck %>% glimpse()
+
 ```
 
 ```{r ovga_format_saved, echo=TRUE}
@@ -721,7 +974,9 @@ yoymisscheck %>% glimpse()
 #| code-fold: true
 #| code-summary: "save OVGA import"
 
-upload %>% write_csv(here("output","ovga_uploads_mw_with_rpe_102022_092023_zn.csv"))
+out_ovga <- here("output", "2025wy", "OVGA")
+dir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)
+upload %>% write_csv(file.path(out_ovga, "ovga_uploads_mw_with_rpe_102024_092025_zn.csv"))
 
 ```
 
@@ -730,20 +985,40 @@ upload %>% write_csv(here("output","ovga_uploads_mw_with_rpe_102022_092023_zn.cs
 #| code-fold: true
 #| code-summary: "datatable"
 
-datatable(upload,
-  caption = '2022-2023 water year upload formatted for OVGA data managagement system.')
+datatable(
+  upload,
+  caption = "2024-2025 water year upload formatted for OVGA data management system.",
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  class = "compact stripe"
+)
 
 
 
 ```
 :::
 
-![](/images/import-dtw-successful.png)
+```{r ovga-import-metrics}
+#| code-fold: true
+#| code-summary: "OVGA import metrics"
 
-![](/images/total-records-imported.png)
+ovga_import_metrics <- tibble(
+  Metric = c(
+    "Rows in OVGA upload",
+    "Unique monitoring points",
+    "Date range"
+  ),
+  Value = c(
+    nrow(upload),
+    dplyr::n_distinct(upload$WellName),
+    paste0(min(upload$DateMeasured, na.rm = TRUE), " to ", max(upload$DateMeasured, na.rm = TRUE))
+  )
+) %>% mutate(Value = format(Value, big.mark = ","))
+
+knitr::kable(ovga_import_metrics)
+```
 
 
-# QA/QC Hydrographs {#qaqc}
+# Results: QA/QC and hydrographs {#qaqc}
 
 start of the water year is demarcated for 2022 and 2023
 
@@ -752,8 +1027,8 @@ start of the water year is demarcated for 2022 and 2023
 ```{r lwiwells,fig.cap='Hydrographs of indicator wells in the Laws wellfield.'}
 mo.dtws <- testwells.combined
 
-wyStart <- as.Date('2022-10-01')
-wyPrev <- as.Date('2021-10-01')
+wyStart <- as.Date('2024-10-01')
+wyPrev <- as.Date('2023-10-01')
 # Laws set
 staid.set <- c(
 'T107',
@@ -766,7 +1041,7 @@ staid.set <- c(
 'V001G',
 'T574')
 
-mo.dtws %>% filter(staid %in% staid.set, dtw.bgs <40, year >2020) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
+mo.dtws %>% filter(staid %in% staid.set, dtw.bgs <40, year >2015) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
   geom_line()+
   geom_point()+
  scale_y_reverse()+
@@ -797,7 +1072,7 @@ staid.set <- c(
 # 'T389'
 )
 
-mo.dtws %>% filter(dtw.bgs<40,staid %in% staid.set, year>2020) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
+mo.dtws %>% filter(dtw.bgs<40,staid %in% staid.set, year>2015) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
   geom_line()+
   geom_point()+
  scale_y_reverse()+
@@ -825,7 +1100,7 @@ staid.set <- c(
 'T565',
 'V017GC')
 
-mo.dtws %>% filter(staid %in% staid.set, dtw.bgs <40, year >2020) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
+mo.dtws %>% filter(staid %in% staid.set, dtw.bgs <40, year >2015) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
   geom_line()+
   geom_point()+
   scale_y_reverse()+
@@ -852,7 +1127,7 @@ staid.set <- c(
 'T586',
 'T587')
 
-mo.dtws %>% filter(staid %in% staid.set, year >2020) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
+mo.dtws %>% filter(staid %in% staid.set, year >2015) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
   geom_line()+
   geom_point()+
   scale_y_reverse()+
@@ -877,7 +1152,7 @@ staid.set <- c(
 'T587')
 
 
-mo.dtws %>% filter(staid %in% staid.set, year >2020) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
+mo.dtws %>% filter(staid %in% staid.set, year >2015) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
   geom_line()+
   geom_point()+
   scale_y_reverse()+
@@ -904,7 +1179,7 @@ staid.set <- c(
 'T809')
 
 
-mo.dtws %>% filter(staid %in% staid.set, year >2020) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
+mo.dtws %>% filter(staid %in% staid.set, year >2015) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
   geom_line()+
   geom_point()+
   scale_y_reverse()+
@@ -931,7 +1206,7 @@ staid.set <- c(
 )
 
 
-mo.dtws %>% filter(staid %in% staid.set, year >2020) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
+mo.dtws %>% filter(staid %in% staid.set, year >2015) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
   geom_line()+
   geom_point()+
   scale_y_reverse()+
@@ -956,7 +1231,7 @@ staid.set <- c(
 )#near aq
 
 
-mo.dtws %>% filter(staid %in% staid.set, year >2020,dtw.bgs<60) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
+mo.dtws %>% filter(staid %in% staid.set, year >2015,dtw.bgs<60) %>% ggplot(aes(x = date, y = dtw.bgs, color = staid))+
   geom_line()+
   geom_point()+
   scale_y_reverse()+
@@ -968,40 +1243,55 @@ mo.dtws %>% filter(staid %in% staid.set, year >2020,dtw.bgs<60) %>% ggplot(aes(x
 
 ```
 
+The tables below summarize follow-up QA/QC checks after the hydrograph review.
+
+**Monitoring points present in the update but not on the OVGA list**
+
 ```{r staidsnotinovga}
+
 LA.staids.notin.ovga <- LA.staids %>% anti_join(ovga_points, by = c("staid"="mon_pt_name"))
-# head(LA.staids.notin.ovga)
+head(LA.staids.notin.ovga)
 #105
 ```
 
+**Points missing RP elevations where GSE is missing**
+
 ```{r needgse}
 need.gse <- na.rp.elev %>% anti_join(gse_staids, by = 'staid')
-# head(need.gse)
+head(need.gse)
 
 ```
 
+**Points missing RP elevations where GSE exists**
+
 ```{r havegse}
 have.gse <- na.rp.elev %>% semi_join(gse_staids, by = 'staid')
-# head(have.gse)
+head(have.gse)
 # 6 staids with gse that can be joined - 1/24/24 zn
 
 ```
 
+**Missing-RP points that are not on the OVGA list**
+
 ```{r notin-ovga}
 
 not_in_ovga <- need.gse %>% anti_join(ovga_points, by = c("staid"="mon_pt_name"))
-# head(not_in_ovga)
+head(not_in_ovga)
 # 0 not in ovga out of 168 staids 142 of these not in ovga
 
 ```
 
+**Missing-RP points that are on the OVGA list**
+
 ```{r inovga-gse}
 in_ovga_gse <- need.gse %>% semi_join(ovga_points, by = c("staid"="mon_pt_name"))
 
-# head(in_ovga_gse)
+head(in_ovga_gse)
 # 0 in ovga that need gse joins 26 in ovga that need gse joins
-
+in_ovga_gse
 ```
+
+**Total record count missing RP elevations**
 
 ```{r rp-missing}
 # total records from monitoring points missing rp elevations
@@ -1012,13 +1302,15 @@ na.rp.elev.tot <- na.rp.elev %>%
 
 # 453,119 records without rp.elev. with pt data
 # 36517 aggregated to daily
-# head(na.rp.elev.tot)
+head(na.rp.elev.tot)
 ```
+
+**Sample records from points missing RP elevations**
 
 ```{r pointsmissing-rp}
 # filter records in the set corresponding to monitoring points without rp elevation
 rpcheck <- dtwrpavg.rpelev %>% semi_join(na.rp.elev, by = "staid")
-# head(rpcheck)
+head(rpcheck)
 # 453,119 from 278 staids have no rp elevations
 # 36,517 aggregated to daily
 
@@ -1026,7 +1318,7 @@ rpcheck <- dtwrpavg.rpelev %>% semi_join(na.rp.elev, by = "staid")
 # the wells within OVGA area. 278 
 
 
-# unique(rpcheck$staid)
+unique(rpcheck$staid)
 
 
 ```
@@ -1039,8 +1331,10 @@ rpcheck <- dtwrpavg.rpelev %>% semi_join(na.rp.elev, by = "staid")
 #| code-summary: "table"
 
 datatable(na.rp.elev,
-  caption = 'Missing RP elevations - follow up.')
-# 1/23/24 zn - only 16 wells missing rp elevations in this year's set?
+  caption = 'Missing RP elevations - follow up.',
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE))
+# 1/23/24 zn - only 16 wells missing rp elevations in this year's 2023 wy set
+# December 10, 2024. 2024 wy - 83 missing rp elevations
 
 ```
 :::
@@ -1052,10 +1346,11 @@ dtwrp.rpelev %>% group_by(staid)%>% summarise(annfreq=n()) %>% ggplot(aes(x = an
   # geom_histogram()+
   ylim(.5,1)+
   xlim(0,50)+
-geom_vline(xintercept=12, color="blue")+
-geom_hline(yintercept=.96,color='red')
+geom_vline(xintercept=20, color="blue")+
+geom_hline(yintercept=.95,color='red')
 
 # -   96% of staids have one read per month.
+# 87% in 2024
 ```
 
 # Appendix: GLA Data Depth to Water Import Procedures
@@ -1085,7 +1380,7 @@ confirmed updated 1/23/24 zn
 
 *DateMeasured* The DateMeasured column is required. The field must be a date and can not be in the future nor more than 100 years in the past.
 
-2-1-1 import error says that ReportingDate is not part of the column list *ReportingDate* The ReportingDate column must be blank or a date. If the field is a date, it must be within 14 days of DateMeasured. *If left blank, the column is populated with the value in the DataMeasured column*. This field allows users to assign a measurement to an adjacent month for reporting purposes. For example, a measurement collected on May 31st may be intended to be used as an April measurement.
+2-1-1 import error says that ReportingDate is not part of the column list *ReportingDate* The ReportingDate column must be blank or a date. If the field is a date, it must be within 14 days of DateMeasured. *If left blank, the column is populated with the value in the DateMeasured column*. This field allows users to assign a measurement to an adjacent month for reporting purposes. For example, a measurement collected on May 31st may be intended to be used as an April measurement.
 
 *DepthToWater* This column must be blank or numeric. DepthToWater is the number of feet from the reference point. If blank, NoMeasFlag is required and ReferencePointElevation must also be blank. Positive values indicate the water level is below the top of the casing, while negative values indicate the water level is above the top of the casing (flowing artesian conditions).
 

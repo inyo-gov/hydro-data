@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+title: "Depth to water - annual water year updates"
+type: dataset
+authors:
+  - name: "Inyo County Water Department"
+    affiliation: "Inyo County Water Department"
+    email: "ADD_EMAIL"
+    orcid: "ADD_ORCID"
+repository-code: "https://github.com/inyo-gov/hydro-data"
+url: "https://inyo-gov.github.io/hydro-data/"
+license: "MIT"
+keywords:
+  - hydrology
+  - groundwater
+  - monitoring wells
+  - surface water
+  - pumping
+  - ovga
+  - time series
+abstract: "Annual updates to monitoring well data and water-year totals for pumping and surface water flow, formatted for OVGA uploads and reporting."
+version: "ADD_VERSION"
+date-released: "ADD_RELEASE_DATE"
+doi: "ADD_DOI"

@@ -1,0 +1,28 @@
+Package: hydrodata
+Type: Package
+Title: Hydro Data Processing and Distribution
+Version: 0.1.0
+Authors@R: c(
+    person(given = "Inyo County Water Department",
+           email = "znelson@inyocounty.us",
+           role = c("aut", "cre"))
+  )
+Description: Tools and data access helpers for water-year processing of
+    groundwater depth-to-water, flow, and production datasets, with
+    reproducible reporting workflows.
+License: MIT + file LICENSE
+URL: https://github.com/inyo-gov/hydro-data
+BugReports: https://github.com/inyo-gov/hydro-data/issues
+Encoding: UTF-8
+LazyData: true
+Imports:
+    openssl,
+    utils,
+    tools
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+RoxygenNote: 7.3.2

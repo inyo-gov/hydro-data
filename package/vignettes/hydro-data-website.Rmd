@@ -1,0 +1,94 @@
+---
+title: "Hydro Data website"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Hydro Data website}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette links to the published Hydro Data reports (depth-to-water and
+flow/pumping) hosted on GitHub Pages. It also documents how the reports are
+generated from the Quarto sources and shows example access patterns for each
+data type in the package manifest.
+
+## Reports
+
+- Depth-to-water (DTW): <https://inyo-gov.github.io/hydro-data/>
+- Flow and pumping: <https://inyo-gov.github.io/hydro-data/flow.html>
+
+## Source documents
+
+- DTW report source: `index.qmd`
+- Flow report source: `flow.qmd`
+
+## Example data access
+
+These examples use the manifest to fetch the published datasets and read them
+into R. They mirror the data types used by `index.qmd` (DTW/monitoring wells)
+and `flow.qmd` (flow and production).
+
+```r
+library(hydrodata)
+```
+
+### Monitoring wells master (DTW reporting base)
+
+```r
+mw_path <- hydrodata_fetch("monitoring_wells_master", year = "2025")
+mw <- read.csv(mw_path, stringsAsFactors = FALSE)
+head(mw)
+```
+
+### Single-year monitoring wells export (test well WY file)
+
+```r
+testwell_path <- hydrodata_fetch("testwellwy", year = "2025")
+testwell <- read.csv(testwell_path, stringsAsFactors = FALSE)
+head(testwell)
+```
+
+### Totals and means through September (flow/pumping base table)
+
+```r
+totals_path <- hydrodata_fetch("totals_means", year = "2025")
+totals_means <- read.csv(totals_path, stringsAsFactors = FALSE)
+head(totals_means)
+```
+
+### OVGA surface-water flow import
+
+```r
+flow_path <- hydrodata_fetch("ovga_swflow", year = "2025")
+ovga_flow <- read.csv(flow_path, stringsAsFactors = FALSE)
+head(ovga_flow)
+```
+
+### OVGA production import
+
+```r
+prod_path <- hydrodata_fetch("ovga_production", year = "2025")
+ovga_production <- read.csv(prod_path, stringsAsFactors = FALSE)
+head(ovga_production)
+```
+
+### OVGA DTW import
+
+```r
+dtw_path <- hydrodata_fetch("ovga_dtw", year = "2025")
+ovga_dtw <- read.csv(dtw_path, stringsAsFactors = FALSE)
+head(ovga_dtw)
+```
+
+## Rebuild the website locally
+
+```r
+system("quarto render index.qmd")
+system("quarto render flow.qmd")
+```
+
+If you want the full site build:
+
+```r
+system("quarto render")
+```

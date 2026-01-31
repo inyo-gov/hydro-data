@@ -1,0 +1,7 @@
+year,dataset,filename,url,sha256
+2025,monitoring_wells_master,Monitoring_Wells_Master_2025.csv,https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/2025wy/ICWD/Monitoring_Wells_Master_2025.csv,4c45df2afc9530f0c480e04963e016ec14403588131c798625f340a44ba472a4
+2025,testwellwy,testwellwy2025.csv,https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/2025wy/ICWD/testwellwy2025.csv,9babd6d7a854b60ed4443b54ef30ebfda8af03e3a2d996d2c945da4b5f7dfb17
+2025,totals_means,totals_means_thru_sep_2025.csv,https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/2025wy/ICWD/totals_means_thru_sep_2025.csv,ab6799b8d8bfea6872d81f84942b93f4c6cc7555df6075fa42492ded44f7f164
+2025,ovga_swflow,ovga_swflow_import_wy25.csv,https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/2025wy/OVGA/ovga_swflow_import_wy25.csv,d0db77a8bb66798caba3592860686028c043579f392d8986462c8ade90d2d714
+2025,ovga_production,ovga_production_import_wy24-25.csv,https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/2025wy/OVGA/ovga_production_import_wy24-25.csv,d5ddf585e1fd84fb9cc134e9c01679268fa1e586e949e6025ad9c270bc36c50c
+2025,ovga_dtw,ovga_uploads_mw_with_rpe_102024_092025_zn.csv,https://raw.githubusercontent.com/inyo-gov/hydro-data/main/output/2025wy/OVGA/ovga_uploads_mw_with_rpe_102024_092025_zn.csv,b19f3c1f80a20d7852f6f0d6b1ec945892a09f70bd3d4d4b6834fc29e3f713d4

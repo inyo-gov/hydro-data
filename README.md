@@ -6,6 +6,18 @@ Welcome to the hydro data processing repository.
 
 For more information and to view the website, please visit: [Hydro Data Processing Website](https://inyo-gov.github.io/hydro-data/)
 
+## R package
+
+This repository also includes an R package under `package/` for lightweight
+data access and reproducible reporting workflows. You can install it from
+GitHub with:
+
+``` r
+remotes::install_github("inyo-gov/hydro-data", subdir = "package")
+```
+
+See `package/README.md` for package usage examples.
+
 ## Introduction
 
 This code automates processing the annual hydro data transfer from LADWP - extracting water levels, surface water monthly flow volumes, and groundwater pumping volumes and from ZRXP ASCII data exchange format, transforming and merging updates with the County database, and exporting a csv file formatted for the [Owens Valley Groundwater Authority](https://owens.gladata.com/) data management system.

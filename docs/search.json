@@ -1,122 +1,437 @@
 [
   {
+    "objectID": "package/doc/hydro-data-website.html",
+    "href": "package/doc/hydro-data-website.html",
+    "title": "Hydro Data website",
+    "section": "",
+    "text": "This vignette links to the published Hydro Data reports (depth-to-water and flow/pumping) hosted on GitHub Pages. It also documents how the reports are generated from the Quarto sources and shows example access patterns for each data type in the package manifest."
+  },
+  {
+    "objectID": "package/doc/hydro-data-website.html#reports",
+    "href": "package/doc/hydro-data-website.html#reports",
+    "title": "Hydro Data website",
+    "section": "Reports",
+    "text": "Reports\n\nDepth-to-water (DTW): https://inyo-gov.github.io/hydro-data/\nFlow and pumping: https://inyo-gov.github.io/hydro-data/flow.html"
+  },
+  {
+    "objectID": "package/doc/hydro-data-website.html#source-documents",
+    "href": "package/doc/hydro-data-website.html#source-documents",
+    "title": "Hydro Data website",
+    "section": "Source documents",
+    "text": "Source documents\n\nDTW report source: index.qmd\nFlow report source: flow.qmd"
+  },
+  {
+    "objectID": "package/doc/hydro-data-website.html#example-data-access",
+    "href": "package/doc/hydro-data-website.html#example-data-access",
+    "title": "Hydro Data website",
+    "section": "Example data access",
+    "text": "Example data access\nThese examples use the manifest to fetch the published datasets and read them into R. They mirror the data types used by index.qmd (DTW/monitoring wells) and flow.qmd (flow and production).\nlibrary(hydrodata)\n\nMonitoring wells master (DTW reporting base)\nmw_path &lt;- hydrodata_fetch(\"monitoring_wells_master\", year = \"2025\")\nmw &lt;- read.csv(mw_path, stringsAsFactors = FALSE)\nhead(mw)\n\n\nSingle-year monitoring wells export (test well WY file)\ntestwell_path &lt;- hydrodata_fetch(\"testwellwy\", year = \"2025\")\ntestwell &lt;- read.csv(testwell_path, stringsAsFactors = FALSE)\nhead(testwell)\n\n\nTotals and means through September (flow/pumping base table)\ntotals_path &lt;- hydrodata_fetch(\"totals_means\", year = \"2025\")\ntotals_means &lt;- read.csv(totals_path, stringsAsFactors = FALSE)\nhead(totals_means)\n\n\nOVGA surface-water flow import\nflow_path &lt;- hydrodata_fetch(\"ovga_swflow\", year = \"2025\")\novga_flow &lt;- read.csv(flow_path, stringsAsFactors = FALSE)\nhead(ovga_flow)\n\n\nOVGA production import\nprod_path &lt;- hydrodata_fetch(\"ovga_production\", year = \"2025\")\novga_production &lt;- read.csv(prod_path, stringsAsFactors = FALSE)\nhead(ovga_production)\n\n\nOVGA DTW import\ndtw_path &lt;- hydrodata_fetch(\"ovga_dtw\", year = \"2025\")\novga_dtw &lt;- read.csv(dtw_path, stringsAsFactors = FALSE)\nhead(ovga_dtw)"
+  },
+  {
+    "objectID": "package/doc/hydro-data-website.html#rebuild-the-website-locally",
+    "href": "package/doc/hydro-data-website.html#rebuild-the-website-locally",
+    "title": "Hydro Data website",
+    "section": "Rebuild the website locally",
+    "text": "Rebuild the website locally\nsystem(\"quarto render index.qmd\")\nsystem(\"quarto render flow.qmd\")\nIf you want the full site build:\nsystem(\"quarto render\")"
+  },
+  {
+    "objectID": "package/vignettes/hydro-data-website.html",
+    "href": "package/vignettes/hydro-data-website.html",
+    "title": "Hydro Data website",
+    "section": "",
+    "text": "This vignette links to the published Hydro Data reports (depth-to-water and flow/pumping) hosted on GitHub Pages. It also documents how the reports are generated from the Quarto sources and shows example access patterns for each data type in the package manifest."
+  },
+  {
+    "objectID": "package/vignettes/hydro-data-website.html#reports",
+    "href": "package/vignettes/hydro-data-website.html#reports",
+    "title": "Hydro Data website",
+    "section": "Reports",
+    "text": "Reports\n\nDepth-to-water (DTW): https://inyo-gov.github.io/hydro-data/\nFlow and pumping: https://inyo-gov.github.io/hydro-data/flow.html"
+  },
+  {
+    "objectID": "package/vignettes/hydro-data-website.html#source-documents",
+    "href": "package/vignettes/hydro-data-website.html#source-documents",
+    "title": "Hydro Data website",
+    "section": "Source documents",
+    "text": "Source documents\n\nDTW report source: index.qmd\nFlow report source: flow.qmd"
+  },
+  {
+    "objectID": "package/vignettes/hydro-data-website.html#example-data-access",
+    "href": "package/vignettes/hydro-data-website.html#example-data-access",
+    "title": "Hydro Data website",
+    "section": "Example data access",
+    "text": "Example data access\nThese examples use the manifest to fetch the published datasets and read them into R. They mirror the data types used by index.qmd (DTW/monitoring wells) and flow.qmd (flow and production).\nlibrary(hydrodata)\n\nMonitoring wells master (DTW reporting base)\nmw_path &lt;- hydrodata_fetch(\"monitoring_wells_master\", year = \"2025\")\nmw &lt;- read.csv(mw_path, stringsAsFactors = FALSE)\nhead(mw)\n\n\nSingle-year monitoring wells export (test well WY file)\ntestwell_path &lt;- hydrodata_fetch(\"testwellwy\", year = \"2025\")\ntestwell &lt;- read.csv(testwell_path, stringsAsFactors = FALSE)\nhead(testwell)\n\n\nTotals and means through September (flow/pumping base table)\ntotals_path &lt;- hydrodata_fetch(\"totals_means\", year = \"2025\")\ntotals_means &lt;- read.csv(totals_path, stringsAsFactors = FALSE)\nhead(totals_means)\n\n\nOVGA surface-water flow import\nflow_path &lt;- hydrodata_fetch(\"ovga_swflow\", year = \"2025\")\novga_flow &lt;- read.csv(flow_path, stringsAsFactors = FALSE)\nhead(ovga_flow)\n\n\nOVGA production import\nprod_path &lt;- hydrodata_fetch(\"ovga_production\", year = \"2025\")\novga_production &lt;- read.csv(prod_path, stringsAsFactors = FALSE)\nhead(ovga_production)\n\n\nOVGA DTW import\ndtw_path &lt;- hydrodata_fetch(\"ovga_dtw\", year = \"2025\")\novga_dtw &lt;- read.csv(dtw_path, stringsAsFactors = FALSE)\nhead(ovga_dtw)"
+  },
+  {
+    "objectID": "package/vignettes/hydro-data-website.html#rebuild-the-website-locally",
+    "href": "package/vignettes/hydro-data-website.html#rebuild-the-website-locally",
+    "title": "Hydro Data website",
+    "section": "Rebuild the website locally",
+    "text": "Rebuild the website locally\nsystem(\"quarto render index.qmd\")\nsystem(\"quarto render flow.qmd\")\nIf you want the full site build:\nsystem(\"quarto render\")"
+  },
+  {
+    "objectID": "analysis.html",
+    "href": "analysis.html",
+    "title": "Exploratory analyses",
+    "section": "",
+    "text": "This page is a staging area for small, publish-ready analyses built from the hydro datasets in this repository. Each analysis should be reproducible, scoped to a clear question, and described in plain language."
+  },
+  {
+    "objectID": "analysis.html#main-pastas-classes-and-methods",
+    "href": "analysis.html#main-pastas-classes-and-methods",
+    "title": "Exploratory analyses",
+    "section": "Main Pastas classes and methods",
+    "text": "Main Pastas classes and methods\nCore building blocks typically used in Pastas workflows:\n\nps.Model — container for the head series and fitted model.\nps.StressModel — links a stress series (e.g., pumping) to head response.\nps.RechargeModel — convenience stress model for precipitation/evaporation-derived recharge.\nResponse functions: ps.Gamma, ps.Exponential (shape the lagged response).\nSolvers: ps.LeastSquares (default solver used by ml.solve()).\nCommon model methods: ml.add_stressmodel(), ml.solve(), ml.plot(), ml.plots.results()."
+  },
+  {
+    "objectID": "analysis.html#data-preparation-r",
+    "href": "analysis.html#data-preparation-r",
+    "title": "Exploratory analyses",
+    "section": "Data preparation (R)",
+    "text": "Data preparation (R)\n\n\nprepare time series for Pastas\n# Example: export one monitoring well time series for Pastas\n# Adjust staid and file path as needed.\n\nlibrary(tidyverse)\nlibrary(here)\nlibrary(lubridate)\n\nstaid_target &lt;- \"T107\"\nsource_path &lt;- here(\"output\", \"Monitoring_Wells_Master_2025.csv\")\n\nif (file.exists(source_path)) {\n  well_series &lt;- read_csv(source_path, show_col_types = FALSE) %&gt;%\n    mutate(date = as.Date(date)) %&gt;%\n    filter(staid == staid_target, !is.na(dtw.bgs)) %&gt;%\n    arrange(date) %&gt;%\n    select(date, dtw.bgs)\n\n  write_csv(well_series, here(\"output\", \"pastas_head_T107.csv\"))\n}"
+  },
+  {
+    "objectID": "analysis.html#candidate-time-series-for-demo",
+    "href": "analysis.html#candidate-time-series-for-demo",
+    "title": "Exploratory analyses",
+    "section": "Candidate time series for demo",
+    "text": "Candidate time series for demo\n\n\ndemo time series\nwell_series_candidates &lt;- c(\"T107\", \"T425\", \"T398\")\nmaster_path &lt;- here(\"output\", \"Monitoring_Wells_Master_2025.csv\")\n\nif (file.exists(master_path)) {\n  master &lt;- read_csv(master_path, show_col_types = FALSE) %&gt;%\n    mutate(date = as.Date(date))\n\n  demo_heads &lt;- master %&gt;%\n    filter(staid %in% well_series_candidates, !is.na(dtw.bgs)) %&gt;%\n    group_by(staid) %&gt;%\n    summarise(\n      Records = n(),\n      Date_start = min(date, na.rm = TRUE),\n      Date_end = max(date, na.rm = TRUE),\n      .groups = \"drop\"\n    )\n\n  knitr::kable(demo_heads)\n\n  # Export one head series for Pastas\n  master %&gt;%\n    filter(staid == \"T107\", !is.na(dtw.bgs)) %&gt;%\n    arrange(date) %&gt;%\n    select(date, dtw.bgs) %&gt;%\n    write_csv(here(\"output\", \"pastas_head_T107.csv\"))\n}\n\ntotals_path &lt;- here(\"output\", \"totals_means_thru_sep_2025.csv\")\nif (file.exists(totals_path)) {\n  totals &lt;- read_csv(totals_path, show_col_types = FALSE) %&gt;%\n    mutate(date = as.Date(date))\n\n  laws_wells &lt;- c(\"W247\",\"W248\",\"W249\",\"W398\",\"W236\",\"W239\",\"W243\",\"W244\",\"W240\",\"W241\",\"W399\",\"W376\",\"W377\")\n\n  laws_pumping &lt;- totals %&gt;%\n    filter(staid %in% laws_wells) %&gt;%\n    group_by(date) %&gt;%\n    summarise(pumping_af = sum(read, na.rm = TRUE), .groups = \"drop\") %&gt;%\n    arrange(date)\n\n  write_csv(laws_pumping, here(\"output\", \"pastas_stress_laws.csv\"))\n}"
+  },
+  {
+    "objectID": "analysis.html#pastas-model-skeleton-python",
+    "href": "analysis.html#pastas-model-skeleton-python",
+    "title": "Exploratory analyses",
+    "section": "Pastas model skeleton (Python)",
+    "text": "Pastas model skeleton (Python)\n\n\nPastas model skeleton\nimport pandas as pd\nimport pastas as ps\n\n# Observed heads (output from R prep)\nho = (\n    pd.read_csv(\"output/pastas_head_T107.csv\", parse_dates=[\"date\"], index_col=\"date\")\n    .squeeze()\n)\n\n# Example stress series (placeholder)\n# Replace with precipitation/pumping series aligned to the same date range.\n# recharge = pd.read_csv(\"output/recharge.csv\", parse_dates=[\"date\"], index_col=\"date\").squeeze()\n\nml = ps.Model(ho, name=\"T107_pastas\")\n\n# Example stress model (placeholder)\n# sm = ps.StressModel(recharge, ps.Gamma(), name=\"recharge\", settings=\"prec\")\n# ml.add_stressmodel(sm)\n\nml.solve()\nml.plot()"
+  },
+  {
+    "objectID": "analysis.html#demo-interpretation-fit-metrics",
+    "href": "analysis.html#demo-interpretation-fit-metrics",
+    "title": "Exploratory analyses",
+    "section": "Demo interpretation (fit metrics)",
+    "text": "Demo interpretation (fit metrics)\nOnce the model is solved, Pastas reports a fit summary with metrics such as:\n\nR2: higher values indicate the model explains more variance in head observations.\nRMSE: lower values indicate smaller average errors (same units as head data).\nAICc/BIC: lower values indicate a better balance of fit and complexity; use for model comparison.\nnobs: number of head observations used in the calibration period.\nnfev: number of solver evaluations (useful for troubleshooting convergence).\n\nFor the demo series (T107 + Laws pumping stress), interpret results as:\n\nIf R2 is low (&lt;0.3), the stress model likely misses dominant drivers (e.g., recharge).\nIf RMSE is large relative to seasonal head amplitude, the stress model is under-specified.\nUse AICc/BIC to compare alternate stress configurations (pumping-only vs pumping+recharge)."
+  },
+  {
+    "objectID": "analysis.html#notes-for-integrating-pastas",
+    "href": "analysis.html#notes-for-integrating-pastas",
+    "title": "Exploratory analyses",
+    "section": "Notes for integrating Pastas",
+    "text": "Notes for integrating Pastas\n\nPastas requires Python and pastas installed in the Quarto environment.\nStress inputs should be daily or monthly time series aligned to the observation timeline.\nFor pumping impacts, monthly totals from totals_means_thru_sep_2025.csv can be converted to a stress series per wellfield or site."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "",
-    "text": "Depth to water measurements from LADWP monitoring wells are provided to ICWD after the end of each water year. Data is exported from WISKI (water information system by Kisters) in ZRXP format, an ASCII data exchange file format with a repeating header-data structure. These .DAT text files can be opened in a text editor or excel for processing, but here they are programmatically parsed, processed, appended to the active internal database and formatted and exported for the annual OVGA data management system updates.\nSummary information about the processing, number of records dropped etc, and indicator well hydrographs for visual QA/QC are provided. The most recent OVGA depth to water import template instructions are included as an appendix. Before running the same code for the next year, update year in the file names for 1) the water year on the input files and master database, 2) output file name for the master database and the 3) ovga update file. The index.qmd of this repository contains the full code to process the data and produce this document."
+    "text": "Depth-to-water observations from LADWP monitoring wells are delivered after each water year. Data are exported from WISKI (water information system by Kisters) in ZRXP format, parsed programmatically, integrated with the active internal database, and exported in OVGA upload format.\nThe report summarizes QA/QC checks (record counts, filtered records) and indicator‑well hydrographs, and includes OVGA import procedures in the appendix. For annual updates, adjust the year values for 1) input file paths and the master database, 2) the master output file, and 3) the OVGA upload file. The index.qmd in this repository contains the full processing code and report text."
+  },
+  {
+    "objectID": "index.html#raw-input-coverage",
+    "href": "index.html#raw-input-coverage",
+    "title": "Depth to water annual water-year data migration",
+    "section": "Raw input coverage",
+    "text": "Raw input coverage\n\n\n\n\n\n\n\n\n\n\n\nFile\nRecords\nUnique_staids\nDate_start\nDate_end\n\n\n\nDepthRP_2024-25.dat\n82831\n743\n2024-10-01\n2025-09-30\n\n\nDepthGE_2024-25.dat\n74670\n655\n2024-10-01\n2025-09-30\n\n\nOwensValley_DepthWSE_2024-25.dat\n86968\n383\n2024-10-01\n2025-09-30\n\n\n\n\n\n\n\n\n\nEach file repeats headers for each monitoring well. Extract the well ID from #TSPATH and join to observation rows (lines that do not start with #)."
+  },
+  {
+    "objectID": "index.html#monitoring-points-map-static",
+    "href": "index.html#monitoring-points-map-static",
+    "title": "Depth to water annual water-year data migration",
+    "section": "Monitoring points map (static)",
+    "text": "Monitoring points map (static)\n\n\n\n\nOwens Valley monitoring points (north to south).\n\n\n\n\nparse depthGE.datdat_content &lt;- readLines(file_pathGE)\n\n# Initialize variables to store data\ndata_list &lt;- list()\n\n# Function to check if a line contains timestamp and value\nis_data_line &lt;- function(line) {\n  grepl(\"\\\\d+ \\\\d+\\\\.\\\\d+\", line)\n}\n\n# Loop through each line in the file\nfor (line in dat_content) {\n  # Check if the line starts with '#TSPATH'\n  if (startsWith(line, \"#TSPATH\")) {\n    # Extract 'staid' from the '#TSPATH' line\n    staid &lt;- sub('.*/([TVFRSW]\\\\w+).*', '\\\\1', line)\n  }\n  \n  # Check if the line does not start with '#' and contains timestamp and value\n  if (!startsWith(line, \"#\") && is_data_line(line) && !is.na(staid)) {\n    # If the line does not start with '#' and contains timestamp and value,\n    # add data to the list directly\n    data_list &lt;- c(data_list, list(data.frame(staid, dateread = line)))\n  }\n}\n\n# Combine the data frames in the list into a single data frame\ndata_df &lt;- bind_rows(data_list)\n\n# Remove rows with NA values, Remove 'row' and 'value' columns\ndepthGE &lt;- na.omit(data_df) %&gt;% select(staid, dateread)\n\n#separate the data column and assign numeric class to dtw\ndepthGE &lt;- depthGE %&gt;% separate(dateread, c(\"date\", \"dtw.bgs\"),sep = \" \") \ndepthGE$dtw.bgs &lt;- as.numeric(depthGE$dtw.bgs)\n# head(depthGE)\n\nsaveRDS(depthGE, file = here('data','hydro','2025','depthGE.RDS'))\n\n# notes: sub('.*/([TVFRSW]\\\\w+).*', '\\\\1', line) extracts the staid from the #TSPATH line.\n\n\n\n\n[1] 74670\n\n\n\n\n[1] 86968"
+  },
+  {
+    "objectID": "index.html#raw-input-coverage-1",
+    "href": "index.html#raw-input-coverage-1",
+    "title": "Depth to water annual water-year data migration",
+    "section": "Raw input coverage",
+    "text": "Raw input coverage\n\n\n\n\n\n\n\n\n\n\n\n\nDataset\nFile\nExists\nRecords\nUnique staids\nDate range\n\n\n\nDepthRP\nDepthRP_2024-25.dat\nTRUE\n82831\n743\n2024-10-01 to 2025-09-30\n\n\nDepthGE\nDepthGE_2024-25.dat\nTRUE\n74670\n655\n2024-10-01 to 2025-09-30\n\n\nDepthWSE\nOwensValley_DepthWSE_2024-25.dat\nTRUE\n86968\n383\n2024-10-01 to 2025-09-30\n\n\n\n\n\n\ntestwellupdate# rename the columns\n# clean up the date with formal date specification\ntestwell.up &lt;- try %&gt;% select(-date, -datetime) %&gt;% rename(date = date.y.m.d) %&gt;% mutate(source = \"DWP\")  \n# head(testwell.up)\n\n\n\nappend updates to master database## Append updates to master\ntestwells.combined &lt;- bind_rows(hist, testwell.up) \n\n# head(testwells.combined)\n# 1,145,360 records going back to 1971\n\n# testwells.combined %&gt;% n_distinct(staid)\n# testwells.combined %&gt;% distinct(staid) %&gt;% nrow()\n\n\n\n\n\n\nMetric\nValue\n\n\n\nAnnual update rows\n89,289\n\n\nAnnual update staids\n750\n\n\nActive database rows\n1,324,540\n\n\nActive database staids\n1,381"
   },
   {
     "objectID": "index.html#masterdb",
     "href": "index.html#masterdb",
-    "title": "Groundwater data processing",
-    "section": "export db file",
-    "text": "export db file\n\nCompleted 1-24-24 annual update\nCompleted 1-24-24 full database\n\n\nsave master database updates# single year\ntestwell.up %&gt;% write_csv(here('output','testwellwy2023.csv'))\n\n# whole dataset\ntestwells.combined %&gt;% write_csv(here('output','Monitoring_Wells_Master_2023.csv'))\n\n#"
+    "title": "Depth to water annual water-year data migration",
+    "section": "Database exports",
+    "text": "Database exports\n2023 water year\n\nCompleted 1-24-24 annual update\nCompleted 1-24-24 full database\n2024 water year\n\nCompleted 12-10-24 annual update\nCompleted 12-10-24 full database\n2025 water year\n\nCompleted 1-26-26 annual update\nCompleted 1-26-26 full database\n\n\nsave master database updatesout_icwd &lt;- here(\"output\", \"2025wy\", \"ICWD\")\ndir.create(out_icwd, recursive = TRUE, showWarnings = FALSE)\n\n# single year\ntestwell.up %&gt;% write_csv(file.path(out_icwd, \"testwellwy2025.csv\"))\n\n# whole dataset\ntestwells.combined %&gt;% write_csv(file.path(out_icwd, \"Monitoring_Wells_Master_2025.csv\"))\n\n#"
   },
   {
     "objectID": "index.html#ovgasave",
     "href": "index.html#ovgasave",
-    "title": "Groundwater data processing",
-    "section": "OVGA template",
-    "text": "OVGA template\n\ncreate ovga template# methodinfer %&gt;% distinct()\nmethodinfer &lt;- record.number %&gt;% select(-count.with.rpe)\n# %&gt;% distinct(staid)\n\nupload &lt;- rpselect2 %&gt;% \n  left_join(methodinfer, by = \"staid\") %&gt;% \n  # select(-latest_rp_date) %&gt;% \n  select(WellName = staid, \n         DateMeasured = date, \n         DepthToWater = dtw.rp, \n         ReferencePointElevation = rp_elev\n         ,\n         MMethod\n         ) %&gt;% \n  mutate(ReportingDate = \"\",\n         # ExclusionCondition = \"\" ,\n         QAQCLevel = \"High\",\n         MeasMethod = MMethod,#\"ES\",# from join above\n         NoMeasFlag = \"\",\n         QuestMeasFlag = \"\",\n         DataSource = \"LADWP\",\n         CollectedBy = \"LADWP\",\n         UseInReporting = \"yes\",\n         Notes = \"\") %&gt;% \n  select(-MMethod)%&gt;%\n  filter(DepthToWater &lt; 500 & !is.na(DepthToWater) & DepthToWater != 'NA' & DepthToWater != -777 & ReferencePointElevation !=0) %&gt;% relocate(ReportingDate, .after = DateMeasured)\n\nupload \n\n# A tibble: 12,939 × 13\n# Groups:   WellName, DateMeasured [12,939]\n   WellName DateMeasured ReportingDate DepthToWater ReferencePointElevation\n   &lt;chr&gt;    &lt;date&gt;       &lt;chr&gt;                &lt;dbl&gt;                   &lt;dbl&gt;\n 1 F033     2022-10-06   \"\"                    4.57                   3834.\n 2 F033     2022-11-08   \"\"                    4.57                   3834.\n 3 F033     2022-12-08   \"\"                    4.57                   3834.\n 4 F033     2023-01-06   \"\"                    4.57                   3834.\n 5 F033     2023-03-19   \"\"                    4.57                   3834.\n 6 F033     2023-04-07   \"\"                    4.57                   3834.\n 7 F033     2023-05-07   \"\"                    4.51                   3834.\n 8 F033     2023-06-12   \"\"                    4.51                   3834.\n 9 F033     2023-07-16   \"\"                    4.54                   3834.\n10 F033     2023-08-08   \"\"                    4.53                   3834.\n# ℹ 12,929 more rows\n# ℹ 8 more variables: QAQCLevel &lt;chr&gt;, MeasMethod &lt;chr&gt;, NoMeasFlag &lt;chr&gt;,\n#   QuestMeasFlag &lt;chr&gt;, DataSource &lt;chr&gt;, CollectedBy &lt;chr&gt;,\n#   UseInReporting &lt;chr&gt;, Notes &lt;chr&gt;\n\n\nCompleted 1-24-24\ncsv\n\n18713 well-days in update with rp elevations\n690 staids in update with rp elevations\n14319 well-days in update with rp elevations and in ovga list\n619 staids in update with rp elevations and in ovga list\n12939 well-days in the ovga upload\n611 staids in the ovga upload"
+    "title": "Depth to water annual water-year data migration",
+    "section": "OVGA template and export",
+    "text": "OVGA template and export\n\ncreate ovga template# methodinfer %&gt;% distinct()\nmethodinfer &lt;- record.number %&gt;% select(-count.with.rpe)\n# %&gt;% distinct(staid)\n\nupload &lt;- rpselect2 %&gt;% \n  left_join(methodinfer, by = \"staid\") %&gt;% \n  # select(-latest_rp_date) %&gt;% \n  select(WellName = staid, \n         DateMeasured = date, \n         DepthToWater = dtw.rp, \n         ReferencePointElevation = rp_elev\n         ,\n         MMethod\n         ) %&gt;% \n  mutate(ReportingDate = \"\",\n         # ExclusionCondition = \"\" ,\n         QAQCLevel = \"High\",\n         MeasMethod = MMethod,#\"ES\",# from join above\n         NoMeasFlag = \"\",\n         QuestMeasFlag = \"\",\n         DataSource = \"LADWP\",\n         CollectedBy = \"LADWP\",\n         UseInReporting = \"yes\",\n         Notes = \"\") %&gt;% \n  select(-MMethod)%&gt;%\n  filter(DepthToWater &lt; 500 & !is.na(DepthToWater) & DepthToWater != 'NA' & DepthToWater != -777 & ReferencePointElevation !=0) %&gt;% relocate(ReportingDate, .after = DateMeasured)\n\nupload \n\n# A tibble: 5,515 × 13\n# Groups:   WellName, DateMeasured [5,515]\n   WellName DateMeasured ReportingDate DepthToWater ReferencePointElevation\n   &lt;chr&gt;    &lt;date&gt;       &lt;chr&gt;                &lt;dbl&gt;                   &lt;dbl&gt;\n 1 F033     2024-10-10   \"\"                    4.56                   3834.\n 2 F033     2024-11-07   \"\"                    4.56                   3834.\n 3 F033     2024-12-05   \"\"                    4.56                   3834.\n 4 F033     2025-01-08   \"\"                    4.56                   3834.\n 5 F033     2025-03-10   \"\"                    4.56                   3834.\n 6 F033     2025-04-14   \"\"                    4.56                   3834.\n 7 F033     2025-06-09   \"\"                    4.56                   3834.\n 8 F033     2025-07-11   \"\"                    4.56                   3834.\n 9 F033     2025-08-06   \"\"                    4.56                   3834.\n10 F033     2025-09-04   \"\"                    4.56                   3834.\n# ℹ 5,505 more rows\n# ℹ 8 more variables: QAQCLevel &lt;chr&gt;, MeasMethod &lt;chr&gt;, NoMeasFlag &lt;chr&gt;,\n#   QuestMeasFlag &lt;chr&gt;, DataSource &lt;chr&gt;, CollectedBy &lt;chr&gt;,\n#   UseInReporting &lt;chr&gt;, Notes &lt;chr&gt;"
   },
   {
     "objectID": "index.html#ovgaupdate",
     "href": "index.html#ovgaupdate",
-    "title": "Groundwater data processing",
-    "section": "export ovga import file",
-    "text": "export ovga import file\n\n\n\n\n\n\n\n35 staids included last year in 2022 wy, and not this year 2023 wy. These staids do have water surface elevation but not depth to water from reference point required by ovga. I can calculate the depthRP from rp elevation - wse on next iteration. 17k records so pressure transducer data\n\n\nRows: 17,479\nColumns: 11\n$ staid   &lt;chr&gt; \"F124\", \"F124\", \"F124\", \"F124\", \"F124\", \"F124\", \"F124\", \"F124\"…\n$ dtw.rp  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…\n$ wse     &lt;dbl&gt; 4022.38, 4021.88, 4021.76, 4021.88, 4024.12, 4024.30, 4024.74,…\n$ dtw.bgs &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…\n$ year    &lt;dbl&gt; 2022, 2022, 2022, 2023, 2023, 2023, 2023, 2023, 2023, 2023, 20…\n$ month   &lt;dbl&gt; 10, 11, 12, 1, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 10, 10, 10…\n$ day     &lt;int&gt; 11, 7, 12, 18, 21, 12, 10, 12, 18, 10, 20, 1, 1, 1, 1, 1, 1, 1…\n$ hour    &lt;int&gt; 12, 11, 15, 12, 12, 10, 10, 12, 9, 10, 9, 0, 1, 2, 3, 4, 5, 6,…\n$ minute  &lt;int&gt; 19, 22, 9, 31, 30, 10, 51, 58, 41, 48, 37, 0, 0, 0, 0, 0, 0, 0…\n$ date    &lt;date&gt; 2022-10-11, 2022-11-07, 2022-12-12, 2023-01-18, 2023-03-21, 2…\n$ source  &lt;chr&gt; \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\",…\n\n\n\nsave OVGA importupload %&gt;% write_csv(here(\"output\",\"ovga_uploads_mw_with_rpe_102022_092023_zn.csv\"))\n\n\n\n\ndatatabledatatable(upload,\n  caption = '2022-2023 water year upload formatted for OVGA data managagement system.')"
+    "title": "Depth to water annual water-year data migration",
+    "section": "OVGA export and comparison",
+    "text": "OVGA export and comparison\n\n\n\n\n\n\nReview this comparison after WY2025 processing to confirm which staids are missing and whether WSE-derived RP calculations are needed.\n\n\nRows: 12\nColumns: 11\n$ staid   &lt;chr&gt; \"T755\", \"T755\", \"T755\", \"T755\", \"T755\", \"T755\", \"T755\", \"T755\"…\n$ dtw.rp  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA\n$ wse     &lt;dbl&gt; 4208.76, 4208.51, 4208.51, 4208.28, 4208.51, 4208.51, 4208.28,…\n$ dtw.bgs &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA\n$ year    &lt;dbl&gt; 2024, 2024, 2024, 2025, 2025, 2025, 2025, 2025, 2025, 2025, 20…\n$ month   &lt;dbl&gt; 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9\n$ day     &lt;int&gt; 22, 19, 9, 22, 12, 12, 16, 15, 16, 14, 18, 23\n$ hour    &lt;int&gt; 14, 13, 10, 10, 9, 9, 9, 14, 9, 10, 15, 13\n$ minute  &lt;int&gt; 2, 39, 40, 27, 27, 37, 46, 19, 51, 15, 17, 12\n$ date    &lt;date&gt; 2024-10-22, 2024-11-19, 2024-12-09, 2025-01-22, 2025-02-12, 20…\n$ source  &lt;chr&gt; \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\", \"DWP\",…\n\n\n\nsave OVGA importout_ovga &lt;- here(\"output\", \"2025wy\", \"OVGA\")\ndir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)\nupload %&gt;% write_csv(file.path(out_ovga, \"ovga_uploads_mw_with_rpe_102024_092025_zn.csv\"))\n\n\n\n\ndatatabledatatable(\n  upload,\n  caption = \"2024-2025 water year upload formatted for OVGA data management system.\",\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),\n  class = \"compact stripe\"\n)\n\n\n\n\n\n\n\n\n\n\nMetric\nValue\n\n\n\nRows in OVGA upload\n5515\n\n\nUnique monitoring points\n590\n\n\nDate range\n2024-10-01 to 2025-09-30"
   },
   {
     "objectID": "index.html#laws",
     "href": "index.html#laws",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "Laws",
     "text": "Laws\n\n\n\n\nHydrographs of indicator wells in the Laws wellfield."
   },
   {
     "objectID": "index.html#bishop",
     "href": "index.html#bishop",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "Bishop",
     "text": "Bishop\n\n\n\n\nHydrographs of indicator wells in the Bishop wellfield."
   },
   {
     "objectID": "index.html#big-pine",
     "href": "index.html#big-pine",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "Big Pine",
     "text": "Big Pine\n\n\n\n\nHydrographs of indicator wells in the Big Pine wellfield. T565, and V017GC are in south Big Pine near W218/219."
   },
   {
     "objectID": "index.html#taboose-aberdeen",
     "href": "index.html#taboose-aberdeen",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "Taboose Aberdeen",
     "text": "Taboose Aberdeen\n\n\n\n\nHydrographs of indicator wells in the Taboose-Aberdeen wellfield."
   },
   {
     "objectID": "index.html#thibaut-sawmill",
     "href": "index.html#thibaut-sawmill",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "Thibaut Sawmill",
     "text": "Thibaut Sawmill\n\n\n\n\nHydrographs of indicator wells in Thibaut-Sawmill wellfield."
   },
   {
     "objectID": "index.html#independence-oak",
     "href": "index.html#independence-oak",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "Independence Oak",
     "text": "Independence Oak\n\n\n\n\nHydrographs of indicator wells in Independence-Oak wellfield."
   },
   {
     "objectID": "index.html#symmes-shepherd",
     "href": "index.html#symmes-shepherd",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "Symmes Shepherd",
     "text": "Symmes Shepherd\n\n\n\n\nHydrographs of indicator wells in Symmes-Shepherd wellfield."
   },
   {
     "objectID": "index.html#bairs-george",
     "href": "index.html#bairs-george",
-    "title": "Groundwater data processing",
+    "title": "Depth to water annual water-year data migration",
     "section": "Bairs George",
-    "text": "Bairs George\n\n\n\n\nHydrographs of indicator wells in Bairs George wellfield.\n\n\n\n\n\n95 monitoring points missing rp elevation and omitted from import"
+    "text": "Bairs George\n\n\n\n\nHydrographs of indicator wells in Bairs George wellfield.\n\n\n\nThe tables below summarize follow-up QA/QC checks after the hydrograph review.\nMonitoring points present in the update but not on the OVGA list\n\n\n# A tibble: 6 × 2\n  staid records\n  &lt;chr&gt;   &lt;int&gt;\n1 FS3D       12\n2 FS3S       12\n3 S004        1\n4 S005        1\n5 S006        1\n6 S007        1\n\n\nPoints missing RP elevations where GSE is missing\n\n\n# A tibble: 6 × 2\n  staid count.na\n  &lt;chr&gt;    &lt;int&gt;\n1 T916        12\n2 T917        12\n3 T920         4\n4 T921         4\n5 T924         4\n6 T926         4\n\n\nPoints missing RP elevations where GSE exists\n\n\n# A tibble: 6 × 2\n  staid count.na\n  &lt;chr&gt;    &lt;int&gt;\n1 F082         5\n2 F122         1\n3 T013U       10\n4 W059        12\n5 W060        12\n6 W063        12\n\n\nMissing-RP points that are not on the OVGA list\n\n\n# A tibble: 0 × 2\n# ℹ 2 variables: staid &lt;chr&gt;, count.na &lt;int&gt;\n\n\nMissing-RP points that are on the OVGA list\n\n\n# A tibble: 6 × 2\n  staid count.na\n  &lt;chr&gt;    &lt;int&gt;\n1 T916        12\n2 T917        12\n3 T920         4\n4 T921         4\n5 T924         4\n6 T926         4\n\n\n# A tibble: 14 × 2\n   staid count.na\n   &lt;chr&gt;    &lt;int&gt;\n 1 T916        12\n 2 T917        12\n 3 T920         4\n 4 T921         4\n 5 T924         4\n 6 T926         4\n 7 T930         4\n 8 W355         7\n 9 W410        12\n10 W411        12\n11 W412        12\n12 W413        11\n13 W423        12\n14 W425        13\n\n\nTotal record count missing RP elevations\n\n\n# A tibble: 1 × 1\n  count.na\n     &lt;int&gt;\n1      750\n\n\nSample records from points missing RP elevations\n\n\n# A tibble: 6 × 4\n# Groups:   staid, date [6]\n  staid date       rp_elev dtw.rp\n  &lt;chr&gt; &lt;date&gt;       &lt;dbl&gt;  &lt;dbl&gt;\n1 F082  2025-05-15      NA   1.85\n2 F082  2025-06-11      NA   1.85\n3 F082  2025-07-14      NA   1.76\n4 F082  2025-08-11      NA   1.81\n5 F082  2025-09-08      NA   1.75\n6 F122  2025-04-09      NA   0.37\n\n\n [1] \"F082\"  \"F122\"  \"T013U\" \"T916\"  \"T917\"  \"T920\"  \"T921\"  \"T924\"  \"T926\" \n[10] \"T930\"  \"W059\"  \"W060\"  \"W063\"  \"W065\"  \"W069\"  \"W074\"  \"W092\"  \"W106\" \n[19] \"W109\"  \"W110\"  \"W111\"  \"W114\"  \"W118\"  \"W140\"  \"W155\"  \"W218\"  \"W219\" \n[28] \"W222\"  \"W223\"  \"W232\"  \"W236\"  \"W239\"  \"W244\"  \"W245\"  \"W247\"  \"W248\" \n[37] \"W330\"  \"W332\"  \"W342\"  \"W343\"  \"W344\"  \"W345\"  \"W346\"  \"W348\"  \"W349\" \n[46] \"W351\"  \"W354\"  \"W355\"  \"W370\"  \"W371\"  \"W374\"  \"W375\"  \"W377\"  \"W382\" \n[55] \"W383\"  \"W384\"  \"W385\"  \"W387\"  \"W388\"  \"W391\"  \"W392\"  \"W393\"  \"W394\" \n[64] \"W395\"  \"W396\"  \"W398\"  \"W401\"  \"W403\"  \"W406\"  \"W407\"  \"W409\"  \"W410\" \n[73] \"W411\"  \"W412\"  \"W413\"  \"W423\"  \"W425\" \n\n\n\n\n77 monitoring points missing rp elevation and omitted from import"
   },
   {
-    "objectID": "flow.html",
-    "href": "flow.html",
-    "title": "Flow Data",
+    "objectID": "planning/wy25checklist.html",
+    "href": "planning/wy25checklist.html",
+    "title": "",
     "section": "",
-    "text": "Codesource(here('code','R','functions.R'))"
+    "text": "Code"
   },
   {
-    "objectID": "flow.html#totals-and-means---summary-stations-requested",
-    "href": "flow.html#totals-and-means---summary-stations-requested",
-    "title": "Flow Data",
-    "section": "Totals and Means - summary stations requested",
-    "text": "Totals and Means - summary stations requested\nOVR Owens Valley Runoff\n\nCodetm2 &lt;- totals_means\nmonthly_uses_syncplot(staid_p = \"OVR\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Runoff\n\n\nOVPW Owens Valley Pumped Water\n\nCodemonthly_uses_syncplot(staid_p = \"OVPW\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Pumped Water\n\n\nFTC L.A.A. Total Flow to the City\n\nCodemonthly_uses_syncplot(staid_p = \"FTC\" ,data = tm2, group_name = 'ov')\n\n\nLAA Total Flow to the City\n\n\nLOLU Lower Owens River Project – Lakes and Ponds Use\n\nCodemonthly_uses_syncplot(staid_p = \"LOLU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River Project – Lakes and Ponds Use\n\n\nLOOU Lower Owens River Project – Operations\n\nCodemonthly_uses_syncplot(staid_p = \"LOOU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River Project – Operations\n\n\nLORPDU Lower Owens River – Delta Uses\n\nCodemonthly_uses_syncplot(staid_p = \"LORPDU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River – Delta Uses\n\n\nLORPRU Lower Owens River – River Uses\n\nCodemonthly_uses_syncplot(staid_p = \"LORPRU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River – River Uses\n\n\nLORPTU Lower Owens River Project Total Uses\n\nCodemonthly_uses_syncplot(staid_p = \"LORPTU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River Project Total Uses\n\n\nLOWU Lower Owens River Project – Waterfowl Uses\n\nCodemonthly_uses_syncplot(staid_p = \"LOWU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River Project – Waterfowl Uses\n\n\nMBR Mono Basin Runoff\n\nCodemonthly_uses_syncplot(staid_p = \"MBR\" ,data = tm2, group_name = 'ov')\n\n\nMono Basin Runoff\n\n\nMTWP Mono Tunnel at West Portal\n\nCodemonthly_uses_syncplot(staid_p = \"MTWP\" ,data = tm2, group_name = 'ov')\n\n\nMono Tunnel at West Portal"
+    "objectID": "planning/wy25checklist.html#prep",
+    "href": "planning/wy25checklist.html#prep",
+    "title": "",
+    "section": "0) Prep",
+    "text": "0) Prep\n\nCreate folder data/hydro/2024-25 Water Year Transfer Packet for ICWD/\nAdd new transfer packet files:\n\nDepthRP_2024-25.dat\nDepthGE_2024-25.dat\nOwensValley_DepthWSE_2024-25.dat\nVolumeMonthAF_2024-25.dat\nsummary_stations24-25.csv\n\nVerify/update reference files as needed:\n\ndata/hydro/Owens_Monitoring_Points.csv\ndata/hydro/rp_elev.csv\ndata/hydro/gse_staids.csv\ndata/hydro/Production.csv\ndata/hydro/Flows.csv\ndata/hydro/staid_current.csv"
   },
   {
-    "objectID": "flow.html#oltu-owens-lake-total-uses",
-    "href": "flow.html#oltu-owens-lake-total-uses",
-    "title": "Flow Data",
-    "section": "OLTU Owens Lake Total Uses",
-    "text": "OLTU Owens Lake Total Uses\n\nCodemonthly_uses_syncplot(staid_p = \"OLTU\" ,data = tm2, group_name = 'ov')\n\n\nOwens Lake Total Uses\n\n\nOVFG Owens Valley Flowing Groundwater\n\nCodemonthly_uses_syncplot(staid_p = \"OVFG\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Flowing Groundwater\n\n\nOVGR Owens Valley Groundwater Recharge\n\nCodemonthly_uses_syncplot(staid_p = \"OVGR\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Groundwater Recharge\n\n\nOVIR Owens Valley Irrigation\n\nCodemonthly_uses_syncplot(staid_p = \"OVIR\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Irrigation\n\n\nSHTO South Haiwee Total Outflow (1+2+3+BP)\n\nCodemonthly_uses_syncplot(staid_p = \"SHTO\" ,data = tm2, group_name = 'ov')\n\n\nSouth Haiwee Total Outflow (1+2+3+BP)"
+    "objectID": "planning/wy25checklist.html#groundwater-processing-index.qmd",
+    "href": "planning/wy25checklist.html#groundwater-processing-index.qmd",
+    "title": "",
+    "section": "1) Groundwater processing (index.qmd)",
+    "text": "1) Groundwater processing (index.qmd)\n\nUpdate input .dat paths to 2024-25 packet\nSet wYear &lt;- '2025'\nPoint RDS read/write to data/hydro/2025/\nUpdate hist source to Monitoring_Wells_Master_2024.csv\nUpdate output names:\n\noutput/testwellwy2025.csv\noutput/Monitoring_Wells_Master_2025.csv\noutput/ovga_uploads_mw_with_rpe_102024_092025_zn.csv\n\nUpdate last_ovga_mw to prior year upload file"
   },
   {
-    "objectID": "flow.html#stream-flow",
-    "href": "flow.html#stream-flow",
-    "title": "Flow Data",
-    "section": "Stream Flow",
-    "text": "Stream Flow\nLittle Pine Creek\n\nCodemonthly_flow_syncplot_staid(staid_p = '2051' ,data = totals_means,group_name = 'a')\n\n\nLittle Pine Creek @ McMurry Rd 2051"
+    "objectID": "planning/wy25checklist.html#groundwater-qaqc",
+    "href": "planning/wy25checklist.html#groundwater-qaqc",
+    "title": "",
+    "section": "2) Groundwater QA/QC",
+    "text": "2) Groundwater QA/QC\n\nCheck record counts for annual update and master DB\nReview missing RP elevation table\nSpot-check indicator well hydrographs\nConfirm OVGA upload row counts are reasonable vs last year"
   },
   {
-    "objectID": "flow.html#pumping",
-    "href": "flow.html#pumping",
-    "title": "Flow Data",
-    "section": "Pumping",
-    "text": "Pumping\nrunoff year pumping totals\n\nCodetozoo &lt;- function(x) zoo(x$total_pumping, x$roy2)\ndyMultiColumn &lt;- function(dygraph) {\n  dyPlotter(dygraph = dygraph,\n            name = \"MultiColumn\",\n            path = system.file(\"plotters/multicolumn.js\",\n                               package = \"dygraphs\"))\n}\n\n\nBP1\n\nCodelinked_wells &lt;- c(\"W210\",\"W378\",\"W379\",\"W389\")\n\nDF &lt;- tm2 %&gt;% filter(staid %in% linked_wells) %&gt;% mutate(case_when(read &lt; 0 ~ 0)) %&gt;% group_by(roy,staid)%&gt;% summarise(total_pumping = sum(read)) %&gt;% select(roy,staid,total_pumping) %&gt;% mutate(roy2 = make_date(roy,4,1))\n\nDF[is.na(DF)] &lt;- 0\n\n# %&gt;% replace(is.na(.), 0)\n\nData &lt;- do.call(merge, lapply(split(DF, DF$staid), tozoo))\n\nData %&gt;% dygraph(group = 'a') %&gt;% \n  dyStackedBarGroup(c(\"W210\",\"W378\",\"W379\",\"W389\"))%&gt;%\n  dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", valueRange = c(0, 8000))\n\n\nBP1 linked wells\n\n\nBP2\n\nCodelinked_wells &lt;- c(\"W220\",\"W229\",\"W374\",\"W375\")\n\nDF &lt;- totals_means %&gt;% filter(staid %in% linked_wells) %&gt;% mutate(case_when(read == -777 ~ 0)) %&gt;% group_by(roy,staid)%&gt;% summarise(total_pumping = sum(read)) %&gt;% select(roy,staid,total_pumping) %&gt;% mutate(roy2 = make_date(roy,4,1)) %&gt;% replace(is.na(.), 0)\n\nData &lt;- do.call(merge, lapply(split(DF, DF$staid), tozoo))\n\nData %&gt;% dygraph(group = 'a') %&gt;% \n  dyStackedBarGroup(c(\"W220\",\"W229\",\"W374\",\"W375\"))%&gt;%\n  dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", valueRange = c(0, 6000))\n\n\nBP2 linked wells\n\n\nBP3\n\nCodelinked_wells &lt;- c(\"W222\",\"W223\",\"W231\",\"W232\")\nDF &lt;- tm2 %&gt;% filter(staid %in% linked_wells) %&gt;% mutate(case_when(read == -777 ~ 0)) %&gt;% group_by(roy,staid)%&gt;% summarise(total_pumping = sum(read)) %&gt;% select(roy,staid,total_pumping) %&gt;% mutate(roy2 = make_date(roy,4,1))%&gt;% replace(is.na(.), 0)\n\nData &lt;- do.call(merge, lapply(split(DF, DF$staid), tozoo))\n\nData %&gt;% dygraph(group = 'a') %&gt;% \n  dyStackedBarGroup(c(\"W222\",\"W223\",\"W231\",\"W232\"))%&gt;%\n  dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", valueRange = c(0, 12000))\n\n\nBP3 linked wells\n\n\nBP4\n\nCodelinked_wells &lt;- c(\"W331\")\n\n\nDF &lt;- tm2 %&gt;% filter(staid %in% linked_wells) %&gt;% mutate(case_when(read == -777 ~ 0)) %&gt;% group_by(roy,staid)%&gt;% summarise(total_pumping = sum(read)) %&gt;% select(roy,staid,total_pumping) %&gt;% mutate(roy2 = make_date(roy,4,1))%&gt;% replace(is.na(.), 0)\n\nData &lt;- do.call(merge, lapply(split(DF, DF$staid), tozoo))\n# Data &lt;- tozoo(DF)\n# Data\nData %&gt;% dygraph(group = 'a') %&gt;% \n  dyBarChart()%&gt;%\n  dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", valueRange = c(0, 6000))\n\n\nFigure 1: BP4 linked to well W331\n\n\nExempt Wells - Fish Hatchery and 218, 219\n\nCodelinked_wells &lt;- c(\"W218\",\"W219\",\"W330\",\"W332\")\n\nDF &lt;- tm2 %&gt;% filter(staid %in% linked_wells) %&gt;% mutate(case_when(read == -777 ~ 0)) %&gt;% group_by(roy,staid)%&gt;% summarise(total_pumping = sum(read)) %&gt;% select(roy,staid,total_pumping) %&gt;% mutate(roy2 = make_date(roy,4,1))%&gt;% replace(is.na(.), 0)\n\nData &lt;- do.call(merge, lapply(split(DF, DF$staid), tozoo))\n# Data &lt;- tozoo(DF)\n# Data\nData %&gt;% dygraph(group = 'a')%&gt;% \n  dyStackedBarGroup(c(\"W218\",\"W219\",\"W330\",\"W332\"))%&gt;%\n  dyBarChart()%&gt;%\n  dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", valueRange = c(0, 32000))\n\n\nFigure 2: hatchery wells 330/332 and exempt wells 218/219\n\n\nBig Pine Pumping Totals\n\nCodelinked_wells &lt;- c(\"W210\",\"W378\",\"W379\",\"W389\",\"W220\",\"W229\",\"W374\",\"W375\",\"W222\",\"W223\",\"W231\",\"W232\",\"W331\",\"W218\",\"W219\",\"W330\",\"W332\")\n\nDF &lt;- tm2 %&gt;% filter(staid %in% linked_wells) %&gt;% mutate(case_when(read == -777 ~ 0)) %&gt;% group_by(roy,staid)%&gt;% summarise(total_pumping = sum(read)) %&gt;% select(roy,staid,total_pumping) %&gt;% mutate(roy2 = make_date(roy,4,1))%&gt;% replace(is.na(.), 0)\n\nData &lt;- do.call(merge, lapply(split(DF, DF$staid), tozoo))\n# Data &lt;- tozoo(DF)\n# Data\nData %&gt;% dygraph(group = 'a')%&gt;% \n  dyStackedBarGroup(c(\"W210\",\"W378\",\"W379\",\"W389\",\"W220\",\"W229\",\"W374\",\"W375\",\"W222\",\"W223\",\"W231\",\"W232\",\"W331\",\"W218\",\"W219\",\"W330\",\"W332\"))%&gt;%\n  dyBarChart()%&gt;%\n  dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", valueRange = c(0, 32000))\n\n\nBig Pine Wellfield Pumping"
+    "objectID": "planning/wy25checklist.html#flow-pumping-processing-flow.qmd",
+    "href": "planning/wy25checklist.html#flow-pumping-processing-flow.qmd",
+    "title": "",
+    "section": "3) Flow + Pumping processing (flow.qmd)",
+    "text": "3) Flow + Pumping processing (flow.qmd)\n\nUpdate file_path_flow to VolumeMonthAF_2024-25.dat\nUpdate sum_stations to summary_stations24-25.csv\nUpdate monthlies input to totals_means_thru_sep_2024.csv\nUpdate ICWD master outputs:\n\ndata/hydro/totals_means_thru_sep_2025.csv\noutput/totals_means_thru_sep_2025.csv\n\nUpdate OVGA export names:\n\noutput/ovga_swflow_import_wy25.csv\noutput/ovga_production_import_wy24-25.csv (or wy25, pick one)"
+  },
+  {
+    "objectID": "planning/wy25checklist.html#flow-pumping-qaqc",
+    "href": "planning/wy25checklist.html#flow-pumping-qaqc",
+    "title": "",
+    "section": "4) Flow + Pumping QA/QC",
+    "text": "4) Flow + Pumping QA/QC\n\nConfirm read != -777 filtering worked\nCheck get_dupes() results for flow + production exports\nSpot-check a few stations and annual totals\nReview QA/QC plots for obvious anomalies"
+  },
+  {
+    "objectID": "planning/wy25checklist.html#render-publish",
+    "href": "planning/wy25checklist.html#render-publish",
+    "title": "",
+    "section": "5) Render + publish",
+    "text": "5) Render + publish\n\nRender Quarto site\nVerify docs/index.html and docs/flow.html\nVerify download links point to WY25 outputs\nCommit outputs + docs update"
+  },
+  {
+    "objectID": "planning/peer_review_pipeline.html",
+    "href": "planning/peer_review_pipeline.html",
+    "title": "",
+    "section": "",
+    "text": "Code"
+  },
+  {
+    "objectID": "planning/peer_review_pipeline.html#zenodo-doi-release-based",
+    "href": "planning/peer_review_pipeline.html#zenodo-doi-release-based",
+    "title": "",
+    "section": "1) Zenodo DOI (release-based)",
+    "text": "1) Zenodo DOI (release-based)\n\nLink the GitHub repo to Zenodo (one-time setup in Zenodo UI).\nAdd release metadata (title, description, version) in GitHub.\nCreate a release tag for each water-year update (e.g., v2025.0).\nVerify Zenodo minted a DOI for the release.\nRecord the DOI in README.md and the report front matter."
+  },
+  {
+    "objectID": "planning/peer_review_pipeline.html#repository-metadata-recommended",
+    "href": "planning/peer_review_pipeline.html#repository-metadata-recommended",
+    "title": "",
+    "section": "2) Repository metadata (recommended)",
+    "text": "2) Repository metadata (recommended)\n\nAdd CITATION.cff with project title, authors, and DOI.\n(Optional) Add zenodo.json for detailed metadata.\nConfirm license and versioning strategy (semantic or annual)."
+  },
+  {
+    "objectID": "planning/peer_review_pipeline.html#peerj-submission-path",
+    "href": "planning/peer_review_pipeline.html#peerj-submission-path",
+    "title": "",
+    "section": "3) PeerJ submission path",
+    "text": "3) PeerJ submission path\n\nCreate a paper/ directory with:\n\npaper.md (PeerJ-format manuscript in Markdown or Quarto)\nreferences.bib\nfigures/ (exported, final figures)\n\nPreferred submission formats: PDF, Word, LaTeX, or Markdown/HTML. JATS is not required unless requested by the journal.\nExport a PDF from Quarto for submission review.\nAdd a reproducibility section pointing to:\n\nThis repo\nThe Zenodo DOI\nRendered docs/ outputs\n\nKeep results modest and data-driven (trend summaries and QA/QC)."
+  },
+  {
+    "objectID": "planning/peer_review_pipeline.html#optional-jossj0se-track-software-method",
+    "href": "planning/peer_review_pipeline.html#optional-jossj0se-track-software-method",
+    "title": "",
+    "section": "4) Optional JOSS/J0SE track (software method)",
+    "text": "4) Optional JOSS/J0SE track (software method)\n\nIf the repo is positioned as a toolchain, add:\n\npaper.md (JOSS format)\npaper.bib\n\nOpen a JOSS/JOSE submission issue when ready."
+  },
+  {
+    "objectID": "planning/peer_review_pipeline.html#annual-cycle-recommended",
+    "href": "planning/peer_review_pipeline.html#annual-cycle-recommended",
+    "title": "",
+    "section": "5) Annual cycle (recommended)",
+    "text": "5) Annual cycle (recommended)\n\nOn WY completion:\n\nRender Quarto site\nUpdate outputs in output/\nTag release in GitHub\nConfirm Zenodo DOI minted\nLog summary in planning/worklog.md"
+  },
+  {
+    "objectID": "paper/paper.html",
+    "href": "paper/paper.html",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "",
+    "text": "ADD_ABSTRACT"
+  },
+  {
+    "objectID": "paper/paper.html#abstract",
+    "href": "paper/paper.html#abstract",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "",
+    "text": "ADD_ABSTRACT"
+  },
+  {
+    "objectID": "paper/paper.html#introduction",
+    "href": "paper/paper.html#introduction",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "Introduction",
+    "text": "Introduction\nADD_INTRODUCTION"
+  },
+  {
+    "objectID": "paper/paper.html#data-and-methods",
+    "href": "paper/paper.html#data-and-methods",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "Data and Methods",
+    "text": "Data and Methods\nADD_METHODS"
+  },
+  {
+    "objectID": "paper/paper.html#results",
+    "href": "paper/paper.html#results",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "Results",
+    "text": "Results\nADD_RESULTS"
+  },
+  {
+    "objectID": "paper/paper.html#discussion",
+    "href": "paper/paper.html#discussion",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "Discussion",
+    "text": "Discussion\nADD_DISCUSSION"
+  },
+  {
+    "objectID": "paper/paper.html#reproducibility",
+    "href": "paper/paper.html#reproducibility",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "Reproducibility",
+    "text": "Reproducibility\nAll code, data, and rendered outputs are available in the project repository. The archived DOI (Zenodo) will be added after release.\nRepository: https://github.com/inyo-gov/hydro-data\nWebsite: https://inyo-gov.github.io/hydro-data/\nDOI: ADD_DOI"
+  },
+  {
+    "objectID": "paper/paper.html#acknowledgments",
+    "href": "paper/paper.html#acknowledgments",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "Acknowledgments",
+    "text": "Acknowledgments\nADD_ACKNOWLEDGMENTS"
+  },
+  {
+    "objectID": "paper/paper.html#references",
+    "href": "paper/paper.html#references",
+    "title": "Hydro Data: Owens Valley Monitoring Wells, Pumping, and Flow",
+    "section": "References",
+    "text": "References\nSee references.bib."
+  },
+  {
+    "objectID": "planning/motherduck_poc.html",
+    "href": "planning/motherduck_poc.html",
+    "title": "",
+    "section": "",
+    "text": "Code"
+  },
+  {
+    "objectID": "planning/motherduck_poc.html#export-to-parquet-local",
+    "href": "planning/motherduck_poc.html#export-to-parquet-local",
+    "title": "",
+    "section": "1) Export to Parquet (local)",
+    "text": "1) Export to Parquet (local)\n\nConvert the primary outputs to Parquet:\n\noutput/Monitoring_Wells_Master_2025.csv\noutput/testwellwy2025.csv\noutput/ovga_uploads_mw_with_rpe_102024_092025_zn.csv\noutput/totals_means_thru_sep_2025.csv\noutput/ovga_swflow_import_wy25.csv\noutput/ovga_production_import_wy24-25.csv\n\n\nExample (duckdb):\nduckdb &lt;&lt;'SQL'\nCOPY (SELECT * FROM read_csv_auto('output/Monitoring_Wells_Master_2025.csv'))\n  TO 'output/Monitoring_Wells_Master_2025.parquet' (FORMAT PARQUET);\nSQL"
+  },
+  {
+    "objectID": "planning/motherduck_poc.html#load-into-motherduck",
+    "href": "planning/motherduck_poc.html#load-into-motherduck",
+    "title": "",
+    "section": "2) Load into MotherDuck",
+    "text": "2) Load into MotherDuck\n\nInstall the CLI and authenticate:\n\nduckdb\nINSTALL motherduck; LOAD motherduck;\nATTACH 'md:your_db_name';\n\n\nExample:\nduckdb &lt;&lt;'SQL'\nINSTALL motherduck;\nLOAD motherduck;\nATTACH 'md:hydro_data';\n\nCREATE OR REPLACE TABLE hydro_data.monitoring_wells AS\n  SELECT * FROM read_parquet('output/Monitoring_Wells_Master_2025.parquet');\nSQL"
+  },
+  {
+    "objectID": "planning/motherduck_poc.html#provide-query-examples",
+    "href": "planning/motherduck_poc.html#provide-query-examples",
+    "title": "",
+    "section": "3) Provide query examples",
+    "text": "3) Provide query examples\n\nAdd a short “Querying the data” section to README.md (or a docs/ page).\nInclude simple SQL examples (count by staid, yearly totals, etc.)."
+  },
+  {
+    "objectID": "planning/motherduck_poc.html#access-controls",
+    "href": "planning/motherduck_poc.html#access-controls",
+    "title": "",
+    "section": "4) Access controls",
+    "text": "4) Access controls\n\nDecide if the MotherDuck database is public or shared by link.\nOptionally provide a read-only token for public query access."
+  },
+  {
+    "objectID": "planning/worklog.html",
+    "href": "planning/worklog.html",
+    "title": "",
+    "section": "",
+    "text": "Code"
+  },
+  {
+    "objectID": "planning/worklog.html#template",
+    "href": "planning/worklog.html#template",
+    "title": "",
+    "section": "Template",
+    "text": "Template\nDate: Task: Tags: Inputs/Files: Notes/Decisions: Outputs: Follow-ups:"
+  },
+  {
+    "objectID": "planning/worklog.html#entries",
+    "href": "planning/worklog.html#entries",
+    "title": "",
+    "section": "Entries",
+    "text": "Entries\nDate: 2026-01-28\nTask: Report metadata and site styling updates\nTags: metadata, styling, quarto\nInputs/Files: index.qmd, _quarto.yml, styles.css, www/inyo_logo.png\nNotes/Decisions: Updated author/date-modified and applied Inyo County branding for consistent GitHub Pages styling.\nOutputs: Rendered pages reflect updated theme/logo styling.\nFollow-ups: None.\nDate: 2026-01-28\nTask: WY2025 cache and parsing safeguards\nTags: cache, parsing, wy25\nInputs/Files: index.qmd, flow.qmd, data/hydro/2024-25 Water Year Transfer Packet for ICWD/*.dat\nNotes/Decisions: Moved to year-based cache paths for WY2025 and added fallback parse logic when WY25 RDS files are missing.\nOutputs: WY2025 RDS files generated when missing; year-scoped cache directories in use.\nFollow-ups: None.\nDate: 2026-01-28\nTask: Import-metrics placeholders in reports\nTags: reporting, ovga, tables\nInputs/Files: index.qmd, flow.qmd\nNotes/Decisions: Replaced static screenshots with compact import-metrics tables to keep QA/QC sections current.\nOutputs: Updated report sections ready for metric values.\nFollow-ups: Populate import-metrics tables after final OVGA imports.\nDate: 2026-01-28\nTask: Peer review and Zenodo templates\nTags: peer-review, zenodo, citation\nInputs/Files: CITATION.cff, zenodo.json, paper/*, planning/*\nNotes/Decisions: Templated citation metadata and manuscript scaffolding for PeerJ/Zenodo workflow.\nOutputs: CITATION.cff, zenodo.json, paper/*, planning/peer_review_pipeline.md\nFollow-ups: Fill in placeholders in CITATION.cff and zenodo.json.\nDate: 2026-01-28\nTask: Flow plots and pumping QA/QC buildout\nTags: plots, dygraphs, qaqc, pumping\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Converted key flow plots to dygraphs, added linked-wells QA/QC plots, and introduced wellfield total pumping plots.\nOutputs: Rendered docs/flow.html with interactive flow and pumping QA/QC plots.\nFollow-ups: None.\nDate: 2026-01-29\nTask: OVGA filename parameters and duplicate checks\nTags: ovga, parameters, qaqc\nInputs/Files: flow.qmd\nNotes/Decisions: Standardized OVGA output filenames via wy_year and added “No duplicates found” messaging for quick QA/QC reads.\nOutputs: Updated OVGA export filenames and duplicate-check callouts in report.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Top-10 stream gages and WY/RY labeling\nTags: plots, wy-ry, dygraphs\nInputs/Files: flow.qmd, data/hydro/staid_current.csv\nNotes/Decisions: Replaced single-stream plot with top-10 WY gages and included gage names; clarified WY (Oct–Sep) vs RY (Apr–Mar) in headings and narrative.\nOutputs: Rendered docs/flow.html with top-10 gage plots and clearer year definitions.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Seasonal pumping totals and percentiles\nTags: analysis, tables, pumping, wy-ry\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Added seasonal totals (Apr–Sep, Oct–Mar, Apr–Mar) by site and wellfield plus WY/RY percentile tables for WY2025.\nOutputs: Rendered seasonal totals and percentile tables in docs/flow.html.\nFollow-ups: None.\nDate: 2026-01-29\nTask: Export diffs and raw-data exclusions\nTags: exports, tables, qaqc\nInputs/Files: flow.qmd, data/hydro/Flows.csv, data/hydro/Production.csv\nNotes/Decisions: Added tables comparing last-year vs current exports and raw-data exclusions for flow and production.\nOutputs: Rendered export-diff and exclusions tables in docs/flow.html.\nFollow-ups: None.\nDate: 2026-01-30\nTask: Plot padding for first/last year visibility\nTags: plots, padding, dygraphs\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Added per-series left/right padding so first and last year bars render fully.\nOutputs: Rendered docs/flow.html with no year-end clipping.\nFollow-ups: None.\nDate: 2026-01-30\nTask: Pumping plot scaling and label cleanup\nTags: plots, scaling, labels\nInputs/Files: flow.qmd, code/R/functions.R\nNotes/Decisions: Set y-axis ranges based on stacked totals for Big Pine and exempt-well plots and labeled dygraph values as AF.\nOutputs: Rendered docs/flow.html with corrected y-axis scaling and labels.\nFollow-ups: None.\nDate: 2026-01-30\nTask: RY2025 completeness note\nTags: reporting, wy-ry\nInputs/Files: flow.qmd\nNotes/Decisions: Noted that RY2025 totals are incomplete without Oct–Mar data.\nOutputs: Report note added to docs/flow.html.\nFollow-ups: Revisit once Oct–Mar 2025–26 data are delivered to complete RY2025."
   },
   {
     "objectID": "about.html",
@@ -124,5 +439,75 @@
     "title": "About",
     "section": "",
     "text": "This record of data processing is useful internally to speed up these annual tasks. For the most part, the core of the processing has been automated here."
+  },
+  {
+    "objectID": "flow.html",
+    "href": "flow.html",
+    "title": "Flow Data",
+    "section": "",
+    "text": "codesource(here('code','R','functions.R'))"
+  },
+  {
+    "objectID": "flow.html#raw-input-coverage",
+    "href": "flow.html#raw-input-coverage",
+    "title": "Flow Data",
+    "section": "Raw input coverage",
+    "text": "Raw input coverage\n\nraw input coverageraw_flow_coverage &lt;- tibble(\n  File = c(basename(file_path_flow), basename(file_path_flow_prev)),\n  Records = c(nrow(ann.update2), nrow(ann.update_prev2)),\n  Unique_staids = c(\n    dplyr::n_distinct(ann.update2$staid),\n    dplyr::n_distinct(ann.update_prev2$staid)\n  ),\n  Date_start = c(\n    min(ymd_hms(ann.update2$date), na.rm = TRUE),\n    if (nrow(ann.update_prev2) &gt; 0) min(ymd_hms(ann.update_prev2$date), na.rm = TRUE) else as.POSIXct(NA)\n  ),\n  Date_end = c(\n    max(ymd_hms(ann.update2$date), na.rm = TRUE),\n    if (nrow(ann.update_prev2) &gt; 0) max(ymd_hms(ann.update_prev2$date), na.rm = TRUE) else as.POSIXct(NA)\n  )\n)\n\nknitr::kable(raw_flow_coverage)\n\n\n\n\n\n\n\n\n\n\nFile\nRecords\nUnique_staids\nDate_start\nDate_end\n\n\n\nVolumeMonthAF_2024-25.dat\n8853\n744\n2024-10-01\n2025-09-01\n\n\nVolumeMonthAF_2023-24.dat\n8796\n744\n2023-10-01\n2024-09-01\n\n\n\n\n\n\ndate columnsann.update2$datetime &lt;- ymd_hms(ann.update2$date)\n\n\nann.update3&lt;-ann.update2 %&gt;% mutate(year = year(datetime),\n                            month = month(datetime),\n                            month_abbr = month(datetime, label = TRUE, abbr = TRUE),\n                            day = mday(datetime),\n                            date.y.m.d = make_date(year, month,day))\n\n# select, rename, ljoin, select columns\nann.update4&lt;-ann.update3 %&gt;% select(-date)%&gt;% rename(date = date.y.m.d)%&gt;% left_join(staidlist, by = 'staid') %&gt;% select(staid,description,read,date,year,month,month_abbr) \n\n# mutate case when year breaks/types\nann.update5 &lt;- ann.update4 %&gt;% mutate(wy = case_when(month &gt;= 10 ~ year + 1,\n                                          month &lt;= 9 ~ year),\n                           roy = case_when(month &lt;= 3 ~ year - 1,\n                                           month &gt;= 4 ~ year),\n                           irrag = case_when(month %in% c(4,5,6,7,8,9) ~ year))\n\n\n\nsummary stations# wide to long format using gather()\nif (nrow(sum_stations) &gt; 0) {\n  sstations &lt;- sum_stations %&gt;% \n    gather(staid,read,-date) %&gt;% \n    left_join(staidlist, by = 'staid') %&gt;% select(-desc_id)%&gt;% \n    mutate(date = as.Date(date),\n           datetime = as.Date(date),\n           month = month(datetime),\n           year = year(datetime),\n           month_abbr = month(datetime, label = TRUE, abbr = TRUE)\n           )\n} else {\n  sstations &lt;- ann.update4 %&gt;% slice(0)\n}\n\n\n\nsplit into ovga and ic updates# append rows of summary stations to the annual update\nupdate.merged.ic &lt;- bind_rows(sstations,ann.update4)\n# without - don't append b/c ovga doesn't have that\nupdate.merged &lt;- ann.update4# for ovga, don't need summaries"
+  },
+  {
+    "objectID": "flow.html#icwd-flow-export",
+    "href": "flow.html#icwd-flow-export",
+    "title": "Flow Data",
+    "section": "ICWD flow export",
+    "text": "ICWD flow export\n\nIC date columns# for ic master db\nupdate.merged.ic &lt;- update.merged.ic %&gt;% mutate(wy = case_when(month &gt;= 10 ~ year + 1,\n                                          month &lt;= 9 ~ year),\n                           roy = case_when(month &lt;= 3 ~ year - 1,\n                                           month &gt;= 4 ~ year),\n                           irrag = case_when(month %in% c(4,5,6,7,8,9) ~ year))\n\n\n\nupdate IC DBtotals_means &lt;- bind_rows(update.merged.ic, monthlies) %&gt;%\n  mutate(date = as.Date(date))\n# tm_all_merged\n\n# update.merged3 %&gt;% get_dupes()\n# 0\n\n\n\nwrite updated IC DB# totals_means %&gt;% write_csv('totals_means_thru_sep_2021.csv')\n# totals_means %&gt;% write_csv(here('data','hydro','totals_means_thru_sep_2024.csv'))\n# totals_means %&gt;% write_csv(here('output','totals_means_thru_sep_2024.csv'))\n\ntotals_means %&gt;% write_csv(here('data','hydro','totals_means_thru_sep_2025.csv'))\nout_icwd &lt;- here(\"output\", \"2025wy\", \"ICWD\")\ndir.create(out_icwd, recursive = TRUE, showWarnings = FALSE)\ntotals_means %&gt;% write_csv(file.path(out_icwd, \"totals_means_thru_sep_2025.csv\"))"
+  },
+  {
+    "objectID": "flow.html#ovga-flow-export",
+    "href": "flow.html#ovga-flow-export",
+    "title": "Flow Data",
+    "section": "OVGA flow export",
+    "text": "OVGA flow export\n\nfilter no value -777tm &lt;- ann.update5 %&gt;% filter(read != -777)\n# tm\n\n\n\nsplit flow vs production# 6758+2244\n\nnormalize_flow_staid &lt;- function(x) {\n  ifelse(str_detect(x, \"^0\"), str_replace(x, \"^0+\", \"\"), x)\n}\n\n# flow\nflowdf &lt;- tm %&gt;% filter(!str_detect(staid, \"[[:alpha:]]\")) %&gt;%\n  mutate(staid = normalize_flow_staid(staid))\n\nflow_ovga &lt;- flowdf %&gt;%\n  left_join(flow.meta, by = 'staid') %&gt;%\n  filter(!is.na(mon_pt_name), mon_pt_name != \"\")\n# %&gt;% filter(!is.na(mon_pt_name))\n\n# use below\n#production\nproddf &lt;- tm %&gt;% filter(str_detect(staid, \"[[:alpha:]]\"))\n\n\n\novga flow columnssw.flow &lt;- flow_ovga  %&gt;% \n  mutate(WellName = mon_pt_name,\n         FlowDate = date,\n         FlowRateAcFtPM = read,\n         FlowRateCFS = \"\",\n         FlowRateGPM = \"\") %&gt;% \n  select(WellName,FlowDate,FlowRateAcFtPM, FlowRateCFS, FlowRateGPM)\n  # filter(FlowRateAcFtPM &lt; 600000) %&gt;%\n\n# columns up to date 1/30/24 zn\nsw.flow %&gt;%\n  datatable(\n    options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),\n    class = \"compact stripe\"\n  )\n\n\n\n\n\n\nfind/remove duplicatesdupes &lt;- sw.flow %&gt;% get_dupes() \n\nswflow2 &lt;- sw.flow %&gt;% anti_join(dupes)\n\n\n\nwrite ovga flow# swflow2 %&gt;% write_csv(here(\"output\",\"ovga_swflow_import_wy23.csv\"))\nout_ovga &lt;- here(\"output\", \"2025wy\", \"OVGA\")\ndir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)\nswflow2 %&gt;% write_csv(file.path(out_ovga, paste0(\"ovga_swflow_import_wy\", wy_short, \".csv\")))\n\n\n\nOVGA flow import metricsflow_import_metrics &lt;- tibble(\n  Metric = c(\n    \"Flow records in upload\",\n    \"Unique monitoring points\",\n    \"Date range\"\n  ),\n  Value = c(\n    nrow(swflow2),\n    dplyr::n_distinct(swflow2$WellName),\n    paste0(min(swflow2$FlowDate, na.rm = TRUE), \" to \", max(swflow2$FlowDate, na.rm = TRUE))\n  )\n) %&gt;% mutate(Value = format(Value, big.mark = \",\"))\n\nknitr::kable(flow_import_metrics)\n\n\n\nMetric\nValue\n\n\n\nFlow records in upload\n6611\n\n\nUnique monitoring points\n555\n\n\nDate range\n2024-10-01 to 2025-09-01\n\n\n\n\n\nFlow export comparison (last year vs current)\n\ncodeflow_export_last_path &lt;- here(\"output\", \"ovga_swflow_import_wy24.csv\")\nflow_export_last &lt;- if (file.exists(flow_export_last_path)) {\n  read_csv(flow_export_last_path, show_col_types = FALSE) %&gt;% distinct(WellName)\n} else {\n  tibble(WellName = character())\n}\n\nflow_export_current &lt;- swflow2 %&gt;% distinct(WellName)\n\nflow_export_missing &lt;- flow_export_last %&gt;% anti_join(flow_export_current, by = \"WellName\")\nflow_export_new &lt;- flow_export_current %&gt;% anti_join(flow_export_last, by = \"WellName\")\n\nDT::datatable(\n  flow_export_missing,\n  options = list(pageLength = 10, lengthChange = TRUE),\n  caption = \"Flow gages in WY2024 export but missing in WY2025 export\"\n)\n\n\n\n\ncodeDT::datatable(\n  flow_export_new,\n  options = list(pageLength = 10, lengthChange = TRUE),\n  caption = \"Flow gages in WY2025 export but not in WY2024 export\"\n)"
+  },
+  {
+    "objectID": "flow.html#ovga-production-export",
+    "href": "flow.html#ovga-production-export",
+    "title": "Flow Data",
+    "section": "OVGA production export",
+    "text": "OVGA production export\n\novga production columnsprod_ovga &lt;- proddf %&gt;%\n  left_join(production.meta, by = c('staid' = 'mon_pt_name')) %&gt;%\n  semi_join(ovga_points, by = c(\"staid\" = \"mon_pt_name\"))\n\ntm.well.flow &lt;- prod_ovga %&gt;% \n  mutate(WellName = staid,\n         StartDate = date,\n         EndDate = ceiling_date(date,'month'),\n         AgUsageAF = '',\n         MIUsageAF = read,\n         TotalUsageAF = read,\n         Method = if_else(is.na(method) | method == \"\", \"Unknown\", method),\n         Notes = '') %&gt;% \n  select(WellName,StartDate,EndDate, AgUsageAF, MIUsageAF, TotalUsageAF, Method, Notes)\n\n\n\ncodetm.well.flow %&gt;%\n  datatable(\n    options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),\n    class = \"compact stripe\"\n  )\n\n\n\n\n\n\nfind/replace duplicatesdupeswell &lt;- tm.well.flow %&gt;% get_dupes()\nif (nrow(dupeswell) == 0) {\n  cat(\"No duplicates found.\\n\")\n} else {\n  cat(\"Duplicate rows found: \", nrow(dupeswell), \"\\n\")\n  dupeswell\n}\n\nNo duplicates found.\n\nfind/replace duplicates# tmwellflow &lt;- tm.well.flow %&gt;% anti_join(dupeswell)\n\n\n\nwrite ovga production# tm.well.flow %&gt;% write_csv(here(\"output\",\"ovga_production_import_wy22-23.csv\"))\nout_ovga &lt;- here(\"output\", \"2025wy\", \"OVGA\")\ndir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)\ntm.well.flow %&gt;% write_csv(file.path(out_ovga, paste0(\"ovga_production_import_wy\", wy_range, \".csv\")))\n\n\n\nOVGA production import metricsproduction_import_metrics &lt;- tibble(\n  Metric = c(\n    \"Production records in upload\",\n    \"Unique production wells\",\n    \"Date range\"\n  ),\n  Value = c(\n    nrow(tm.well.flow),\n    dplyr::n_distinct(tm.well.flow$WellName),\n    paste0(min(tm.well.flow$StartDate, na.rm = TRUE), \" to \", max(tm.well.flow$EndDate, na.rm = TRUE))\n  )\n) %&gt;% mutate(Value = format(Value, big.mark = \",\"))\n\nknitr::kable(production_import_metrics)\n\n\n\nMetric\nValue\n\n\n\nProduction records in upload\n1956\n\n\nUnique production wells\n162\n\n\nDate range\n2024-10-01 to 2025-10-01\n\n\n\n\n\nProduction export comparison (last year vs current)\n\ncodeproduction_export_last_path &lt;- here(\"output\", \"ovga_production_import_wy23-24.csv\")\nproduction_export_last &lt;- if (file.exists(production_export_last_path)) {\n  read_csv(production_export_last_path, show_col_types = FALSE) %&gt;% distinct(WellName)\n} else {\n  tibble(WellName = character())\n}\n\nproduction_export_current &lt;- tm.well.flow %&gt;% distinct(WellName)\n\nproduction_export_missing &lt;- production_export_last %&gt;% anti_join(production_export_current, by = \"WellName\")\nproduction_export_new &lt;- production_export_current %&gt;% anti_join(production_export_last, by = \"WellName\")\n\nDT::datatable(\n  production_export_missing,\n  options = list(pageLength = 10, lengthChange = TRUE),\n  caption = \"Production wells in WY2024 export but missing in WY2025 export\"\n)\n\n\n\n\ncodeDT::datatable(\n  production_export_new,\n  options = list(pageLength = 10, lengthChange = TRUE),\n  caption = \"Production wells in WY2025 export but not in WY2024 export\"\n)\n\n\n\n\n\nRaw data exclusions (last year vs current)\n\ncoderaw_flow_current &lt;- ann.update2 %&gt;%\n  filter(!str_detect(staid, \"[[:alpha:]]\")) %&gt;%\n  mutate(staid = normalize_flow_staid(staid))\n\nraw_flow_prev &lt;- ann.update_prev2 %&gt;%\n  filter(!str_detect(staid, \"[[:alpha:]]\")) %&gt;%\n  mutate(staid = normalize_flow_staid(staid))\n\nraw_prod_current &lt;- ann.update2 %&gt;%\n  filter(str_detect(staid, \"[[:alpha:]]\"))\n\nraw_prod_prev &lt;- ann.update_prev2 %&gt;%\n  filter(str_detect(staid, \"[[:alpha:]]\"))\n\nraw_flow_current_joined &lt;- raw_flow_current %&gt;%\n  left_join(flow.meta, by = \"staid\")\n\nraw_flow_prev_joined &lt;- raw_flow_prev %&gt;%\n  left_join(flow.meta, by = \"staid\")\n\nraw_flow_excluded_current &lt;- raw_flow_current_joined %&gt;%\n  filter(is.na(mon_pt_name) | !(mon_pt_name %in% flow_export_current$WellName)) %&gt;%\n  distinct(staid, mon_pt_name) %&gt;%\n  arrange(staid)\n\nraw_flow_excluded_prev &lt;- raw_flow_prev_joined %&gt;%\n  filter(is.na(mon_pt_name) | !(mon_pt_name %in% flow_export_last$WellName)) %&gt;%\n  distinct(staid, mon_pt_name) %&gt;%\n  arrange(staid)\n\nraw_prod_excluded_current &lt;- raw_prod_current %&gt;%\n  distinct(staid) %&gt;%\n  filter(!staid %in% production_export_current$WellName) %&gt;%\n  arrange(staid)\n\nraw_prod_excluded_prev &lt;- raw_prod_prev %&gt;%\n  distinct(staid) %&gt;%\n  filter(!staid %in% production_export_last$WellName) %&gt;%\n  arrange(staid)\n\nDT::datatable(\n  raw_flow_excluded_prev,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),\n  caption = \"Flow staids in WY2024 raw data excluded from WY2024 export\"\n)\n\n\n\n\ncodeDT::datatable(\n  raw_flow_excluded_current,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),\n  caption = \"Flow staids in WY2025 raw data excluded from WY2025 export\"\n)\n\n\n\n\ncodeDT::datatable(\n  raw_prod_excluded_prev,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),\n  caption = \"Production staids in WY2024 raw data excluded from WY2024 export\"\n)\n\n\n\n\ncodeDT::datatable(\n  raw_prod_excluded_current,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),\n  caption = \"Production staids in WY2025 raw data excluded from WY2025 export\"\n)\n\n\n\n\n\nRemoved staids not on the basin list are excluded from OVGA exports and reflected in the raw‑data exclusion tables above."
+  },
+  {
+    "objectID": "flow.html#totals-and-means---summary-stations-requested",
+    "href": "flow.html#totals-and-means---summary-stations-requested",
+    "title": "Flow Data",
+    "section": "Totals and Means - summary stations requested",
+    "text": "Totals and Means - summary stations requested\nSummary-station series (OVR, OVPW, etc.) are populated from the summary stations file. Until summary_stations24-25.csv is delivered, these plots will extend through WY2024.\nOVR Owens Valley Runoff\n\ncodetm2 &lt;- totals_means\nmonthly_uses_syncplot(staid_p = \"OVR\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Runoff\n\n\nOVPW Owens Valley Pumped Water\n\ncodemonthly_uses_syncplot(staid_p = \"OVPW\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Pumped Water\n\n\nFTC L.A.A. Total Flow to the City\n\ncodemonthly_uses_syncplot(staid_p = \"FTC\" ,data = tm2, group_name = 'ov')\n\n\nLAA Total Flow to the City\n\n\nLOLU Lower Owens River Project – Lakes and Ponds Use\n\ncodemonthly_uses_syncplot(staid_p = \"LOLU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River Project – Lakes and Ponds Use\n\n\nLOOU Lower Owens River Project – Operations\n\ncodemonthly_uses_syncplot(staid_p = \"LOOU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River Project – Operations\n\n\nLORPDU Lower Owens River – Delta Uses\n\ncodemonthly_uses_syncplot(staid_p = \"LORPDU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River – Delta Uses\n\n\nLORPRU Lower Owens River – River Uses\n\ncodemonthly_uses_syncplot(staid_p = \"LORPRU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River – River Uses\n\n\nLORPTU Lower Owens River Project Total Uses\n\ncodemonthly_uses_syncplot(staid_p = \"LORPTU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River Project Total Uses\n\n\nLOWU Lower Owens River Project – Waterfowl Uses\n\ncodemonthly_uses_syncplot(staid_p = \"LOWU\" ,data = tm2, group_name = 'ov')\n\n\nLower Owens River Project – Waterfowl Uses\n\n\nMBR Mono Basin Runoff\n\ncodemonthly_uses_syncplot(staid_p = \"MBR\" ,data = tm2, group_name = 'ov')\n\n\nMono Basin Runoff\n\n\nMTWP Mono Tunnel at West Portal\n\ncodemonthly_uses_syncplot(staid_p = \"MTWP\" ,data = tm2, group_name = 'ov')\n\n\nMono Tunnel at West Portal\n\n\nOLTU Owens Lake Total Uses\n\ncodemonthly_uses_syncplot(staid_p = \"OLTU\" ,data = tm2, group_name = 'ov')\n\n\nOwens Lake Total Uses\n\n\nOVFG Owens Valley Flowing Groundwater\n\ncodemonthly_uses_syncplot(staid_p = \"OVFG\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Flowing Groundwater\n\n\nOVGR Owens Valley Groundwater Recharge\n\ncodemonthly_uses_syncplot(staid_p = \"OVGR\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Groundwater Recharge\n\n\nOVIR Owens Valley Irrigation\n\ncodemonthly_uses_syncplot(staid_p = \"OVIR\" ,data = tm2, group_name = 'ov')\n\n\nOwens Valley Irrigation\n\n\nSHTO South Haiwee Total Outflow (1+2+3+BP)\n\ncodemonthly_uses_syncplot(staid_p = \"SHTO\" ,data = tm2, group_name = 'ov')\n\n\nSouth Haiwee Total Outflow (1+2+3+BP)"
+  },
+  {
+    "objectID": "flow.html#stream-flow",
+    "href": "flow.html#stream-flow",
+    "title": "Flow Data",
+    "section": "Stream flow",
+    "text": "Stream flow\nTop 10 stream gages by WY2025 volume (water year Oct-Sep)\n\ncodeflow_wy &lt;- flowdf %&gt;%\n  mutate(wy = if_else(month &gt;= 10, year + 1, year))\n\ntop_streams &lt;- flow_wy %&gt;%\n  filter(wy == wy_year) %&gt;%\n  group_by(staid) %&gt;%\n  summarise(total_af = sum(read, na.rm = TRUE), .groups = \"drop\") %&gt;%\n  arrange(desc(total_af)) %&gt;%\n  slice_head(n = 10) %&gt;%\n  left_join(flow.meta, by = \"staid\")\n\ntop_streams &lt;- top_streams %&gt;%\n  mutate(display_name = if_else(is.na(mon_pt_name) | mon_pt_name == \"\", staid, mon_pt_name))\n\nplots &lt;- purrr::map2(top_streams$staid, top_streams$display_name, ~{\n  plot_title &lt;- paste0(.y, \" (\", .x, \")\")\n  htmltools::tagList(\n    htmltools::tags$h4(plot_title),\n    monthly_flow_syncplot_staid(staid_p = .x, data = totals_means, group_name = \"a\", title = plot_title)\n  )\n})\n\nhtmltools::tagList(plots)\n\nSW0050 (50)\n\nSW0077 (77)\n\nSW2066 (2066)\n\nSW0049 (49)\n\n413 (413)\n\nSW3289 (3289)\n\nSW0118 (118)\n\nSW0116 (116)\n\nSW3324 (3324)\n\nSW0088 (88)"
+  },
+  {
+    "objectID": "flow.html#pumping",
+    "href": "flow.html#pumping",
+    "title": "Flow Data",
+    "section": "Pumping",
+    "text": "Pumping\nRunoff year (Apr-Mar) pumping totals are reported below. Water year (Oct-Sep) is used for the flow series above. RY2025 totals are partial because Oct–Mar 2025–26 data have not yet been delivered.\n\ncodetozoo &lt;- function(x) zoo(x$total_pumping, x$roy2)\ndyMultiColumn &lt;- function(dygraph) {\n  dyPlotter(dygraph = dygraph,\n            name = \"MultiColumn\",\n            path = system.file(\"plotters/multicolumn.js\",\n                               package = \"dygraphs\"))\n}\n\nplot_wellfield_total &lt;- function(data, field_sites, linked_wells_sites, title, value_range = NULL) {\n  linked_wells &lt;- linked_wells_sites %&gt;%\n    filter(Site %in% field_sites) %&gt;%\n    pull(Linked_Well) %&gt;%\n    unique()\n\n  if (length(linked_wells) == 0) {\n    return(NULL)\n  }\n\n  df &lt;- data %&gt;%\n    filter(staid %in% linked_wells) %&gt;%\n    mutate(read = if_else(read == -777, 0, read)) %&gt;%\n    group_by(roy, staid) %&gt;%\n    summarise(total_pumping = sum(read, na.rm = TRUE), .groups = \"drop\") %&gt;%\n    mutate(roy2 = make_date(roy, 4, 1))\n\n  df &lt;- pad_series_bounds(df, \"roy2\", \"staid\", months_start = 6, months_end = 18)\n\n  year_totals &lt;- df %&gt;%\n    group_by(roy2) %&gt;%\n    summarise(total_pumping = sum(total_pumping, na.rm = TRUE), .groups = \"drop\")\n  y_max &lt;- max(year_totals$total_pumping, na.rm = TRUE)\n\n  plot_data &lt;- do.call(merge, lapply(split(df, df$staid), tozoo))\n  plot &lt;- plot_data %&gt;%\n    dygraph(main = title, group = \"a\") %&gt;%\n    dyStackedBarGroup(linked_wells) %&gt;%\n    dyBarChart() %&gt;%\n    dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", axisLabelWidth = 70)\n\n  if (is.finite(y_max)) {\n    plot &lt;- plot %&gt;% dyAxis(\"y\", valueRange = c(0, y_max * 1.05))\n  }\n\n  if (!is.null(value_range)) {\n    plot &lt;- plot %&gt;% dyAxis(\"y\", valueRange = value_range)\n  }\n\n  plot\n}\n\ncompute_linked_seasonal &lt;- function(data, linked_wells_sites, group_map, group_col, target_year = 2025) {\n  base &lt;- data %&gt;%\n    filter(staid %in% linked_wells_sites$Linked_Well) %&gt;%\n    mutate(\n      read = if_else(read &lt; 0, 0, read),\n      date = as.Date(date),\n      year = year(date),\n      month = month(date),\n      wy = if_else(month &gt;= 10, year + 1, year),\n      runoff_year = if_else(month &gt;= 4, year, year - 1),\n      season = case_when(\n        month %in% 4:9 ~ \"Apr-Sep\",\n        month %in% c(10, 11, 12, 1, 2, 3) ~ \"Oct-Mar\",\n        TRUE ~ NA_character_\n      )\n    ) %&gt;%\n    left_join(group_map, by = c(\"staid\" = \"Linked_Well\")) %&gt;%\n    filter(!is.na(.data[[group_col]]))\n\n  seasonal_wy &lt;- base %&gt;%\n    group_by(.data[[group_col]], wy, season) %&gt;%\n    summarise(total_pumping = sum(read, na.rm = TRUE), .groups = \"drop\") %&gt;%\n    pivot_wider(names_from = season, values_from = total_pumping) %&gt;%\n    rename(Group = !!sym(group_col), WY = wy) %&gt;%\n    arrange(Group, WY)\n\n  runoff_ry &lt;- base %&gt;%\n    group_by(.data[[group_col]], runoff_year) %&gt;%\n    summarise(`Apr-Mar` = sum(read, na.rm = TRUE), .groups = \"drop\") %&gt;%\n    rename(Group = !!sym(group_col), RY = runoff_year) %&gt;%\n    arrange(Group, RY)\n\n  percentiles_wy &lt;- seasonal_wy %&gt;%\n    group_by(Group) %&gt;%\n    mutate(\n      `Apr-Sep pct` = if_else(\n        is.na(`Apr-Sep`),\n        NA_real_,\n        round(dplyr::percent_rank(`Apr-Sep`) * 100, 1)\n      ),\n      `Oct-Mar pct` = if_else(\n        is.na(`Oct-Mar`),\n        NA_real_,\n        round(dplyr::percent_rank(`Oct-Mar`) * 100, 1)\n      )\n    ) %&gt;%\n    ungroup() %&gt;%\n    filter(WY == target_year) %&gt;%\n    select(Group, WY, `Apr-Sep`, `Apr-Sep pct`, `Oct-Mar`, `Oct-Mar pct`)\n\n  percentiles_ry &lt;- runoff_ry %&gt;%\n    group_by(Group) %&gt;%\n    mutate(\n      `Apr-Mar pct` = if_else(\n        is.na(`Apr-Mar`),\n        NA_real_,\n        round(dplyr::percent_rank(`Apr-Mar`) * 100, 1)\n      )\n    ) %&gt;%\n    ungroup() %&gt;%\n    filter(RY == target_year) %&gt;%\n    select(Group, RY, `Apr-Mar`, `Apr-Mar pct`)\n\n  list(\n    seasonal_wy = seasonal_wy,\n    runoff_ry = runoff_ry,\n    percentiles_wy = percentiles_wy,\n    percentiles_ry = percentiles_ry\n  )\n}"
+  },
+  {
+    "objectID": "flow.html#linked-wells-qaqc",
+    "href": "flow.html#linked-wells-qaqc",
+    "title": "Flow Data",
+    "section": "Linked Wells QA/QC",
+    "text": "Linked Wells QA/QC\nLinked-well pumping plots from the on/off management program support visual QA/QC of annual totals.\n\ncodetm2 &lt;- totals_means\n\nlinked_wells_sites &lt;- data.frame(\n  Site = rep(\n    c(\n      \"BP1\", \"BP2\", \"BP3\", \"BP4\",\n      \"LW1\", \"LW2\", \"LW3\",\n      \"TA3\", \"TA4\", \"TA5\", \"TA6\",\n      \"TS1\", \"TS2\", \"TS3\", \"TS4\",\n      \"IO1\", \"IO2\",\n      \"SS1\", \"SS2\", \"SS3\", \"SS4\",\n      \"BG2\"\n    ),\n    times = c(4, 4, 4, 1, 4, 4, 5, 4, 2, 1, 2, 1, 1, 3, 2, 3, 1, 3, 3, 2, 2, 4)\n  ),\n  Linked_Well = c(\n    \"W210\", \"W378\", \"W379\", \"W389\",   # BP1\n    \"W220\", \"W229\", \"W374\", \"W375\",   # BP2\n    \"W222\", \"W223\", \"W231\", \"W232\",   # BP3\n    \"W331\",                            # BP4\n    \"W247\", \"W248\", \"W249\", \"W398\",   # LW1\n    \"W236\", \"W239\", \"W243\", \"W244\",   # LW2\n    \"W240\", \"W241\", \"W399\", \"W376\", \"W377\", # LW3\n    \"W106\", \"W110\", \"W111\", \"W114\",   # TA3\n    \"W342\", \"W347\",                   # TA4\n    \"W349\",                           # TA5\n    \"W109\", \"W370\",                   # TA6\n    \"W159\",                           # TS1\n    \"W155\",                           # TS2\n    \"W103\", \"W104\", \"W382\",           # TS3\n    \"W380\", \"W381\",                   # TS4\n    \"W061\", \"W391\", \"W400\",           # IO1\n    \"W063\",                           # IO2\n    \"W069\", \"W392\", \"W393\",           # SS1\n    \"W074\", \"W394\", \"W395\",           # SS2\n    \"W092\", \"W396\",                   # SS3\n    \"W075\", \"W345\",                   # SS4\n    \"W076\", \"W403\", \"W343\", \"W348\"    # BG2\n  )\n)\n\nwellfield_sites &lt;- tibble(\n  Wellfield = c(\n    \"Laws\",\n    \"Big Pine\",\n    \"Taboose/Aberdeen\",\n    \"Thibaut/Sawmill\",\n    \"Independence/Oak\",\n    \"Symmes/Shepherd\",\n    \"Bairs/Georges\"\n  ),\n  Site = I(list(\n    c(\"LW1\", \"LW2\", \"LW3\"),\n    c(\"BP1\", \"BP2\", \"BP3\", \"BP4\"),\n    c(\"TA3\", \"TA4\", \"TA5\", \"TA6\"),\n    c(\"TS1\", \"TS2\", \"TS3\", \"TS4\"),\n    c(\"IO1\", \"IO2\"),\n    c(\"SS1\", \"SS2\", \"SS3\", \"SS4\"),\n    c(\"BG2\")\n  ))\n) %&gt;%\n  unnest(Site)\n\nsite_map &lt;- linked_wells_sites %&gt;% select(Linked_Well, Site)\nwellfield_map &lt;- linked_wells_sites %&gt;%\n  left_join(wellfield_sites, by = \"Site\") %&gt;%\n  select(Linked_Well, Wellfield)\n\nseasonal_by_site &lt;- compute_linked_seasonal(tm2, linked_wells_sites, site_map, \"Site\", target_year = wy_year)\nseasonal_by_wellfield &lt;- compute_linked_seasonal(tm2, linked_wells_sites, wellfield_map, \"Wellfield\", target_year = wy_year)\n\n\nSeasonal totals use water year (WY, Oct–Sep end year) for Apr–Sep and Oct–Mar. Runoff totals use runoff year (RY, Apr–Mar start year). Example: RY2025 = Apr 2025–Mar 2026.\nSeasonal pumping totals by site (water year Oct-Sep)\n\ncodeDT::datatable(\n  seasonal_by_site$seasonal_wy,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)\n)\n\n\n\n\n\nRunoff year totals by site (Apr-Mar)\n\ncodeDT::datatable(\n  seasonal_by_site$runoff_ry,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)\n)\n\n\n\n\n\nWY2025 percentiles by site (water year Oct-Sep)\nPercentiles are calculated within each site using the historical distribution of Apr–Sep totals (and separately Oct–Mar totals). WY2025 percentiles therefore rank the 2025 six‑month total against all prior years for that site.\n\ncodeDT::datatable(\n  seasonal_by_site$percentiles_wy,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)\n)\n\n\n\n\n\nRY2025 percentiles by site (runoff year Apr-Mar)\n\ncodeDT::datatable(\n  seasonal_by_site$percentiles_ry,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)\n)\n\n\n\n\n\nSeasonal pumping totals by wellfield (water year Oct-Sep)\n\ncodeDT::datatable(\n  seasonal_by_wellfield$seasonal_wy,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)\n)\n\n\n\n\n\nRunoff year totals by wellfield (Apr-Mar)\n\ncodeDT::datatable(\n  seasonal_by_wellfield$runoff_ry,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)\n)\n\n\n\n\n\nWY2025 percentiles by wellfield (water year Oct-Sep)\nPercentiles are calculated within each wellfield using the historical distribution of Apr–Sep totals (and separately Oct–Mar totals). WY2025 percentiles therefore rank the 2025 six‑month total against all prior years for that wellfield.\n\ncodeDT::datatable(\n  seasonal_by_wellfield$percentiles_wy,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)\n)\n\n\n\n\n\nRY2025 percentiles by wellfield (runoff year Apr-Mar)\n\ncodeDT::datatable(\n  seasonal_by_wellfield$percentiles_ry,\n  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE)\n)\n\n\n\n\n\nLaws Monitoring Site #1 (LW1)\n\ncodeplot_linked_wells(tm2, \"LW1\", linked_wells_sites)\n\n\n\n\n\nLaws Monitoring Site #2 (LW2)\n\ncodeplot_linked_wells(tm2, \"LW2\", linked_wells_sites)\n\n\n\n\n\nLaws Monitoring Site #3 (LW3)\n\ncodeplot_linked_wells(tm2, \"LW3\", linked_wells_sites)\n\n\n\n\n\nLaws Wellfield Total Pumping\n\ncodeplot_wellfield_total(\n  tm2,\n  field_sites = c(\"LW1\", \"LW2\", \"LW3\"),\n  linked_wells_sites = linked_wells_sites,\n  title = \"Laws Wellfield Total Pumping\"\n)\n\n\n\n\n\nBig Pine Monitoring Site #1 (BP1)\n\ncodeplot_linked_wells(tm2, \"BP1\", linked_wells_sites)\n\n\n\n\n\nBig Pine Monitoring Site #2 (BP2)\n\ncodeplot_linked_wells(tm2, \"BP2\", linked_wells_sites)\n\n\n\n\n\nBig Pine Monitoring Site #3 (BP3)\n\ncodeplot_linked_wells(tm2, \"BP3\", linked_wells_sites)\n\n\n\n\n\nBig Pine Monitoring Site #4 (BP4)\n\ncodeplot_linked_wells_single(tm2, \"BP4\", linked_wells_sites)\n\n\n\n\n\nExempt Wells - Fish Hatchery and 218, 219\n\ncodelinked_wells &lt;- c(\"W218\",\"W219\",\"W330\",\"W332\")\n\nDF &lt;- tm2 %&gt;%\n  filter(staid %in% linked_wells) %&gt;%\n  mutate(read = if_else(read == -777, 0, read)) %&gt;%\n  group_by(roy, staid) %&gt;%\n  summarise(total_pumping = sum(read, na.rm = TRUE), .groups = \"drop\") %&gt;%\n  mutate(roy2 = make_date(roy, 4, 1))\n\nDF &lt;- pad_series_bounds(DF, \"roy2\", \"staid\", months_start = 6, months_end = 18)\n\nData &lt;- do.call(merge, lapply(split(DF, DF$staid), tozoo))\nyear_totals_exempt &lt;- DF %&gt;%\n  group_by(roy2) %&gt;%\n  summarise(total_pumping = sum(total_pumping, na.rm = TRUE), .groups = \"drop\")\ny_max_exempt &lt;- max(year_totals_exempt$total_pumping, na.rm = TRUE)\n\nplot_exempt &lt;- Data %&gt;% dygraph(group = \"a\") %&gt;%\n  dyStackedBarGroup(c(\"W218\",\"W219\",\"W330\",\"W332\")) %&gt;%\n  dyBarChart() %&gt;%\n  dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", axisLabelWidth = 70)\n\nif (is.finite(y_max_exempt)) {\n  plot_exempt &lt;- plot_exempt %&gt;% dyAxis(\"y\", valueRange = c(0, y_max_exempt * 1.05))\n}\n\nplot_exempt\n\n\n\n\n\n\nFigure 1: hatchery wells 330/332 and exempt wells 218/219\n\n\n\nBig Pine Pumping Totals\n\ncodelinked_wells &lt;- c(\"W210\",\"W378\",\"W379\",\"W389\",\"W220\",\"W229\",\"W374\",\"W375\",\"W222\",\"W223\",\"W231\",\"W232\",\"W331\",\"W218\",\"W219\",\"W330\",\"W332\")\n\nDF &lt;- tm2 %&gt;%\n  filter(staid %in% linked_wells) %&gt;%\n  mutate(read = if_else(read == -777, 0, read)) %&gt;%\n  group_by(roy, staid) %&gt;%\n  summarise(total_pumping = sum(read, na.rm = TRUE), .groups = \"drop\") %&gt;%\n  mutate(roy2 = make_date(roy, 4, 1))\n\nDF &lt;- pad_series_bounds(DF, \"roy2\", \"staid\", months_start = 6, months_end = 18)\n\nData &lt;- do.call(merge, lapply(split(DF, DF$staid), tozoo))\nyear_totals_bp &lt;- DF %&gt;%\n  group_by(roy2) %&gt;%\n  summarise(total_pumping = sum(total_pumping, na.rm = TRUE), .groups = \"drop\")\ny_max_bp &lt;- max(year_totals_bp$total_pumping, na.rm = TRUE)\n\nplot_bp &lt;- Data %&gt;% dygraph(group = \"a\") %&gt;%\n  dyStackedBarGroup(c(\"W210\",\"W378\",\"W379\",\"W389\",\"W220\",\"W229\",\"W374\",\"W375\",\"W222\",\"W223\",\"W231\",\"W232\",\"W331\",\"W218\",\"W219\",\"W330\",\"W332\")) %&gt;%\n  dyBarChart() %&gt;%\n  dyAxis(\"y\", label = \"Total Annual Pumping (AF)\", axisLabelWidth = 70)\n\nif (is.finite(y_max_bp)) {\n  plot_bp &lt;- plot_bp %&gt;% dyAxis(\"y\", valueRange = c(0, y_max_bp * 1.05))\n}\n\nplot_bp\n\n\nBig Pine Wellfield Pumping\n\n\nTaboose/Aberdeen Monitoring Site #3 (TA3)\n\ncodeplot_linked_wells(tm2, \"TA3\", linked_wells_sites)\n\n\n\n\n\nTaboose/Aberdeen Monitoring Site #4 (TA4)\n\ncodeplot_linked_wells(tm2, \"TA4\", linked_wells_sites)\n\n\n\n\n\nTaboose/Aberdeen Monitoring Site #5 (TA5)\n\ncodeplot_linked_wells_single(tm2, \"TA5\", linked_wells_sites)\n\n\n\n\n\nTaboose/Aberdeen Monitoring Site #6 (TA6)\n\ncodeplot_linked_wells(tm2, \"TA6\", linked_wells_sites)\n\n\n\n\n\nTaboose/Aberdeen Wellfield Total Pumping\n\ncodeplot_wellfield_total(\n  tm2,\n  field_sites = c(\"TA3\", \"TA4\", \"TA5\", \"TA6\"),\n  linked_wells_sites = linked_wells_sites,\n  title = \"Taboose/Aberdeen Wellfield Total Pumping\"\n)\n\n\n\n\n\nThibaut/Sawmill Monitoring Site #1 (TS1)\n\ncodeplot_linked_wells_single(tm2, \"TS1\", linked_wells_sites)\n\n\n\n\n\nThibaut/Sawmill Monitoring Site #2 (TS2)\n\ncodeplot_linked_wells_single(tm2, \"TS2\", linked_wells_sites)\n\n\n\n\n\nThibaut/Sawmill Monitoring Site #3 (TS3)\n\ncodeplot_linked_wells(tm2, \"TS3\", linked_wells_sites)\n\n\n\n\n\nThibaut/Sawmill Monitoring Site #4 (TS4)\n\ncodeplot_linked_wells(tm2, \"TS4\", linked_wells_sites)\n\n\n\n\n\nThibaut/Sawmill Wellfield Total Pumping\n\ncodeplot_wellfield_total(\n  tm2,\n  field_sites = c(\"TS1\", \"TS2\", \"TS3\", \"TS4\"),\n  linked_wells_sites = linked_wells_sites,\n  title = \"Thibaut/Sawmill Wellfield Total Pumping\"\n)\n\n\n\n\n\nIndependence/Oak Monitoring Site #1 (IO1)\n\ncodeplot_linked_wells(tm2, \"IO1\", linked_wells_sites)\n\n\n\n\n\nIndependence/Oak Monitoring Site #2 (IO2)\n\ncodeplot_linked_wells_single(tm2, \"IO2\", linked_wells_sites)\n\n\n\n\n\nIndependence/Oak Wellfield Total Pumping\n\ncodeplot_wellfield_total(\n  tm2,\n  field_sites = c(\"IO1\", \"IO2\"),\n  linked_wells_sites = linked_wells_sites,\n  title = \"Independence/Oak Wellfield Total Pumping\"\n)\n\n\n\n\n\nSymmes/Shepherd Monitoring Site #1 (SS1)\n\ncodeplot_linked_wells(tm2, \"SS1\", linked_wells_sites)\n\n\n\n\n\nSymmes/Shepherd Monitoring Site #2 (SS2)\n\ncodeplot_linked_wells(tm2, \"SS2\", linked_wells_sites)\n\n\n\n\n\nSymmes/Shepherd Monitoring Site #3 (SS3)\n\ncodeplot_linked_wells(tm2, \"SS3\", linked_wells_sites)\n\n\n\n\n\nSymmes/Shepherd Monitoring Site #4 (SS4)\n\ncodeplot_linked_wells(tm2, \"SS4\", linked_wells_sites)\n\n\n\n\n\nSymmes/Shepherd Wellfield Total Pumping\n\ncodeplot_wellfield_total(\n  tm2,\n  field_sites = c(\"SS1\", \"SS2\", \"SS3\", \"SS4\"),\n  linked_wells_sites = linked_wells_sites,\n  title = \"Symmes/Shepherd Wellfield Total Pumping\"\n)\n\n\n\n\n\nBairs/Georges Monitoring Site #2 (BG2)\n\ncodeplot_linked_wells(tm2, \"BG2\", linked_wells_sites)\n\n\n\n\n\nBairs/Georges Wellfield Total Pumping\n\ncodeplot_wellfield_total(\n  tm2,\n  field_sites = c(\"BG2\"),\n  linked_wells_sites = linked_wells_sites,\n  title = \"Bairs/Georges Wellfield Total Pumping\"\n)"
+  },
+  {
+    "objectID": "package/NEWS.html",
+    "href": "package/NEWS.html",
+    "title": "",
+    "section": "",
+    "text": "Code\n\n\n\n\n\nhydrodata 0.1.0\n\nInitial package prototype.\nAdded manifest-driven dataset listing and download helpers.\nAdded vignette linking to the DTW and flow reports."
   }
 ]

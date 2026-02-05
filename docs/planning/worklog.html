@@ -312,6 +312,83 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <strong>Notes/Decisions:</strong> Updated report title to “Depth to water - annual water year updates” for consistency across report and citation.<br>
 <strong>Outputs:</strong> Title and citation metadata updated in source files.<br>
 <strong>Follow-ups:</strong> Ensure site build reflects the updated title.</p>
+<p><strong>Date:</strong> 2026-01-31<br>
+<strong>Task:</strong> Flow report citation refresh<br>
+<strong>Tags:</strong> <code>citation</code>, <code>metadata</code>, <code>flow</code><br>
+<strong>Inputs/Files:</strong> <code>flow.qmd</code><br>
+<strong>Notes/Decisions:</strong> Updated flow report citation fields to current date.<br>
+<strong>Outputs:</strong> Flow report metadata and citation now reflect 2026-01-31.<br>
+<strong>Follow-ups:</strong> None.</p>
+<p><strong>Date:</strong> 2026-01-31<br>
+<strong>Task:</strong> GitHub Pages rebuilds<br>
+<strong>Tags:</strong> <code>quarto</code>, <code>website</code>, <code>docs</code>, <code>render</code><br>
+<strong>Inputs/Files:</strong> <code>index.qmd</code>, <code>flow.qmd</code>, <code>docs/</code><br>
+<strong>Notes/Decisions:</strong> Re-rendered the site to publish updated titles and citation dates.<br>
+<strong>Outputs:</strong> Updated <code>docs/index.html</code> and <code>docs/flow.html</code>.<br>
+<strong>Follow-ups:</strong> None.</p>
+<p><strong>Date:</strong> 2026-01-31<br>
+<strong>Task:</strong> GitHub Releases data capsule checklist<br>
+<strong>Tags:</strong> <code>release</code>, <code>provenance</code>, <code>checklist</code><br>
+<strong>Inputs/Files:</strong> <code>planning/wy25checklist.md</code><br>
+<strong>Notes/Decisions:</strong> Added a release checklist for minimal inputs, master snapshot, and WY2025 outputs for GitHub Releases.<br>
+<strong>Outputs:</strong> WY25 checklist includes GitHub Releases section.<br>
+<strong>Follow-ups:</strong> Populate release assets when publishing WY2025.</p>
+<p><strong>Date:</strong> 2026-01-31<br>
+<strong>Task:</strong> Data provenance note in README<br>
+<strong>Tags:</strong> <code>documentation</code>, <code>provenance</code>, <code>release</code><br>
+<strong>Inputs/Files:</strong> <code>README.md</code><br>
+<strong>Notes/Decisions:</strong> Documented GitHub Releases as the data capsule for reproducible annual updates.<br>
+<strong>Outputs:</strong> README includes data provenance guidance.<br>
+<strong>Follow-ups:</strong> None.</p>
+<p><strong>Date:</strong> 2026-01-31<br>
+<strong>Task:</strong> Publish commits to GitHub<br>
+<strong>Tags:</strong> <code>git</code>, <code>release</code>, <code>website</code><br>
+<strong>Inputs/Files:</strong> <code>README.md</code>, <code>planning/wy25checklist.md</code>, <code>docs/</code><br>
+<strong>Notes/Decisions:</strong> Merged remote changes, resolved README conflict, and pushed new commits.<br>
+<strong>Outputs:</strong> Remote <code>main</code> updated with package, site, and documentation changes.<br>
+<strong>Follow-ups:</strong> None.</p>
+<p><strong>Date:</strong> 2026-02-01<br>
+<strong>Task:</strong> OVGA exclusions with reasons and download CSVs<br>
+<strong>Tags:</strong> <code>ovga</code>, <code>exclusions</code>, <code>qaqc</code>, <code>exports</code><br>
+<strong>Inputs/Files:</strong> <code>index.qmd</code>, <code>flow.qmd</code>, <code>output/2025wy/OVGA/</code><br>
+<strong>Notes/Decisions:</strong> Added staids-excluded-from-OVGA lists with reason (not in OVGA list, missing RP, invalid depth). DTW exclusions CSV includes staid, records, dates, coords, reason; flow and production exclusions CSVs in flow.qmd; combined <code>ovga_exclusions_wy2025.csv</code> when DTW file exists.<br>
+<strong>Outputs:</strong> <code>ovga_dtw_exclusions_wy2025.csv</code>, <code>ovga_flow_exclusions_wy2025.csv</code>, <code>ovga_production_exclusions_wy2025.csv</code>, optional combined exclusions CSV.<br>
+<strong>Follow-ups:</strong> None.</p>
+<p><strong>Date:</strong> 2026-02-01<br>
+<strong>Task:</strong> Index narrative, processing steps, and QA/QC descriptions<br>
+<strong>Tags:</strong> <code>reporting</code>, <code>narrative</code>, <code>qaqc</code>, <code>index</code><br>
+<strong>Inputs/Files:</strong> <code>index.qmd</code><br>
+<strong>Notes/Decisions:</strong> Fleshed out plain-language descriptions for data sources, preprocessing, daily harmonization, raw input coverage, RP integration, OVGA export, and QA/QC. Added QA/QC enhancement ideas; removed dated comments; explained daily DTW averaging and each RP/OVGA filter step with brief narrative before tables.<br>
+<strong>Outputs:</strong> Rendered <code>docs/index.html</code> with clearer section intros and step explanations.<br>
+<strong>Follow-ups:</strong> None.</p>
+<p><strong>Date:</strong> 2026-02-01<br>
+<strong>Task:</strong> OVGA DTW density maps and record attrition<br>
+<strong>Tags:</strong> <code>maps</code>, <code>qaqc</code>, <code>attrition</code>, <code>plots</code><br>
+<strong>Inputs/Files:</strong> <code>index.qmd</code><br>
+<strong>Notes/Decisions:</strong> Added two density maps (upload vs exclusions) with north–south marginal density; then record-attrition table (counts and % of raw at each step) and attrition maps (all daily → OVGA list → RP filter → final upload); exclusion-type maps (not in OVGA, missing RP, invalid). Section placed after exclusions table so objects exist; empty-map guard for ggMarginal.<br>
+<strong>Outputs:</strong> Attrition table and multiple maps in <code>docs/index.html</code>.<br>
+<strong>Follow-ups:</strong> None.</p>
+<p><strong>Date:</strong> 2026-02-01<br>
+<strong>Task:</strong> Raw annual update output and ZRXP caption<br>
+<strong>Tags:</strong> <code>outputs</code>, <code>data</code>, <code>index</code><br>
+<strong>Inputs/Files:</strong> <code>index.qmd</code>, <code>output/2025wy/ICWD/</code><br>
+<strong>Notes/Decisions:</strong> Write full-resolution annual update <code>testwellwy2025_raw.csv</code> (all reads pre–daily aggregation). Added description next to raw-file link; prefixed daily-summary text with “WY2025 update:”. Removed ZRXP file screenshot; kept ascii-ex with caption.<br>
+<strong>Outputs:</strong> <code>output/2025wy/ICWD/testwellwy2025_raw.csv</code>; updated links and text in report.<br>
+<strong>Follow-ups:</strong> None.</p>
+<p><strong>Date:</strong> 2026-02-01<br>
+<strong>Task:</strong> RP elevation from WSE + DepthRP and alternate OVGA upload<br>
+<strong>Tags:</strong> <code>ovga</code>, <code>dtw</code>, <code>rp-elevation</code>, <code>qaqc</code><br>
+<strong>Inputs/Files:</strong> <code>index.qmd</code>, <code>output/2025wy/OVGA/</code><br>
+<strong>Notes/Decisions:</strong> For missing-RP staids, check overlap of DepthRP and DepthWSE; estimate RP = WSE + DepthRP (median per staid). Write candidates to CSV; build alternate OVGA DTW upload using estimated RP where reported RP is missing, named by derivation: <code>ovga_uploads_mw_with_rp_from_wse_wy2025.csv</code>. Added note next to OVGA export list describing this alternate file.<br>
+<strong>Outputs:</strong> <code>rp_elev_candidates_wse_plus_dtw_wy2025.csv</code>, <code>ovga_uploads_mw_with_rp_from_wse_wy2025.csv</code>; note in report.<br>
+<strong>Follow-ups:</strong> Test alternate upload in OVGA to confirm acceptance.</p>
+<p><strong>Date:</strong> 2026-02-01<br>
+<strong>Task:</strong> Flow report narrative and organization<br>
+<strong>Tags:</strong> <code>reporting</code>, <code>flow</code>, <code>narrative</code><br>
+<strong>Inputs/Files:</strong> <code>flow.qmd</code><br>
+<strong>Notes/Decisions:</strong> Added explanatory text and section intros mirroring index: abstract expansion, data sources/preprocessing, raw input coverage, OVGA flow/production export intros, export comparison and raw exclusions intros, Results/QA/QC section intro.<br>
+<strong>Outputs:</strong> Rendered <code>docs/flow.html</code> with clearer structure and narrative.<br>
+<strong>Follow-ups:</strong> Consider adding a note that flow export “WellName” column holds gage IDs for flow (OVGA template reuses WellName for both wells and gages).</p>
 
 
 <!-- -->
@@ -914,7 +991,95 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`index.qmd`</span>, <span class="in">`CITATION.cff`</span>  </span>
 <span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Updated report title to "Depth to water - annual water year updates" for consistency across report and citation.  </span>
 <span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a>**Outputs:** Title and citation metadata updated in source files.  </span>
-<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** Ensure site build reflects the updated title.  </span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** Ensure site build reflects the updated title.  </span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-01-31  </span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a>**Task:** Flow report citation refresh  </span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`citation`</span>, <span class="in">`metadata`</span>, <span class="in">`flow`</span>  </span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`flow.qmd`</span>  </span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Updated flow report citation fields to current date.  </span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a>**Outputs:** Flow report metadata and citation now reflect 2026-01-31.  </span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** None.  </span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-01-31  </span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>**Task:** GitHub Pages rebuilds  </span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`quarto`</span>, <span class="in">`website`</span>, <span class="in">`docs`</span>, <span class="in">`render`</span>  </span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`index.qmd`</span>, <span class="in">`flow.qmd`</span>, <span class="in">`docs/`</span>  </span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Re-rendered the site to publish updated titles and citation dates.  </span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>**Outputs:** Updated <span class="in">`docs/index.html`</span> and <span class="in">`docs/flow.html`</span>.  </span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** None.  </span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-01-31  </span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>**Task:** GitHub Releases data capsule checklist  </span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`release`</span>, <span class="in">`provenance`</span>, <span class="in">`checklist`</span>  </span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`planning/wy25checklist.md`</span>  </span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Added a release checklist for minimal inputs, master snapshot, and WY2025 outputs for GitHub Releases.  </span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>**Outputs:** WY25 checklist includes GitHub Releases section.  </span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** Populate release assets when publishing WY2025.  </span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-01-31  </span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>**Task:** Data provenance note in README  </span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`documentation`</span>, <span class="in">`provenance`</span>, <span class="in">`release`</span>  </span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`README.md`</span>  </span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Documented GitHub Releases as the data capsule for reproducible annual updates.  </span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a>**Outputs:** README includes data provenance guidance.  </span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** None.  </span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-01-31  </span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a>**Task:** Publish commits to GitHub  </span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`git`</span>, <span class="in">`release`</span>, <span class="in">`website`</span>  </span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`README.md`</span>, <span class="in">`planning/wy25checklist.md`</span>, <span class="in">`docs/`</span>  </span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Merged remote changes, resolved README conflict, and pushed new commits.  </span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>**Outputs:** Remote <span class="in">`main`</span> updated with package, site, and documentation changes.  </span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** None.  </span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-02-01  </span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a>**Task:** OVGA exclusions with reasons and download CSVs  </span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`ovga`</span>, <span class="in">`exclusions`</span>, <span class="in">`qaqc`</span>, <span class="in">`exports`</span>  </span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`index.qmd`</span>, <span class="in">`flow.qmd`</span>, <span class="in">`output/2025wy/OVGA/`</span>  </span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Added staids-excluded-from-OVGA lists with reason (not in OVGA list, missing RP, invalid depth). DTW exclusions CSV includes staid, records, dates, coords, reason; flow and production exclusions CSVs in flow.qmd; combined <span class="in">`ovga_exclusions_wy2025.csv`</span> when DTW file exists.  </span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>**Outputs:** <span class="in">`ovga_dtw_exclusions_wy2025.csv`</span>, <span class="in">`ovga_flow_exclusions_wy2025.csv`</span>, <span class="in">`ovga_production_exclusions_wy2025.csv`</span>, optional combined exclusions CSV.  </span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** None.  </span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-02-01  </span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a>**Task:** Index narrative, processing steps, and QA/QC descriptions  </span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`reporting`</span>, <span class="in">`narrative`</span>, <span class="in">`qaqc`</span>, <span class="in">`index`</span>  </span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`index.qmd`</span>  </span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Fleshed out plain-language descriptions for data sources, preprocessing, daily harmonization, raw input coverage, RP integration, OVGA export, and QA/QC. Added QA/QC enhancement ideas; removed dated comments; explained daily DTW averaging and each RP/OVGA filter step with brief narrative before tables.  </span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a>**Outputs:** Rendered <span class="in">`docs/index.html`</span> with clearer section intros and step explanations.  </span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** None.  </span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-02-01  </span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>**Task:** OVGA DTW density maps and record attrition  </span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`maps`</span>, <span class="in">`qaqc`</span>, <span class="in">`attrition`</span>, <span class="in">`plots`</span>  </span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`index.qmd`</span>  </span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Added two density maps (upload vs exclusions) with north–south marginal density; then record-attrition table (counts and % of raw at each step) and attrition maps (all daily → OVGA list → RP filter → final upload); exclusion-type maps (not in OVGA, missing RP, invalid). Section placed after exclusions table so objects exist; empty-map guard for ggMarginal.  </span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>**Outputs:** Attrition table and multiple maps in <span class="in">`docs/index.html`</span>.  </span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** None.  </span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-02-01  </span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>**Task:** Raw annual update output and ZRXP caption  </span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`outputs`</span>, <span class="in">`data`</span>, <span class="in">`index`</span>  </span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`index.qmd`</span>, <span class="in">`output/2025wy/ICWD/`</span>  </span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Write full-resolution annual update <span class="in">`testwellwy2025_raw.csv`</span> (all reads pre–daily aggregation). Added description next to raw-file link; prefixed daily-summary text with "WY2025 update:". Removed ZRXP file screenshot; kept ascii-ex with caption.  </span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a>**Outputs:** <span class="in">`output/2025wy/ICWD/testwellwy2025_raw.csv`</span>; updated links and text in report.  </span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** None.  </span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-02-01  </span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>**Task:** RP elevation from WSE + DepthRP and alternate OVGA upload  </span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`ovga`</span>, <span class="in">`dtw`</span>, <span class="in">`rp-elevation`</span>, <span class="in">`qaqc`</span>  </span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`index.qmd`</span>, <span class="in">`output/2025wy/OVGA/`</span>  </span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** For missing-RP staids, check overlap of DepthRP and DepthWSE; estimate RP = WSE + DepthRP (median per staid). Write candidates to CSV; build alternate OVGA DTW upload using estimated RP where reported RP is missing, named by derivation: <span class="in">`ovga_uploads_mw_with_rp_from_wse_wy2025.csv`</span>. Added note next to OVGA export list describing this alternate file.  </span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a>**Outputs:** <span class="in">`rp_elev_candidates_wse_plus_dtw_wy2025.csv`</span>, <span class="in">`ovga_uploads_mw_with_rp_from_wse_wy2025.csv`</span>; note in report.  </span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** Test alternate upload in OVGA to confirm acceptance.  </span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a>**Date:** 2026-02-01  </span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a>**Task:** Flow report narrative and organization  </span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a>**Tags:** <span class="in">`reporting`</span>, <span class="in">`flow`</span>, <span class="in">`narrative`</span>  </span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a>**Inputs/Files:** <span class="in">`flow.qmd`</span>  </span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a>**Notes/Decisions:** Added explanatory text and section intros mirroring index: abstract expansion, data sources/preprocessing, raw input coverage, OVGA flow/production export intros, export comparison and raw exclusions intros, Results/QA/QC section intro.  </span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a>**Outputs:** Rendered <span class="in">`docs/flow.html`</span> with clearer structure and narrative.  </span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a>**Follow-ups:** Consider adding a note that flow export "WellName" column holds gage IDs for flow (OVGA template reuses WellName for both wells and gages).  </span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

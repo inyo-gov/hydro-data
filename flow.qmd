@@ -40,6 +40,7 @@ library(janitor)
 library(DT)
 library(dygraphs)
 library(zoo)
+library(writexl)
 # library(readxl)
 
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE,cache=FALSE)
@@ -58,19 +59,30 @@ source(here('code','R','functions.R'))
 
 # Abstract
 
-This report documents water-year processing of LADWP monthly flow and production data, including data ingestion from ZRXP files, QA/QC checks, integration with historical totals, and preparation of OVGA-formatted deliverables.
+This report documents water-year processing of LADWP monthly flow and production
+data, including data ingestion from ZRXP files, QA/QC checks, integration with
+historical totals, and preparation of OVGA-formatted deliverables.
+
+Outputs include a refreshed totals-and-means table, OVGA upload files for flow
+and production, and QA/QC diagnostics for linked wells, wellfields, and stream
+gages. The processing steps below are organized to mirror the annual update
+workflow, from raw inputs to export-ready files.
+
+**Annual update instructions:** See [ANNUAL_UPDATE_GUIDE.md](https://github.com/inyo-gov/hydro-data/blob/main/ANNUAL_UPDATE_GUIDE.md) for comprehensive step-by-step instructions on updating this workflow for the next water year.
 
 # Data sources and preprocessing
+
+WY2025 inputs are delivered as ZRXP ASCII files. The parser extracts the staid
+from the `#TSPATH` headers and reads monthly volume values. We then separate
+flow records (numeric staids) from production records (alpha staids), and join
+metadata needed for OVGA exports.
 
 ```{r}
 #| code-fold: true
 #| code-summary: "read data"
 
-# file_path_flow <-here('data','hydro','2022-23 Water Year Transfer Packet for ICWD','VolumeMonthAF_2022-23.dat')
-
 file_path_flow <-here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','VolumeMonthAF_2024-25.dat')
 
-# annual update *
 sum_stations_path <- here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','summary_stations24-25.csv')
 sum_stations <- if (file.exists(sum_stations_path)) {
   read_csv(sum_stations_path)
@@ -78,23 +90,21 @@ sum_stations <- if (file.exists(sum_stations_path)) {
   tibble(date = as.Date(character()))
 }
 
-# attribute data from wells database
 staidlist <- read_csv(here('data','hydro','staid_current.csv')) %>%
   mutate(staid = as.character(staid))
 
-# staids in ovga database list
 ovga_points <- read_csv(here("data","hydro","Owens_Monitoring_Points.csv"))
 
-# meta data on production wells
 production.meta <- read_csv(here('data','hydro','Production.csv')) %>% 
   select(mon_pt_name, method) %>% unique()
   
-#historical data
-# monthlies <- read_csv(here('data','hydro','totals_means_thru_sep_2022.csv'))# 
-monthlies <- read_csv(here('data','hydro','totals_means_thru_sep_2024.csv'))# 
-# meta on flow pts
-flow.meta <- read_csv(here('data','hydro','Flows.csv')) %>%  select(mon_pt_name, LADWP_ID) %>% unique() %>% mutate(staid = as.character(LADWP_ID)) %>% select(-LADWP_ID)
+monthlies <- read_csv(here('data','hydro','totals_means_thru_sep_2024.csv'))
 
+flow.meta <- read_csv(here('data','hydro','Flows.csv')) %>%  
+  select(mon_pt_name, LADWP_ID) %>% 
+  unique() %>% 
+  mutate(staid = as.character(LADWP_ID)) %>% 
+  select(-LADWP_ID)
 
 ```
 
@@ -159,6 +169,10 @@ ann.update_prev2 <- if (nrow(ann.update_prev) > 0) {
 
 ## Raw input coverage
 
+The table below summarizes the raw input coverage for the current and prior
+water years. Use this to confirm record counts and date ranges before merging
+with historical totals.
+
 ```{r raw-input-coverage}
 #| code-fold: true
 #| code-summary: "raw input coverage"
@@ -190,21 +204,25 @@ knitr::kable(raw_flow_coverage)
 ann.update2$datetime <- ymd_hms(ann.update2$date)
 
 
-ann.update3<-ann.update2 %>% mutate(year = year(datetime),
-                            month = month(datetime),
-                            month_abbr = month(datetime, label = TRUE, abbr = TRUE),
-                            day = mday(datetime),
-                            date.y.m.d = make_date(year, month,day))
+ann.update3<-ann.update2 %>% 
+  mutate(year = year(datetime),
+         month = month(datetime),
+         month_abbr = month(datetime, label = TRUE, abbr = TRUE),
+         day = mday(datetime),
+         date.y.m.d = make_date(year, month,day))
 
-# select, rename, ljoin, select columns
-ann.update4<-ann.update3 %>% select(-date)%>% rename(date = date.y.m.d)%>% left_join(staidlist, by = 'staid') %>% select(staid,description,read,date,year,month,month_abbr) 
+ann.update4<-ann.update3 %>% 
+  select(-date) %>% 
+  rename(date = date.y.m.d) %>% 
+  left_join(staidlist, by = 'staid') %>% 
+  select(staid,description,read,date,year,month,month_abbr) 
 
-# mutate case when year breaks/types
-ann.update5 <- ann.update4 %>% mutate(wy = case_when(month >= 10 ~ year + 1,
-                                          month <= 9 ~ year),
-                           roy = case_when(month <= 3 ~ year - 1,
-                                           month >= 4 ~ year),
-                           irrag = case_when(month %in% c(4,5,6,7,8,9) ~ year))
+ann.update5 <- ann.update4 %>% 
+  mutate(wy = case_when(month >= 10 ~ year + 1,
+                        month <= 9 ~ year),
+         roy = case_when(month <= 3 ~ year - 1,
+                         month >= 4 ~ year),
+         irrag = case_when(month %in% c(4,5,6,7,8,9) ~ year))
 
 
 ```
@@ -213,21 +231,19 @@ ann.update5 <- ann.update4 %>% mutate(wy = case_when(month >= 10 ~ year + 1,
 #| code-fold: true
 #| code-summary: "summary stations"
 
-# wide to long format using gather()
 if (nrow(sum_stations) > 0) {
   sstations <- sum_stations %>% 
     gather(staid,read,-date) %>% 
-    left_join(staidlist, by = 'staid') %>% select(-desc_id)%>% 
+    left_join(staidlist, by = 'staid') %>% 
+    select(-desc_id) %>% 
     mutate(date = as.Date(date),
            datetime = as.Date(date),
            month = month(datetime),
            year = year(datetime),
-           month_abbr = month(datetime, label = TRUE, abbr = TRUE)
-           )
+           month_abbr = month(datetime, label = TRUE, abbr = TRUE))
 } else {
   sstations <- ann.update4 %>% slice(0)
 }
-
 
 ```
 
@@ -235,10 +251,8 @@ if (nrow(sum_stations) > 0) {
 #| code-fold: true
 #| code-summary: "split into ovga and ic updates"
 
-# append rows of summary stations to the annual update
 update.merged.ic <- bind_rows(sstations,ann.update4)
-# without - don't append b/c ovga doesn't have that
-update.merged <- ann.update4# for ovga, don't need summaries
+update.merged <- ann.update4
 
 ```
 
@@ -250,13 +264,12 @@ update.merged <- ann.update4# for ovga, don't need summaries
 #| code-fold: true
 #| code-summary: "IC date columns"
 
-
-# for ic master db
-update.merged.ic <- update.merged.ic %>% mutate(wy = case_when(month >= 10 ~ year + 1,
-                                          month <= 9 ~ year),
-                           roy = case_when(month <= 3 ~ year - 1,
-                                           month >= 4 ~ year),
-                           irrag = case_when(month %in% c(4,5,6,7,8,9) ~ year))
+update.merged.ic <- update.merged.ic %>% 
+  mutate(wy = case_when(month >= 10 ~ year + 1,
+                        month <= 9 ~ year),
+         roy = case_when(month <= 3 ~ year - 1,
+                         month >= 4 ~ year),
+         irrag = case_when(month %in% c(4,5,6,7,8,9) ~ year))
 
 ```
 
@@ -266,18 +279,12 @@ update.merged.ic <- update.merged.ic %>% mutate(wy = case_when(month >= 10 ~ yea
 
 totals_means <- bind_rows(update.merged.ic, monthlies) %>%
   mutate(date = as.Date(date))
-# tm_all_merged
 
-# update.merged3 %>% get_dupes()
-# 0
 ```
 
 ```{r}
 #| code-fold: true
 #| code-summary: "write updated IC DB"
-# totals_means %>% write_csv('totals_means_thru_sep_2021.csv')
-# totals_means %>% write_csv(here('data','hydro','totals_means_thru_sep_2024.csv'))
-# totals_means %>% write_csv(here('output','totals_means_thru_sep_2024.csv'))
 
 totals_means %>% write_csv(here('data','hydro','totals_means_thru_sep_2025.csv'))
 out_icwd <- here("output", "2025wy", "ICWD")
@@ -289,35 +296,38 @@ totals_means %>% write_csv(file.path(out_icwd, "totals_means_thru_sep_2025.csv")
 
 ## OVGA flow export
 
+Flow exports are derived from the monthly flow records after joining flow
+metadata and filtering to valid OVGA monitoring points. The output is formatted
+to the OVGA surface-water import template. The OVGA template reuses the
+"WellName" column for both wells and gages; in the flow export that column
+holds gage IDs (e.g. SW0373), not well names.
+
 ```{r}
 #| code-fold: true
 #| code-summary: "filter no value -777"
+
 tm <- ann.update5 %>% filter(read != -777)
-# tm
+
 ```
 
 ```{r}
 #| code-fold: true
 #| code-summary: "split flow vs production"
 
-# 6758+2244
-
 normalize_flow_staid <- function(x) {
   ifelse(str_detect(x, "^0"), str_replace(x, "^0+", ""), x)
 }
 
-# flow
-flowdf <- tm %>% filter(!str_detect(staid, "[[:alpha:]]")) %>%
+flowdf <- tm %>% 
+  filter(!str_detect(staid, "[[:alpha:]]")) %>%
   mutate(staid = normalize_flow_staid(staid))
 
 flow_ovga <- flowdf %>%
   left_join(flow.meta, by = 'staid') %>%
   filter(!is.na(mon_pt_name), mon_pt_name != "")
-# %>% filter(!is.na(mon_pt_name))
 
-# use below
-#production
 proddf <- tm %>% filter(str_detect(staid, "[[:alpha:]]"))
+
 ```
 
 ```{r}
@@ -331,9 +341,7 @@ sw.flow <- flow_ovga  %>%
          FlowRateCFS = "",
          FlowRateGPM = "") %>% 
   select(WellName,FlowDate,FlowRateAcFtPM, FlowRateCFS, FlowRateGPM)
-  # filter(FlowRateAcFtPM < 600000) %>%
 
-# columns up to date 1/30/24 zn
 sw.flow %>%
   datatable(
     options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
@@ -356,7 +364,6 @@ swflow2 <- sw.flow %>% anti_join(dupes)
 #| code-summary: "write ovga flow"
 #| eval: false
 
-# swflow2 %>% write_csv(here("output","ovga_swflow_import_wy23.csv"))
 out_ovga <- here("output", "2025wy", "OVGA")
 dir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)
 swflow2 %>% write_csv(file.path(out_ovga, paste0("ovga_swflow_import_wy", wy_short, ".csv")))
@@ -383,6 +390,9 @@ knitr::kable(flow_import_metrics)
 ```
 
 ### Flow export comparison (last year vs current)
+
+This comparison highlights which flow gages were added or removed from the OVGA
+export between WY2024 and WY2025.
 
 ```{r flow-export-diff}
 flow_export_last_path <- here("output", "ovga_swflow_import_wy24.csv")
@@ -411,6 +421,10 @@ DT::datatable(
 ```
 
 ## OVGA production export
+
+Production exports are derived from monthly production records after joining
+production metadata and filtering to valid OVGA monitoring points. Missing
+method values are defaulted to "Unknown" to satisfy the OVGA template.
 
 ```{r}
 #| code-fold: true
@@ -445,6 +459,7 @@ tm.well.flow %>%
 ```{r}
 #| code-fold: true
 #| code-summary: "find/replace duplicates"
+
 dupeswell <- tm.well.flow %>% get_dupes()
 if (nrow(dupeswell) == 0) {
   cat("No duplicates found.\n")
@@ -452,7 +467,7 @@ if (nrow(dupeswell) == 0) {
   cat("Duplicate rows found: ", nrow(dupeswell), "\n")
   dupeswell
 }
-# tmwellflow <- tm.well.flow %>% anti_join(dupeswell)
+
 ```
 
 ```{r}
@@ -460,11 +475,11 @@ if (nrow(dupeswell) == 0) {
 #| code-summary: "write ovga production"
 #| label: ovga-production-export
 #| eval: false
-# tm.well.flow %>% write_csv(here("output","ovga_production_import_wy22-23.csv"))
+
 out_ovga <- here("output", "2025wy", "OVGA")
 dir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)
 tm.well.flow %>% write_csv(file.path(out_ovga, paste0("ovga_production_import_wy", wy_range, ".csv")))
-
+writexl::write_xlsx(tm.well.flow, file.path(out_ovga, paste0("ovga_production_import_wy", wy_range, ".xlsx")))
 
 ```
 
@@ -489,6 +504,9 @@ knitr::kable(production_import_metrics)
 ```
 
 ### Production export comparison (last year vs current)
+
+This comparison highlights which production wells were added or removed from
+the OVGA export between WY2024 and WY2025.
 
 ```{r production-export-diff}
 production_export_last_path <- here("output", "ovga_production_import_wy23-24.csv")
@@ -517,6 +535,9 @@ DT::datatable(
 ```
 
 ### Raw data exclusions (last year vs current)
+
+These tables show staids present in the raw input data but excluded from the
+export, which helps isolate metadata gaps or OVGA list mismatches.
 
 ```{r raw-exclusions}
 raw_flow_current <- ann.update2 %>%
@@ -586,7 +607,107 @@ DT::datatable(
 
 Removed staids not on the basin list are excluded from OVGA exports and reflected in the raw‑data exclusion tables above.
 
+### OVGA flow and production exclusions (download)
+
+```{r ovga-exclusions}
+#| code-fold: true
+#| code-summary: "flow/production staids excluded from OVGA exports"
+
+flow_exclusions <- flowdf %>%
+  left_join(flow.meta, by = "staid") %>%
+  filter(is.na(mon_pt_name) | mon_pt_name == "") %>%
+  group_by(staid) %>%
+  summarise(
+    records = n(),
+    first_date = min(date, na.rm = TRUE),
+    last_date = max(date, na.rm = TRUE),
+    mon_pt_name = dplyr::first(mon_pt_name),
+    .groups = "drop"
+  ) %>%
+  left_join(staidlist, by = "staid") %>%
+  mutate(
+    dataset = "flow",
+    reason = "Missing flow metadata mapping (Flows.csv)"
+  ) %>%
+  select(
+    dataset,
+    staid,
+    description,
+    records,
+    first_date,
+    last_date,
+    mon_pt_name,
+    reason
+  ) %>%
+  arrange(staid)
+
+prod_exclusions <- proddf %>%
+  anti_join(ovga_points, by = c("staid" = "mon_pt_name")) %>%
+  left_join(production.meta, by = c("staid" = "mon_pt_name")) %>%
+  group_by(staid) %>%
+  summarise(
+    records = n(),
+    first_date = min(date, na.rm = TRUE),
+    last_date = max(date, na.rm = TRUE),
+    method = dplyr::first(method),
+    .groups = "drop"
+  ) %>%
+  left_join(staidlist, by = "staid") %>%
+  mutate(
+    dataset = "production",
+    reason = "Not in OVGA monitoring points list"
+  ) %>%
+  select(
+    dataset,
+    staid,
+    description,
+    records,
+    first_date,
+    last_date,
+    method,
+    reason
+  ) %>%
+  arrange(staid)
+
+out_ovga <- here("output", "2025wy", "OVGA")
+dir.create(out_ovga, recursive = TRUE, showWarnings = FALSE)
+
+flow_exclusions %>%
+  write_csv(file.path(out_ovga, paste0("ovga_flow_exclusions_wy", wy_year, ".csv")))
+writexl::write_xlsx(flow_exclusions, file.path(out_ovga, paste0("ovga_flow_exclusions_wy", wy_year, ".xlsx")))
+prod_exclusions %>%
+  write_csv(file.path(out_ovga, paste0("ovga_production_exclusions_wy", wy_year, ".csv")))
+writexl::write_xlsx(prod_exclusions, file.path(out_ovga, paste0("ovga_production_exclusions_wy", wy_year, ".xlsx")))
+
+dtw_exclusions_path <- file.path(out_ovga, "ovga_dtw_exclusions_wy2025.csv")
+if (file.exists(dtw_exclusions_path)) {
+  dtw_exclusions <- read_csv(dtw_exclusions_path, show_col_types = FALSE)
+  ovga_exclusions <- bind_rows(dtw_exclusions, flow_exclusions, prod_exclusions)
+  ovga_exclusions %>%
+    write_csv(file.path(out_ovga, paste0("ovga_exclusions_wy", wy_year, ".csv")))
+  writexl::write_xlsx(ovga_exclusions, file.path(out_ovga, paste0("ovga_exclusions_wy", wy_year, ".xlsx")))
+}
+
+DT::datatable(
+  flow_exclusions,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  class = "compact stripe",
+  caption = "Flow staids excluded from OVGA export (WY2025)"
+)
+
+DT::datatable(
+  prod_exclusions,
+  options = list(pageLength = 10, lengthChange = TRUE, scrollX = TRUE),
+  class = "compact stripe",
+  caption = "Production staids excluded from OVGA export (WY2025)"
+)
+```
+
 # Results: QA/QC and plots
+
+This section provides QA/QC plots and summaries for flow, production, and linked
+well pumping. It includes time-series plots, seasonal totals, and percentile
+comparisons to support review before export.
 
 ## Totals and Means - summary stations requested
 

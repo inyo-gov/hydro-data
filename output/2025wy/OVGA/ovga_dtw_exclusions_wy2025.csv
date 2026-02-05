@@ -1,0 +1,125 @@
+dataset,staid,records,first_date,last_date,mon_pt_lat,mon_pt_long,county,hide_from_public,reason
+dtw,FS3D,12,2024-10-21,2025-09-23,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,FS3S,12,2024-10-21,2025-09-23,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,S004,1,2025-07-17,2025-07-17,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,S005,1,2025-07-17,2025-07-17,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,S006,1,2025-07-17,2025-07-17,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,S007,1,2025-07-17,2025-07-17,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T1000D,6,2025-03-31,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T1000S,6,2025-03-31,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T1001D,10,2025-01-28,2025-09-02,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T1001S,10,2025-01-28,2025-09-02,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T313B,12,2024-10-21,2025-09-25,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T936,12,2024-10-29,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T937,12,2024-10-29,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T938,12,2024-10-29,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T939,12,2024-10-29,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T940,12,2024-10-29,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T977,12,2024-10-22,2025-09-23,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T978D,12,2024-10-22,2025-09-23,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T978S,12,2024-10-22,2025-09-23,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T979,12,2024-10-09,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T980,12,2024-10-09,2025-09-23,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T986D,358,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T986I,358,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T986S,358,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T988D,345,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T988I,345,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T988S,345,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T990D,365,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T990I,365,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T990S,365,2024-10-01,2025-09-30,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T997D,5,2025-05-27,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T997S,5,2025-05-27,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T998D,5,2025-05-27,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,T998S,9,2025-01-16,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,TS801,9,2024-10-24,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,TS802,9,2024-10-24,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V056D,2,2024-11-07,2025-04-29,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V056S,2,2024-11-07,2025-04-29,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V061,9,2024-10-31,2025-09-16,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V076,1,2024-10-21,2024-10-21,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V082,3,2025-07-09,2025-09-03,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V087D,15,2024-10-01,2025-09-11,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V087S,15,2024-10-01,2025-09-11,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V137,11,2024-10-22,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V145D,4,2024-10-15,2025-07-10,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V145I,4,2024-10-15,2025-07-10,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V145S,4,2024-10-15,2025-07-10,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V208I,4,2024-10-15,2025-07-15,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V208S,4,2024-10-15,2025-07-15,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V224D,10,2024-11-26,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V224S,11,2024-11-26,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V233D,9,2024-10-29,2025-09-02,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V233S,8,2024-10-29,2025-09-02,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V243I,12,2024-10-21,2025-09-25,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V243S,12,2024-10-21,2025-09-25,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V298I,12,2024-10-01,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V298S,12,2024-10-01,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V341,13,2024-10-01,2025-09-02,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V365,12,2024-10-21,2025-09-25,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V390D,12,2024-10-10,2025-09-23,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V390I,12,2024-10-10,2025-09-23,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V932,4,2024-10-25,2025-09-24,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V933,4,2024-10-25,2025-09-24,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V934,4,2024-10-25,2025-09-24,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,V935,1,2025-07-17,2025-07-17,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,VCPPDM,9,2024-10-24,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,VPANCH,12,2024-10-10,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,VPKIV,4,2024-10-25,2025-09-24,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,VPLACE,3,2024-10-25,2025-09-24,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,VPLANE,3,2024-12-04,2025-07-24,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,VS093,9,2024-10-24,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,VS360,9,2024-10-24,2025-09-22,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,VWATSON,13,2024-10-17,2025-09-18,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,W426,7,2024-10-01,2025-04-01,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,W428,12,2024-10-03,2025-09-03,NA,NA,NA,NA,Not in OVGA monitoring points list
+dtw,F124,11,2024-10-16,2025-09-11,37.328763,-118.321759,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,F128,1,2025-08-14,2025-08-14,37.322569,-118.313863,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T001,3,2024-11-08,2025-04-29,36.781134,-118.226868,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T733,10,2024-10-22,2025-09-23,37.416784,-118.402827,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T752,12,2024-10-22,2025-09-23,37.416508,-118.435626,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T755,12,2024-10-22,2025-09-23,37.416508,-118.435626,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T758,1,2024-10-23,2025-09-23,37.409262,-118.407036,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T760,4,2024-10-21,2025-07-17,37.226378,-118.345015,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T761,4,2024-10-21,2025-07-17,37.226378,-118.345015,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T762,4,2024-10-21,2025-07-17,37.226378,-118.345015,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T763,3,2024-10-21,2025-07-17,37.226378,-118.345015,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,T764,4,2024-10-21,2025-07-17,37.226378,-118.345015,Inyo,0,"Invalid depth (NA, -777, or >= 500 ft)"
+dtw,F082,5,2025-05-15,2025-09-08,36.701127,-118.128726,Inyo,0,Missing reference point elevation
+dtw,T013U,10,2024-11-06,2025-09-18,36.801291,-118.161166,Inyo,0,Missing reference point elevation
+dtw,T926,4,2024-10-25,2025-09-24,-9999,-9999,Inyo,0,Missing reference point elevation
+dtw,W059,12,2024-10-04,2025-09-02,36.809803,-118.190992,Inyo,0,Missing reference point elevation
+dtw,W060,12,2024-10-03,2025-09-03,36.800885,-118.183187,Inyo,0,Missing reference point elevation
+dtw,W063,12,2024-10-03,2025-09-02,36.797659,-118.174865,Inyo,0,Missing reference point elevation
+dtw,W065,12,2024-10-04,2025-09-02,36.806863,-118.188458,Inyo,0,Missing reference point elevation
+dtw,W069,12,2024-10-03,2025-09-03,36.779371,-118.169072,Inyo,0,Missing reference point elevation
+dtw,W074,12,2024-10-03,2025-09-03,36.770053,-118.165177,Inyo,0,Missing reference point elevation
+dtw,W092,10,2024-12-02,2025-09-03,36.762768,-118.165224,Inyo,0,Missing reference point elevation
+dtw,W106,12,2024-10-03,2025-09-03,36.96729,-118.248396,Inyo,0,Missing reference point elevation
+dtw,W109,12,2024-10-03,2025-09-03,36.948804,-118.245612,Inyo,0,Missing reference point elevation
+dtw,W110,12,2024-10-03,2025-09-03,36.970776,-118.253766,Inyo,0,Missing reference point elevation
+dtw,W111,12,2024-10-04,2025-09-03,36.974534,-118.256434,Inyo,0,Missing reference point elevation
+dtw,W114,12,2024-10-03,2025-09-03,36.978644,-118.253862,Inyo,0,Missing reference point elevation
+dtw,W118,6,2025-03-03,2025-08-04,37.053537,-118.227415,Inyo,0,Missing reference point elevation
+dtw,W155,12,2024-10-03,2025-09-03,36.916803,-118.250817,Inyo,0,Missing reference point elevation
+dtw,W342,11,2024-10-03,2025-09-03,36.997359,-118.240796,Inyo,0,Missing reference point elevation
+dtw,W343,11,2024-10-03,2025-09-05,36.694711,-118.154826,Inyo,0,Missing reference point elevation
+dtw,W345,12,2024-10-03,2025-09-03,36.739879,-118.166345,Inyo,0,Missing reference point elevation
+dtw,W348,11,2024-10-03,2025-09-03,36.696489,-118.122569,Inyo,0,Missing reference point elevation
+dtw,W349,8,2025-01-02,2025-08-04,37.016176,-118.227343,Inyo,0,Missing reference point elevation
+dtw,W351,11,2024-11-04,2025-09-03,36.929836,-118.234547,Inyo,0,Missing reference point elevation
+dtw,W355,7,2024-11-13,2025-09-11,36.980932,-118.229866,Inyo,0,Missing reference point elevation
+dtw,W370,12,2024-10-03,2025-09-03,36.948614,-118.249921,Inyo,0,Missing reference point elevation
+dtw,W382,6,2025-04-02,2025-09-02,36.86764,-118.225602,Inyo,0,Missing reference point elevation
+dtw,W383,12,2024-10-03,2025-09-02,36.807902,-118.195413,Inyo,0,Missing reference point elevation
+dtw,W384,8,2024-10-02,2025-09-02,36.800075,-118.192041,Inyo,0,Missing reference point elevation
+dtw,W391,11,2024-10-04,2025-09-02,36.824612,-118.190302,Inyo,0,Missing reference point elevation
+dtw,W392,12,2024-10-03,2025-09-03,36.783688,-118.16461,Inyo,0,Missing reference point elevation
+dtw,W393,12,2024-10-03,2025-09-03,36.779819,-118.163823,Inyo,0,Missing reference point elevation
+dtw,W394,12,2024-10-03,2025-09-03,36.776214,-118.163746,Inyo,0,Missing reference point elevation
+dtw,W395,9,2024-10-03,2025-06-02,36.772544,-118.164834,Inyo,0,Missing reference point elevation
+dtw,W396,12,2024-10-03,2025-09-03,36.766437,-118.165235,Inyo,0,Missing reference point elevation
+dtw,W401,12,2024-10-03,2025-09-02,36.804225,-118.185379,Inyo,0,Missing reference point elevation
+dtw,W403,12,2024-10-03,2025-09-03,36.701407,-118.133499,Inyo,0,Missing reference point elevation
+dtw,W423,12,2024-10-03,2025-09-02,36.805654,-118.194829,Inyo,0,Missing reference point elevation

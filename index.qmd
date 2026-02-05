@@ -27,7 +27,7 @@ citation:
   type: report
   container-title: "Data Report"
   publisher: "Inyo County Water Department"
-  issued: "2024-12-10"
+  issued: "2025-10-01"
   url: https://inyo-gov.github.io/hydro-data/
 google-scholar: true
 categories: [R, hydrology, monitoring wells, surface water flow, pumping volumes, LADWP data, OVGA, time series]

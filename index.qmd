@@ -1,5 +1,6 @@
 ---
-title: "Depth to water - annual water year updates"
+title: "Water Levels and Depth to Water"
+subtitle: "Inyo County, California"
 description: "This report documents the annual water-year migration of depth-to-water observations, including ingestion of ZRXP data, QA/QC screening, integration with the active database, and preparation of OVGA-formatted deliverables."
 format: 
   html: 
@@ -34,11 +35,11 @@ categories: [R, hydrology, monitoring wells, surface water flow, pumping volumes
 
 # Abstract
 
-This report walks through a real-world data workflow: we take depth-to-water (DTW) observations from monitoring wells, clean and combine them in R, and prepare files for upload to a database. Think of it as a guided lab where each section does one job—load data, join tables, filter bad values, then export.
+This report documents the annual processing and quality control of depth-to-water (DTW) observations from monitoring wells in the Owens Valley. The workflow ingests ZRXP-formatted data from LADWP, performs QA/QC screening, integrates observations with the active database, and generates OVGA-compliant deliverables for regional groundwater management.
 
-We use two terms throughout: **station identification (staid)** for the unique well or sensor ID, and **reference point elevation (RP elevation)** for the fixed elevation from which depth is measured. Data are delivered as ZRXP text files; we parse them, average to one value per station per day, then keep only rows that have a valid reference point elevation and that match our list of approved stations (OVGA). What you get at the end is an annual update file, a full master table, and upload-ready CSVs plus a few checks and plots so we can spot problems before import.
+Two key terms are used throughout: **station identification (staid)** for the unique well or sensor ID, and **reference point elevation (RP elevation)** for the fixed elevation from which depth is measured. Data are delivered as ZRXP text files, parsed and averaged to daily values per station, then filtered to retain only records with valid reference point elevations that correspond to OVGA-approved monitoring locations. Outputs include an annual update file, a consolidated master table, and upload-ready CSV files with accompanying plots and summary statistics for database import validation.
 
-For a new water year, change the `year` in three places: [input paths and master](#updatewy), [ICWD output file names](#masterdb), and [OVGA upload](#ovgaupdate). The full R and report source is in [index.qmd](https://github.com/inyo-gov/hydro-data/blob/main/index.qmd).
+For a new water year, update the `year` variable in three locations: [input paths and master](#updatewy), [ICWD output file names](#masterdb), and [OVGA upload](#ovgaupdate). The full R workflow and report source are available in [index.qmd](https://github.com/inyo-gov/hydro-data/blob/main/index.qmd).
 
 **Annual update instructions:** See [ANNUAL_UPDATE_GUIDE.md](https://github.com/inyo-gov/hydro-data/blob/main/ANNUAL_UPDATE_GUIDE.md) for comprehensive step-by-step instructions on updating this workflow for the next water year.
 

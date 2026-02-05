@@ -287,3 +287,11 @@ Use this log to capture decisions, data issues, and completion notes during the 
 **Notes/Decisions:** Created comprehensive annual update guide (`ANNUAL_UPDATE_GUIDE.md`) consolidating all instructions for next year's water year update into single reference document. Guide includes: (1) Quick-start section with exact lines to change in index.qmd and flow.qmd; (2) Detailed phase-by-phase workflow (data prep → DTW processing → flow processing → QA/QC → publish → handoff); (3) Common issues and solutions; (4) File naming conventions; (5) Directory structure overview; (6) Specific instructions for AI assistants. Added prominent links to guide in root README.md, planning/README.md, and abstract sections of both index.qmd and flow.qmd. Guide designed to enable future staff or AI assistants to complete annual update with minimal context.  
 **Outputs:** `ANNUAL_UPDATE_GUIDE.md` (new), updated README.md and planning/README.md with links to guide, updated abstracts in index.qmd and flow.qmd pointing to guide.  
 **Follow-ups:** Test guide with WY2026 update to identify any missing instructions or clarifications needed.  
+
+**Date:** 2026-02-05  
+**Task:** Revise page titles and abstract tone for professional clarity  
+**Tags:** `documentation`, `clarity`, `tone`, `user-feedback`  
+**Inputs/Files:** `index.qmd`, `_quarto.yml`  
+**Notes/Decisions:** Updated index.qmd title from "Depth to water - annual water year updates" to "Water Levels and Depth to Water" with subtitle "Inyo County, California" for clearer page identification. Revised abstract to use professional technical tone, removing informal "guided lab" framing. Updated _quarto.yml navbar to explicitly label navigation links: "Water Levels" for index.qmd and "Flow Data" for flow.qmd, preventing confusion between the two reports.  
+**Outputs:** Updated `index.qmd` (title, subtitle, abstract) and `_quarto.yml` (navbar text), rendered `docs/index.html`.  
+**Follow-ups:** None.  

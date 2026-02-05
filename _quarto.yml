@@ -9,8 +9,9 @@ website:
     logo: www/inyo_logo.png
     left:
       - href: index.qmd
-        text: Monitoring Well Data
-      - flow.qmd
+        text: Water Levels
+      - href: flow.qmd
+        text: Flow Data
       - about.qmd
       - icon: github
         href: https://github.com/inyo-gov/hydro-data

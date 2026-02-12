@@ -41,7 +41,7 @@ library(DT)
 library(dygraphs)
 library(zoo)
 library(writexl)
-# library(readxl)
+library(readxl)
 
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE,cache=FALSE)
 
@@ -83,9 +83,11 @@ metadata needed for OVGA exports.
 
 file_path_flow <-here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','VolumeMonthAF_2024-25.dat')
 
-sum_stations_path <- here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','summary_stations24-25.csv')
+sum_stations_path <- here('data','hydro','2024-25 Water Year Transfer Packet for ICWD','2025 - Inyo County Summary Stations.xlsx')
 sum_stations <- if (file.exists(sum_stations_path)) {
-  read_csv(sum_stations_path)
+  readxl::read_excel(sum_stations_path, sheet = "Data", skip = 2) %>%
+    rename(date = 1) %>%
+    mutate(date = as.Date(date))
 } else {
   tibble(date = as.Date(character()))
 }
@@ -711,7 +713,7 @@ comparisons to support review before export.
 
 ## Totals and Means - summary stations requested
 
-Summary-station series (OVR, OVPW, etc.) are populated from the summary stations file. Until `summary_stations24-25.csv` is delivered, these plots will extend through WY2024.
+Summary-station series (OVR, OVPW, etc.) are populated from the summary stations file (`2025 - Inyo County Summary Stations.xlsx`). These plots now include data through WY2025.
 
 ### OVR Owens Valley Runoff
 

@@ -295,3 +295,11 @@ Use this log to capture decisions, data issues, and completion notes during the 
 **Notes/Decisions:** Updated index.qmd title from "Depth to water - annual water year updates" to "Water Levels and Depth to Water" with subtitle "Inyo County, California" for clearer page identification. Revised abstract to use professional technical tone, removing informal "guided lab" framing. Updated _quarto.yml navbar to explicitly label navigation links: "Water Levels" for index.qmd and "Flow Data" for flow.qmd, preventing confusion between the two reports.  
 **Outputs:** Updated `index.qmd` (title, subtitle, abstract) and `_quarto.yml` (navbar text), rendered `docs/index.html`.  
 **Follow-ups:** None.  
+
+**Date:** 2026-02-12  
+**Task:** Update flow.qmd to use WY2025 summary stations file  
+**Tags:** `data-update`, `wy2025`, `summary-stations`, `flow-data`  
+**Inputs/Files:** `flow.qmd`, `data/hydro/2024-25 Water Year Transfer Packet for ICWD/2025 - Inyo County Summary Stations.xlsx`  
+**Notes/Decisions:** Received WY2025 summary stations file from LADWP as Excel workbook (`2025 - Inyo County Summary Stations.xlsx`). Updated flow.qmd to read from the "Data" sheet (skip 2 header rows), rename first column to `date`, and convert to Date type. Enabled `readxl` library (was previously commented out). Updated narrative text to reflect that summary stations data is now available through WY2025. File contains monthly totals for summary stations: FTC, LOLU, LOOU, LORPDU, LORPRU, LORPTU, LOWU, MBR, MTWP, OLTU, OVFG, OVGR, OVIR, OVPW, OVR, SHTO covering Oct 2024 through May 2025 water year period.  
+**Outputs:** Updated `flow.qmd` with new file path and read logic, rendered `docs/flow.html` with WY2025 summary stations data.  
+**Follow-ups:** None.  

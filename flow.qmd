@@ -42,6 +42,7 @@ library(dygraphs)
 library(zoo)
 library(writexl)
 library(readxl)
+library(leaflet)
 
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message = FALSE,cache=FALSE)
 
@@ -862,6 +863,77 @@ htmltools::tagList(plots)
 ## Pumping
 
 Runoff year (Apr-Mar) pumping totals are reported below. Water year (Oct-Sep) is used for the flow series above. RY2025 totals are partial because Oct–Mar 2025–26 data have not yet been delivered.
+
+### Production well locations and WY2025 pumping
+
+```{r}
+#| code-fold: true
+#| code-summary: "production well map by annual pumping"
+#| fig-width: 10
+#| fig-height: 8
+
+# Calculate WY2025 total pumping by well
+wy2025_pumping <- proddf %>%
+  filter(year == 2024 & month >= 10 | year == 2025 & month <= 9) %>%
+  mutate(read = if_else(read == -777, 0, read)) %>%
+  group_by(staid) %>%
+  summarise(
+    total_pumping_af = sum(read, na.rm = TRUE),
+    n_months = n(),
+    .groups = "drop"
+  ) %>%
+  filter(total_pumping_af > 0)
+
+# Join with monitoring points for locations
+pumping_map_data <- wy2025_pumping %>%
+  left_join(ovga_points, by = c("staid" = "mon_pt_name")) %>%
+  filter(!is.na(mon_pt_lat), !is.na(mon_pt_long))
+
+# Create leaflet map with circle markers sized by pumping volume
+if (nrow(pumping_map_data) > 0) {
+  # Scale radius: sqrt transformation for better visual distribution
+  max_pumping <- max(pumping_map_data$total_pumping_af, na.rm = TRUE)
+  pumping_map_data <- pumping_map_data %>%
+    mutate(
+      radius = sqrt(total_pumping_af / max_pumping) * 20 + 5,
+      popup_text = paste0(
+        "<b>", staid, "</b><br>",
+        "WY2025 Pumping: ", format(round(total_pumping_af, 0), big.mark = ","), " AF<br>",
+        "Months reported: ", n_months
+      )
+    )
+  
+  leaflet(pumping_map_data) %>%
+    addProviderTiles(providers$CartoDB.Positron) %>%
+    addCircleMarkers(
+      lng = ~mon_pt_long,
+      lat = ~mon_pt_lat,
+      radius = ~radius,
+      color = "#2E86AB",
+      fillColor = "#2E86AB",
+      fillOpacity = 0.6,
+      stroke = TRUE,
+      weight = 1,
+      popup = ~popup_text,
+      label = ~staid
+    ) %>%
+    addLegend(
+      position = "bottomright",
+      colors = c("#2E86AB", "#2E86AB", "#2E86AB"),
+      labels = c(
+        paste0("Small (<", format(round(max_pumping * 0.1, 0), big.mark = ","), " AF)"),
+        paste0("Medium (~", format(round(max_pumping * 0.5, 0), big.mark = ","), " AF)"),
+        paste0("Large (>", format(round(max_pumping * 0.9, 0), big.mark = ","), " AF)")
+      ),
+      title = "WY2025 Total Pumping",
+      opacity = 0.8
+    )
+} else {
+  cat("No production wells with location data available for mapping.")
+}
+```
+
+### Annual pumping by wellfield
 
 ```{r}
 tozoo <- function(x) zoo(x$total_pumping, x$roy2)

@@ -303,3 +303,11 @@ Use this log to capture decisions, data issues, and completion notes during the 
 **Notes/Decisions:** Received WY2025 summary stations file from LADWP as Excel workbook (`2025 - Inyo County Summary Stations.xlsx`). Updated flow.qmd to read from the "Data" sheet (skip 2 header rows), rename first column to `date`, and convert to Date type. Enabled `readxl` library (was previously commented out). Updated narrative text to reflect that summary stations data is now available through WY2025. File contains monthly totals for summary stations: FTC, LOLU, LOOU, LORPDU, LORPRU, LORPTU, LOWU, MBR, MTWP, OLTU, OVFG, OVGR, OVIR, OVPW, OVR, SHTO covering Oct 2024 through May 2025 water year period.  
 **Outputs:** Updated `flow.qmd` with new file path and read logic, rendered `docs/flow.html` with WY2025 summary stations data.  
 **Follow-ups:** None.  
+
+**Date:** 2026-02-12  
+**Task:** Add interactive map of production wells sized by WY2025 pumping  
+**Tags:** `visualization`, `map`, `leaflet`, `production`, `pumping`  
+**Inputs/Files:** `flow.qmd`, `Owens_Monitoring_Points.csv`  
+**Notes/Decisions:** Created interactive leaflet map showing all production wells with circle markers sized by total WY2025 annual pumping (water year Oct 2024 - Sep 2025). Map uses sqrt transformation for radius scaling to provide better visual distribution of pumping volumes. Wells are color-coded in blue (#2E86AB to match site theme), with popups showing well name, total pumping in acre-feet, and number of months reported. Map includes legend with small/medium/large pumping categories. Added `leaflet` library to dependencies. Map positioned at top of Pumping section to provide spatial overview before detailed wellfield time-series plots.  
+**Outputs:** Updated `flow.qmd` with new map section, rendered `docs/flow.html` with interactive production well map.  
+**Follow-ups:** None.  
